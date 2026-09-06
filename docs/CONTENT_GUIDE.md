@@ -230,6 +230,11 @@ See [TICKETING.md](TICKETING.md).
 Once a year, after elections. Open `src/content/committee.yml` on GitHub and
 click the pencil icon.
 
+This is the one thing that is **not** available in the `/admin` editing
+interface, deliberately. The committee is replaced wholesale once a year rather
+than edited one person at a time, and a CMS form would save the list back in a
+shape the site cannot read. Editing the file directly takes about a minute.
+
 The file is a simple list. Replace the entries, keeping the layout identical:
 
 ```yaml

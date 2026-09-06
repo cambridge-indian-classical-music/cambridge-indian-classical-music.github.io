@@ -66,16 +66,19 @@ npm install      # once, to fetch the tools
 npm run dev      # start a local preview at http://localhost:4321
 ```
 
-| Command           | What it does                                        |
-| ----------------- | --------------------------------------------------- |
-| `npm run dev`     | Local preview that updates as you edit              |
-| `npm run build`   | Build the finished site into `dist/`                |
-| `npm run preview` | Serve the built site, to check it before publishing |
-| `npm run verify`  | **Run every check.** Do this before pushing         |
-| `npm run format`  | Tidy up code formatting                             |
+| Command           | What it does                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------ |
+| `npm run dev`     | Local preview that updates as you edit (runs in the background — stop with `npx astro dev stop`) |
+| `npm run build`   | Build the finished site into `dist/`                                                             |
+| `npm run preview` | Serve the built site, to check it before publishing                                              |
+| `npm run verify`  | **Run every check.** Do this before pushing                                                      |
+| `npm run format`  | Tidy up code formatting                                                                          |
 
 `npm run verify` runs exactly what the automated checks run, so if it passes on
 your machine it will pass on GitHub.
+
+Note that `npm run dev` shows draft content, which the real build strips. To see
+exactly what visitors get, use `npm run build && npm run preview`.
 
 ---
 
@@ -110,16 +113,39 @@ knows about, and it is written to be read.
 
 ---
 
-## Sample content
+## Before the site goes live
 
-This repository ships with example content so the site has something to show.
-**Every sample file has a name beginning with `sample-`.** Delete them once real
-content exists:
+Everything below ships with placeholder content. Work through this once, and the
+site is genuinely the society's.
+
+**1. Delete the sample content.** Every sample file is named `sample-`:
 
 ```bash
 rm src/content/events/sample-*.md src/content/artists/sample-*.md
 rm public/brochures/sample-programme.pdf src/assets/images/placeholder-*.png
 ```
 
-Also update `src/content/committee.yml`, `src/content/pages/about.md` and
-`src/site.config.ts`, all of which contain placeholder text.
+**2. Replace the placeholder values:**
+
+| File                         | What to change                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| `src/site.config.ts`         | `committee@example.org` → the society address; the Instagram and Facebook links |
+| `src/content/committee.yml`  | The three `A. N. Example` entries                                               |
+| `src/content/pages/about.md` | Placeholder text — rewrite in the society's own words                           |
+| `astro.config.mjs`           | `site:` → the real domain, once registered                                      |
+| `public/admin/config.yml`    | `repo:` and `base_url:` — only if the CMS is being set up                       |
+
+**3. Decisions that are genuinely open** — section 5 of
+[ARCHITECTURE.md](ARCHITECTURE.md) gives the reasoning behind each:
+
+- [ ] Ticketing provider (fee analysis and recommendation in [docs/TICKETING.md](docs/TICKETING.md))
+- [ ] Which **society** bank account receives ticket income
+- [ ] Domain name
+- [ ] Whether to set up the CMS at all
+- [ ] Whether to turn on analytics
+
+**4. Accounts.** Work through the checklist in
+[docs/HANDOVER.md](docs/HANDOVER.md). It matters more to the site's survival than
+anything in the code.
+
+Then run `npm run verify` — it will tell you if anything is inconsistent.

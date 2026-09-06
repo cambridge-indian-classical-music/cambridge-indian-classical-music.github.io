@@ -481,15 +481,41 @@ anything in this document.
 
 ## 5. Known open decisions
 
-Honest list of what is deliberately unresolved:
+Honest list of what is deliberately unresolved. Anything here is waiting on a
+committee decision, not on more work.
 
-- **Ticketing provider.** The architecture supports any of them (ADR-006); the
-  society has not chosen. Nothing needs to be decided before launch.
+**Waiting on a decision:**
+
+- **Ticketing provider.** The architecture supports any of them (ADR-006).
+  `docs/TICKETING.md` recommends **SumUp** on the fee analysis, but nothing has
+  been chosen and nothing needs to be before launch. Two loose ends there: the
+  published sources disagree on SumUp's online rate, so confirm it with SumUp
+  directly; and the sample event still names Eventbrite, which should be changed
+  to match whatever is picked.
+- **Which bank account receives ticket income.** It must be a **society**
+  account with two signatories, not a committee member's personal or sole trader
+  account — otherwise the payment provider account is personal too and cannot be
+  handed over, reintroducing the dependency this architecture removes. Cambridge
+  SU was not accepting new society finance accounts as of September 2026, so an
+  external account may be necessary; check with them first. See
+  `docs/TICKETING.md` and `docs/HANDOVER.md`.
 - **Domain name.** Not yet registered. Affects `site` in `astro.config.mjs`, and
-  therefore canonical URLs and the sitemap.
+  therefore canonical URLs, the sitemap and social previews.
 - **Whether to set up the CMS at all.** Try editing on GitHub first; add the CMS
   only if editors find that uncomfortable. Do not build infrastructure nobody has
   asked for.
-- **Venues as a collection** — deliberately deferred (ADR-003), with the trigger
-  for revisiting written down.
+- **Whether to turn on analytics.** Off by default (ADR-011). A deliberate
+  choice to leave to the committee, not an oversight.
+
+**Deliberately deferred, with the trigger written down:**
+
+- **Venues as a collection** — inline for now (ADR-003). Revisit when the same
+  venue is re-typed often enough that its details start to drift.
+- **Filtering events by type.** The events page shows upcoming and past, but not
+  a concert/workshop filter. With the number of events a society programmes,
+  sections are easier to scan than controls to operate. If it is ever wanted, add
+  `src/pages/events/type/[type].astro` using `getStaticPaths` over `EVENT_TYPES`
+  — the single-collection model (ADR-003) makes it a filter on one array. Note
+  that a `?type=` query string **cannot** work: a static site has no server to
+  read one.
 - **Gallery.** Not built. Depends on the media decision in ADR-008.
