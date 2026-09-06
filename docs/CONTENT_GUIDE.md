@@ -74,23 +74,23 @@ The live site updates within a couple of minutes.
 
 ### The fields
 
-| Field            | Required               | Notes                                                                            |
-| ---------------- | ---------------------- | -------------------------------------------------------------------------------- |
-| `title`          | yes                    | The name of the event                                                            |
-| `type`           | yes                    | `concert`, `workshop`, `social` or `other`                                       |
-| `summary`        | yes                    | One sentence, under 200 characters. Appears on listings and when shared          |
-| `start`          | yes                    | `'2026-11-14T19:30'` — 24-hour clock, in quotes                                  |
-| `end`            | no                     | Same format. Include it if you know it                                           |
-| `venue`          | yes                    | `name` is required; `address`, `mapUrl` and `accessNotes` are optional           |
-| `people`         | concerts and workshops | Performers or teacher — see below                                                |
-| `image`          | no                     | A photograph, with a description — see below                                     |
-| `brochure`       | no                     | A PDF programme — see below                                                      |
-| `ticketUrl`      | no                     | The full booking address. Leave it out if no booking is needed                   |
-| `ticketProvider` | no                     | `eventbrite`, `stripe`, `university` or `other`. Only changes the button wording |
-| `priceInfo`      | no                     | Free text: `£10 / £6 students`                                                   |
-| `status`         | no                     | Defaults to `scheduled`. See below                                               |
-| `featured`       | no                     | `true` pins it to the homepage                                                   |
-| `draft`          | no                     | `true` hides it from the site while you work on it                               |
+| Field            | Required               | Notes                                                                                     |
+| ---------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
+| `title`          | yes                    | The name of the event                                                                     |
+| `type`           | yes                    | `concert`, `workshop`, `social` or `other`                                                |
+| `summary`        | yes                    | One sentence, under 200 characters. Appears on listings and when shared                   |
+| `start`          | yes                    | `'2026-11-14T19:30'` — 24-hour clock, in quotes                                           |
+| `end`            | no                     | Same format. Include it if you know it                                                    |
+| `venue`          | yes                    | `name` is required; `address`, `mapUrl` and `accessNotes` are optional                    |
+| `people`         | concerts and workshops | Performers or teacher — see below                                                         |
+| `image`          | no                     | A photograph, with a description — see below                                              |
+| `brochure`       | no                     | A PDF programme — see below                                                               |
+| `ticketUrl`      | no                     | The full booking address. Leave it out if no booking is needed                            |
+| `ticketProvider` | no                     | `sumup`, `eventbrite`, `stripe`, `university` or `other`. Only changes the button wording |
+| `priceInfo`      | no                     | Free text: `£10 / £6 students`                                                            |
+| `status`         | no                     | Defaults to `scheduled`. See below                                                        |
+| `featured`       | no                     | `true` pins it to the homepage                                                            |
+| `draft`          | no                     | `true` hides it from the site while you work on it                                        |
 
 ### Times: write what is on the poster
 

@@ -66,6 +66,8 @@ export async function getArtists(): Promise<Artist[]> {
  */
 export function ticketLabel(event: Event): string {
   switch (event.data.ticketProvider) {
+    case 'sumup':
+      return 'Buy tickets';
     case 'eventbrite':
       return 'Book on Eventbrite';
     case 'stripe':

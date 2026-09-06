@@ -35,15 +35,16 @@ everything else. Guard it accordingly.
 Fill this in and keep it current. It is the single most valuable page in this
 repository.
 
-| Service                 | What it does                          | Cost           | Who has access | Notes                                           |
-| ----------------------- | ------------------------------------- | -------------- | -------------- | ----------------------------------------------- |
-| **Society email**       | Recovery address for everything below | —              |                | The master key. Set it up first                 |
-| **GitHub organisation** | Holds this repository                 | Free           |                | Must be an organisation, not a personal account |
-| **Cloudflare**          | Hosting, DNS, TLS certificate         | Free           |                | See [DEPLOYMENT.md](DEPLOYMENT.md)              |
-| **Domain registrar**    | The web address                       | ~£10–15/year   |                | **Renews annually — see below**                 |
-| **Ticketing provider**  | Selling tickets                       | Per-ticket fee |                | See [TICKETING.md](TICKETING.md)                |
-| **GitHub OAuth app**    | Sign-in for `/admin`, _if_ set up     | Free           |                | Optional. Omit if not using the CMS             |
-| **Password manager**    | Holds the above credentials           | Free–£         |                | Or the Students' Union's arrangements           |
+| Service                  | What it does                          | Cost                                                | Who has access | Notes                                                                                |
+| ------------------------ | ------------------------------------- | --------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------ |
+| **Society email**        | Recovery address for everything below | —                                                   |                | The master key. Set it up first                                                      |
+| **GitHub organisation**  | Holds this repository                 | Free |                | Must be an organisation, not a personal account                                      |
+| **Cloudflare**           | Hosting, DNS, TLS certificate         | Free                                                |                | See [DEPLOYMENT.md](DEPLOYMENT.md)                                                   |
+| **Domain registrar**     | The web address                       | ~£10–15/year                                        |                | **Renews annually — see below**                                                      |
+| **Ticketing provider**   | Selling tickets                       | Per-ticket fee                                      |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
+| **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free                                                |                | Optional. Omit if not using the CMS                                                  |
+| **Society bank account** | Receiving ticket income               | Usually free                                        |                | Two signatories. Check with Cambridge SU first                                       |
+| **Password manager**     | Holds the above credentials           | Free–£                                              |                | Or the Students' Union's arrangements                                                |
 
 ### The domain is the one that bites
 

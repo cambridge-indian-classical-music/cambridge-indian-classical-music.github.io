@@ -144,6 +144,7 @@ collections:
         required: false
         hint: Only changes the wording of the button.
         options:
+          - { label: SumUp, value: sumup }
           - { label: Eventbrite, value: eventbrite }
           - { label: Stripe, value: stripe }
           - { label: University booking system, value: university }

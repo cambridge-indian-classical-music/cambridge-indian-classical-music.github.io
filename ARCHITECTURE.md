@@ -282,6 +282,22 @@ change, no migration, no redesign. See `docs/TICKETING.md`.
 **Absence is meaningful:** an event with no `ticketUrl` renders as needing no
 booking, rather than showing a dead button.
 
+**On choosing a provider (analysis in `docs/TICKETING.md`).** Two findings are
+worth surfacing here, because they are easy to get wrong:
+
+- **Compare fees on a real ticket price, not on the headline percentage.** At
+  £5–£10 a ticket, a flat "+20p" costs more than the percentage does, which
+  inverts the apparent ranking. As of September 2026 this favours SumUp, which
+  charges no fixed fee. The far larger saving, though, is avoiding Eventbrite's
+  combined fee — around 13% of a £10 ticket against roughly 2%.
+- **The payment account must belong to the society, not to an individual.** A
+  payment provider account is tied to the bank account behind it, so a personal
+  account makes the payment account personal too — and unhandoverable. That would
+  reintroduce precisely the dependency the rest of this architecture removes.
+
+Neither affects the code. `ticketProvider` stays cosmetic, so acting on any of
+this is content editing.
+
 ---
 
 ### ADR-007 — Hosting on Cloudflare Pages, built by Cloudflare, verified by GitHub Actions
