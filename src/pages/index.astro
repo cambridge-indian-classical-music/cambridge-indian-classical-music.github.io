@@ -1,0 +1,107 @@
+---
+/**
+ * Homepage.
+ *
+ * The job of this page is to answer "what is on next?" above the fold. Everything
+ * else is secondary — someone arriving from a poster or an Instagram link wants
+ * the next concert, not an essay.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EventGrid from '../components/EventGrid.astro';
+import { getEventsByTime } from '../lib/events';
+import { site } from '../site.config';
+
+const { upcoming, past } = await getEventsByTime();
+
+// Featured events first, then everything else. Sorting is stable, so within each
+// group the soonest still comes first — pinning an event moves it to the front of
+// the homepage without otherwise disturbing the running order.
+const highlights = [...upcoming]
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured))
+  .slice(0, 3);
+const recent = past.slice(0, 3);
+---
+
+<BaseLayout title={site.name} description={site.description}>
+  <section class="hero container">
+    <p class="eyebrow">Cambridge University</p>
+    <h1>Indian Classical Music Society</h1>
+    <p class="hero__lede">
+      We bring Carnatic and Hindustani music to Cambridge — concerts by visiting artists, workshops open to
+      all, and a community for anyone who wants to listen, learn or play.
+    </p>
+    <p class="hero__actions">
+      <a class="button" href="/events">See what's on</a>
+    </p>
+  </section>
+
+  <section class="container section">
+    <div class="section__head">
+      <h2>Coming up</h2>
+      <a href="/events">All events</a>
+    </div>
+
+    {
+      highlights.length > 0 ? (
+        <EventGrid events={highlights} headingLevel="h3" />
+      ) : (
+        <p class="empty">
+          Nothing is scheduled at the moment. Follow us on social media to hear about the next concert.
+        </p>
+      )
+    }
+  </section>
+
+  {
+    recent.length > 0 && (
+      <section class="container section">
+        <div class="section__head">
+          <h2>Recently</h2>
+          <a href="/events#past">Past events</a>
+        </div>
+        <EventGrid events={recent} headingLevel="h3" />
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: var(--space-16) var(--space-12);
+    max-width: 52rem;
+  }
+
+  .hero h1 {
+    margin-block-start: var(--space-2);
+  }
+
+  .hero__lede {
+    margin-block-start: var(--space-6);
+    font-size: var(--text-lg);
+    color: var(--ink-muted);
+    max-width: var(--measure);
+  }
+
+  .hero__actions {
+    margin-block-start: var(--space-8);
+  }
+
+  .section {
+    margin-block-start: var(--space-16);
+  }
+
+  .section__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-end: var(--space-6);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .empty {
+    color: var(--ink-muted);
+  }
+</style>

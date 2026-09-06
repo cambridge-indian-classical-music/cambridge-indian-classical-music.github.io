@@ -1,0 +1,259 @@
+# ---------------------------------------------------------------------------
+# Content management system configuration.
+#
+# This file describes the editing forms shown at /admin. It is read by Sveltia
+# CMS, and it is also valid Decap CMS configuration — the two use the same
+# format. That is deliberate: if one project ever stops being maintained, the
+# society switches by changing one line in index.html and keeps everything else.
+#
+# IMPORTANT: the fields here must match the rules in src/content.config.ts. If
+# you add a field to one, add it to the other, or the CMS will happily save
+# content that then fails to build.
+#
+# The CMS does nothing until someone completes the authentication setup in
+# docs/DEPLOYMENT.md. Until then, edit content on GitHub instead — see
+# docs/CONTENT_GUIDE.md. Everything works perfectly well without this.
+# ---------------------------------------------------------------------------
+
+backend:
+  name: github
+  # TODO: change to the society's own repository.
+  repo: cambridge-indian-classical-music/website
+  branch: main
+  # The address of the small authentication service that lets the CMS talk to
+  # GitHub on your behalf. See docs/DEPLOYMENT.md. No secret goes in this file.
+  base_url: https://REPLACE-ME.workers.dev
+
+# Changes are saved as pull requests rather than straight to the live site, so
+# somebody can look before anything is published, and a mistake is easy to undo.
+publish_mode: editorial_workflow
+
+# Where uploaded pictures go. `public_folder` is the path written into the
+# content file, and it must stay relative — that is how Astro finds an image in
+# order to resize and optimise it.
+media_folder: src/assets/images
+public_folder: ../../assets/images
+
+collections:
+  # -------------------------------------------------------------------------
+  # Events — concerts, workshops and everything else.
+  # One collection, exactly as in src/content.config.ts. See ADR-003.
+  # -------------------------------------------------------------------------
+  - name: events
+    label: Events
+    label_singular: Event
+    folder: src/content/events
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    summary: '{{start}} — {{title}}'
+    sortable_fields: [start, title]
+    fields:
+      - { name: title, label: Title, widget: string }
+
+      - name: type
+        label: Type of event
+        widget: select
+        default: concert
+        options:
+          - { label: Concert, value: concert }
+          - { label: Workshop, value: workshop }
+          - { label: Social, value: social }
+          - { label: Other, value: other }
+
+      - name: summary
+        label: One-line summary
+        widget: string
+        hint: One sentence. Shown on listing pages and when the page is shared. Maximum 200 characters.
+
+      # Stored as plain Cambridge time with no timezone — write the time you
+      # would print on a poster. See src/lib/datetime.ts.
+      - name: start
+        label: Starts
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm'
+        date_format: 'DD/MM/YYYY'
+        time_format: 'HH:mm'
+        picker_utc: false
+
+      - name: end
+        label: Ends
+        widget: datetime
+        required: false
+        format: 'YYYY-MM-DDTHH:mm'
+        date_format: 'DD/MM/YYYY'
+        time_format: 'HH:mm'
+        picker_utc: false
+
+      - name: venue
+        label: Venue
+        widget: object
+        fields:
+          - { name: name, label: Name, widget: string, hint: 'e.g. Fitzwilliam College Auditorium' }
+          - { name: address, label: Address, widget: string, required: false }
+          - { name: mapUrl, label: Map link, widget: string, required: false }
+          - name: accessNotes
+            label: Access information
+            widget: text
+            required: false
+            hint: Step-free access, accessible toilets, hearing loop. People need this before booking.
+
+      - name: people
+        label: Performers or teachers
+        label_singular: Person
+        widget: list
+        required: false
+        summary: '{{fields.artist}} — {{fields.role}}'
+        hint: A concert needs its performers; a workshop needs its teacher. Add the artist first under "Artists".
+        fields:
+          - name: artist
+            label: Artist
+            widget: relation
+            collection: artists
+            search_fields: [name]
+            display_fields: [name]
+            value_field: '{{slug}}'
+          - { name: role, label: Role, widget: string, hint: 'e.g. Vocal, Mridangam, Workshop leader' }
+
+      - name: image
+        label: Main image
+        widget: object
+        required: false
+        fields:
+          - { name: src, label: Image, widget: image }
+          - name: alt
+            label: Image description
+            widget: string
+            hint: Describe the picture for someone who cannot see it. This is required — the site will not build without it.
+
+      - name: brochure
+        label: Programme (PDF)
+        widget: file
+        required: false
+        media_folder: /public/brochures
+        public_folder: /brochures
+
+      - name: ticketUrl
+        label: Ticket link
+        widget: string
+        required: false
+        hint: The full address of the booking page. Leave empty if no booking is needed.
+
+      - name: ticketProvider
+        label: Ticket provider
+        widget: select
+        required: false
+        hint: Only changes the wording of the button.
+        options:
+          - { label: Eventbrite, value: eventbrite }
+          - { label: Stripe, value: stripe }
+          - { label: University booking system, value: university }
+          - { label: Other, value: other }
+
+      - name: priceInfo
+        label: Price
+        widget: string
+        required: false
+        hint: 'e.g. "£10 / £6 students" or "Free entry, no booking required".'
+
+      - name: status
+        label: Status
+        widget: select
+        default: scheduled
+        hint: Leave as Scheduled unless something has changed. Past events move to the archive by themselves.
+        options:
+          - { label: Going ahead, value: scheduled }
+          - { label: Cancelled, value: cancelled }
+          - { label: Postponed, value: postponed }
+          - { label: Sold out, value: sold-out }
+
+      - { name: featured, label: Show on the homepage, widget: boolean, default: false }
+      - { name: draft, label: Draft (hidden from the site), widget: boolean, default: false }
+      - { name: body, label: Full description, widget: markdown }
+
+  # -------------------------------------------------------------------------
+  # Artists
+  # -------------------------------------------------------------------------
+  - name: artists
+    label: Artists
+    label_singular: Artist
+    folder: src/content/artists
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{discipline}}'
+    sortable_fields: [name]
+    fields:
+      - { name: name, label: Name, widget: string }
+      - { name: discipline, label: Instrument or voice, widget: string, hint: 'e.g. Vocal, Sitar, Mridangam' }
+
+      - name: tradition
+        label: Tradition
+        widget: select
+        options:
+          - { label: Carnatic, value: carnatic }
+          - { label: Hindustani, value: hindustani }
+          - { label: Both, value: both }
+          - { label: Other, value: other }
+
+      - {
+          name: summary,
+          label: One-line summary,
+          widget: string,
+          hint: One sentence. Maximum 200 characters.,
+        }
+
+      - name: image
+        label: Photograph
+        widget: object
+        required: false
+        fields:
+          - { name: src, label: Photograph, widget: image }
+          - {
+              name: alt,
+              label: Photograph description,
+              widget: string,
+              hint: Required — describe the photograph.,
+            }
+
+      - name: links
+        label: Links
+        widget: list
+        required: false
+        summary: '{{fields.label}}'
+        fields:
+          - { name: label, label: Label, widget: string, hint: 'e.g. Website, YouTube' }
+          - { name: url, label: Address, widget: string }
+
+      - { name: draft, label: Draft (hidden from the site), widget: boolean, default: false }
+      - { name: body, label: Biography, widget: markdown }
+
+  # -------------------------------------------------------------------------
+  # Ordinary pages and the committee list
+  # -------------------------------------------------------------------------
+  - name: pages
+    label: Pages
+    folder: src/content/pages
+    create: false
+    delete: false
+    slug: '{{slug}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - {
+          name: description,
+          label: Description,
+          widget: string,
+          hint: Shown in search results. Maximum 200 characters.,
+        }
+      - { name: draft, label: Draft, widget: boolean, default: false }
+      - { name: body, label: Content, widget: markdown }
+
+  # -------------------------------------------------------------------------
+  # The committee is deliberately NOT edited here.
+  #
+  # It lives in src/content/committee.yml as one simple list, which is the right
+  # shape for how it is actually used: replaced wholesale once a year at
+  # handover, rather than edited one person at a time. A CMS form would write it
+  # back in a different shape that the site cannot read.
+  #
+  # Editing it on GitHub takes about a minute — docs/CONTENT_GUIDE.md walks
+  # through it step by step.
+  # -------------------------------------------------------------------------

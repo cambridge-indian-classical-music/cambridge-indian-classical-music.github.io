@@ -1,0 +1,78 @@
+---
+/**
+ * The shell every page sits inside: document head, header, footer.
+ *
+ * Search-engine and social-sharing tags are handled here once, so no individual
+ * page has to remember them. Give it a `title` and a `description` and the rest
+ * takes care of itself.
+ */
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+import '../styles/global.css';
+
+interface Props {
+  /** The page title. The society name is appended automatically. */
+  title: string;
+  /** One sentence shown in search results and link previews. */
+  description?: string;
+  /** An absolute URL to a social preview image. */
+  image?: string;
+  /** Set to 'article' for events, artists and editorial pages. */
+  ogType?: 'website' | 'article';
+}
+
+const { title, description = site.description, image, ogType = 'website' } = Astro.props;
+
+// The address of this exact page, so search engines know which URL is definitive.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = image ? new URL(image, Astro.site).href : undefined;
+const fullTitle = title === site.name ? title : `${title} — ${site.shortName}`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_GB" />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    <meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
+
+    <!-- Structured data and anything else a page needs in the head. -->
+    <slot name="head" />
+
+    {
+      /*
+       * Cookieless analytics, off unless a committee explicitly turns it on in
+       * src/site.config.ts. See ADR-011.
+       */
+      site.analytics.enabled && site.analytics.cloudflareToken && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${site.analytics.cloudflareToken}"}`}
+        />
+      )
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

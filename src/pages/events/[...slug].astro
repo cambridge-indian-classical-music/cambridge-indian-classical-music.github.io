@@ -1,0 +1,330 @@
+---
+/**
+ * A single event — concert, workshop or anything else.
+ *
+ * One template serves every event type, because they are one collection
+ * (ADR-003). The few genuine differences are handled by showing a field only
+ * when it is present, rather than by branching on the type.
+ */
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEvents, resolvePeople, ticketLabel, EVENT_TYPE_LABELS } from '../../lib/events';
+import { formatDate, formatTimeRange, toMachineDateTime } from '../../lib/datetime';
+import { site } from '../../site.config';
+
+export async function getStaticPaths() {
+  const events = await getEvents();
+  return events.map((event) => ({ params: { slug: event.id }, props: { event } }));
+}
+
+// No `interface Props` is needed here: getStaticPaths above already types
+// Astro.props. Components that receive props from a parent do declare one.
+const { event } = Astro.props;
+const { title, type, start, end, venue, summary, image, brochure, ticketUrl, priceInfo, status } = event.data;
+
+const { Content } = await render(event);
+
+// Resolve each referenced artist. This throws — and so fails the build — if an
+// event names an artist who does not exist. See resolvePeople().
+const performers = await resolvePeople(event);
+
+/**
+ * Structured data, so that search engines can show the concert as an event with
+ * a date and venue rather than as an ordinary page. Cheap to add and genuinely
+ * useful for a public event listing.
+ */
+const schemaType = type === 'concert' ? 'MusicEvent' : type === 'workshop' ? 'EducationEvent' : 'Event';
+const schemaStatus = {
+  cancelled: 'https://schema.org/EventCancelled',
+  postponed: 'https://schema.org/EventPostponed',
+  scheduled: 'https://schema.org/EventScheduled',
+  'sold-out': 'https://schema.org/EventScheduled',
+}[status];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': schemaType,
+  name: title,
+  description: summary,
+  startDate: toMachineDateTime(start),
+  ...(end && { endDate: toMachineDateTime(end) }),
+  eventStatus: schemaStatus,
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: {
+    '@type': 'Place',
+    name: venue.name,
+    ...(venue.address && { address: venue.address }),
+  },
+  organizer: { '@type': 'Organization', name: site.name, url: Astro.site?.href },
+  ...(performers.length > 0 && {
+    performer: performers.map((p) => ({ '@type': 'Person', name: p.artist.data.name })),
+  }),
+  ...(ticketUrl && {
+    offers: {
+      '@type': 'Offer',
+      url: ticketUrl,
+      availability: status === 'sold-out' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+    },
+  }),
+};
+---
+
+<BaseLayout title={title} description={summary} ogType="article">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+  <article class="container event">
+    <header class="event__head">
+      <p class="eyebrow">{EVENT_TYPE_LABELS[type]}</p>
+      <h1>{title}</h1>
+
+      {
+        /* A cancellation is the most important thing on the page, so it comes
+           first and is announced to assistive technology. */
+        status !== 'scheduled' && (
+          <p class="notice" role="status">
+            This event is <strong>{status.replace('-', ' ')}</strong>.
+          </p>
+        )
+      }
+
+      <p class="event__summary">{summary}</p>
+    </header>
+
+    {
+      image && (
+        <Image
+          class="event__image"
+          src={image.src}
+          alt={image.alt}
+          width={1200}
+          height={675}
+          widths={[480, 800, 1200]}
+          sizes="(min-width: 68rem) 68rem, 100vw"
+        />
+      )
+    }
+
+    <div class="event__layout">
+      <div class="prose event__body">
+        <Content />
+      </div>
+
+      <aside class="event__aside" aria-labelledby="details-heading">
+        <h2 id="details-heading" class="event__aside-title">Details</h2>
+
+        <dl class="details">
+          <dt>When</dt>
+          <dd>
+            <time datetime={toMachineDateTime(start)}>{formatDate(start)}</time><br />
+            {formatTimeRange(start, end)}
+          </dd>
+
+          <dt>Where</dt>
+          <dd>
+            {venue.name}
+            {
+              venue.address && (
+                <>
+                  <br />
+                  {venue.address}
+                </>
+              )
+            }
+            {
+              venue.mapUrl && (
+                <>
+                  <br />
+                  <a href={venue.mapUrl} rel="noopener noreferrer">
+                    View on a map
+                  </a>
+                </>
+              )
+            }
+          </dd>
+
+          {
+            venue.accessNotes && (
+              <>
+                <dt>Access</dt>
+                <dd>{venue.accessNotes}</dd>
+              </>
+            )
+          }
+
+          {
+            performers.length > 0 && (
+              <>
+                <dt>{type === 'workshop' ? 'Led by' : 'Performers'}</dt>
+                <dd>
+                  <ul class="details__people" role="list">
+                    {performers.map(({ artist, role }) => (
+                      <li>
+                        <a href={`/artists/${artist.id}`}>{artist.data.name}</a>
+                        <span class="details__role">{role}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </>
+            )
+          }
+
+          {
+            priceInfo && (
+              <>
+                <dt>Tickets</dt>
+                <dd>{priceInfo}</dd>
+              </>
+            )
+          }
+        </dl>
+
+        {
+          /* Booking always happens on the provider's own site. This link is the
+             entire extent of the society's involvement in payment. See ADR-006. */
+          ticketUrl && status !== 'cancelled' && (
+            <p>
+              <a class="button" href={ticketUrl} rel="noopener noreferrer">
+                {ticketLabel(event)}
+              </a>
+            </p>
+          )
+        }
+
+        {
+          !ticketUrl && status === 'scheduled' && (
+            <p class="details__note">No booking needed — just come along.</p>
+          )
+        }
+
+        {
+          brochure && (
+            <p>
+              <a class="button button--quiet" href={brochure} download>
+                Download the programme (PDF)
+              </a>
+            </p>
+          )
+        }
+      </aside>
+    </div>
+
+    <p class="event__back"><a href="/events">← All events</a></p>
+  </article>
+</BaseLayout>
+
+<style>
+  .event {
+    padding-block-start: var(--space-12);
+  }
+
+  .event__head {
+    max-width: 46rem;
+  }
+
+  .event__summary {
+    margin-block-start: var(--space-4);
+    font-size: var(--text-lg);
+    color: var(--ink-muted);
+    max-width: var(--measure);
+  }
+
+  .notice {
+    margin-block-start: var(--space-6);
+    padding: var(--space-3) var(--space-4);
+    border-inline-start: 4px solid var(--accent);
+    background: var(--surface);
+  }
+
+  .notice strong {
+    text-transform: capitalize;
+  }
+
+  .event__image {
+    margin-block-start: var(--space-8);
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  .event__layout {
+    margin-block-start: var(--space-12);
+    display: grid;
+    gap: var(--space-12);
+  }
+
+  /* One column on a phone, with the details sidebar alongside once there is
+     genuinely room for two readable columns. */
+  @media (min-width: 52em) {
+    .event__layout {
+      grid-template-columns: minmax(0, 1fr) 18rem;
+      align-items: start;
+    }
+  }
+
+  .event__aside {
+    padding: var(--space-6);
+    background: var(--surface);
+    border-radius: var(--radius);
+  }
+
+  .event__aside-title {
+    font-size: var(--text-lg);
+    margin-block-end: var(--space-4);
+  }
+
+  .details {
+    margin: 0;
+  }
+
+  .details dt {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-block-start: var(--space-4);
+  }
+
+  .details dt:first-child {
+    margin-block-start: 0;
+  }
+
+  .details dd {
+    margin: var(--space-1) 0 0;
+  }
+
+  .details__people {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .details__people li + li {
+    margin-block-start: var(--space-2);
+  }
+
+  .details__role {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .details__note {
+    margin-block-start: var(--space-6);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .event__aside .button {
+    margin-block-start: var(--space-6);
+    width: 100%;
+    text-align: center;
+  }
+
+  .event__back {
+    margin-block-start: var(--space-16);
+  }
+</style>

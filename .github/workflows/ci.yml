@@ -1,0 +1,59 @@
+name: Checks
+
+# Runs on every pull request and on every push to main.
+#
+# This workflow only CHECKS the site — it never deploys it. Cloudflare Pages
+# builds and publishes directly from GitHub, which means there are no deployment
+# credentials stored in GitHub at all: nothing to leak, rotate or hand over. See
+# ADR-007 in ARCHITECTURE.md.
+#
+# If this fails on a pull request, the message says what is wrong. The most
+# common cause is a mistake in a content file, and the error names the file.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Only the newest run for a branch matters; cancel older ones.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Format, types, build and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # `npm ci` installs exactly what package-lock.json specifies, so CI builds
+      # the same thing every time.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      # Type checking also validates every content file against the schema in
+      # src/content.config.ts.
+      - name: Check types and content
+        run: npm run check
+
+      - name: Build the site
+        run: npm run build
+
+      # Checks the built pages: no broken links, every image described, headings
+      # sensible. See tests/build-output.test.js.
+      - name: Test the built site
+        run: npm test

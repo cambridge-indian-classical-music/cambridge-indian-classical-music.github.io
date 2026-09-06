@@ -1,0 +1,116 @@
+---
+/**
+ * One event in a list. Used on the homepage and the events page.
+ */
+import { Image } from 'astro:assets';
+import type { Event } from '../lib/events';
+import { EVENT_TYPE_LABELS } from '../lib/events';
+import { formatDateShort, formatTime, toMachineDateTime } from '../lib/datetime';
+
+interface Props {
+  event: Event;
+  /** Cards in a page's main list use h2; elsewhere pass a different level to keep the heading order correct. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { event, headingLevel: Heading = 'h3' } = Astro.props;
+const { title, type, start, venue, summary, image, status } = event.data;
+---
+
+<article class="card">
+  {
+    image && (
+      <a href={`/events/${event.id}`} tabindex="-1" aria-hidden="true" class="card__media">
+        <Image src={image.src} alt="" width={480} height={320} widths={[320, 480, 720]} loading="lazy" />
+      </a>
+    )
+  }
+
+  <div class="card__body">
+    <p class="eyebrow">
+      {EVENT_TYPE_LABELS[type]}
+      {status !== 'scheduled' && <span class="card__status">{status.replace('-', ' ')}</span>}
+    </p>
+
+    <Heading class="card__title">
+      {
+        /* The whole card is not a link: a single clear link is easier to use with
+          a screen reader and keeps the summary text selectable. */
+      }
+      <a href={`/events/${event.id}`}>{title}</a>
+    </Heading>
+
+    <p class="card__meta">
+      <time datetime={toMachineDateTime(start)}>{formatDateShort(start)}, {formatTime(start)}</time>
+      <span class="card__venue">{venue.name}</span>
+    </p>
+
+    <p class="card__summary">{summary}</p>
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card__media img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+
+  .card__body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .card__title {
+    font-size: var(--text-lg);
+  }
+
+  .card__title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .card__title a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .card__status {
+    margin-inline-start: var(--space-2);
+    padding: 0 var(--space-2);
+    background: var(--accent);
+    color: var(--paper);
+    border-radius: var(--radius);
+    letter-spacing: 0.04em;
+  }
+
+  .card__meta {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .card__venue::before {
+    content: '·';
+    margin-inline-end: var(--space-3);
+  }
+
+  .card__summary {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+</style>

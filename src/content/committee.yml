@@ -1,0 +1,20 @@
+# The committee, shown on the About page.
+#
+# SAMPLE CONTENT — replace these entries with the real committee.
+#
+# This file is replaced wholesale each year at handover. Keep it in the order you
+# want it displayed. `id` just has to be unique and lowercase — it is not shown.
+# `email` is optional; leave it out if a member would rather not publish theirs.
+
+- id: president
+  name: A. N. Example
+  role: President
+  email: president@example.org
+
+- id: treasurer
+  name: B. Example
+  role: Treasurer
+
+- id: events-officer
+  name: C. Example
+  role: Events Officer

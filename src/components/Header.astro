@@ -1,0 +1,118 @@
+---
+/**
+ * Site header and main navigation.
+ *
+ * The navigation is plain links with no JavaScript: it works before the page has
+ * finished loading, works with JavaScript disabled, and cannot break. On narrow
+ * screens the links wrap rather than collapsing into a menu button — with only
+ * three items, a hamburger menu would hide them for no benefit.
+ *
+ * To change the links, edit `nav` in src/site.config.ts.
+ */
+import { site } from '../site.config';
+
+const path = Astro.url.pathname;
+/** A section counts as current when you are on it or on a page inside it. */
+const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="header__brand" href="/">
+      <span class="header__short">{site.shortName}</span>
+      <span class="header__full">{site.name}</span>
+    </a>
+
+    <nav aria-label="Main">
+      <ul class="header__nav">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={['header__link', { 'header__link--current': isCurrent(item.href) }]}
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .header__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-8);
+    padding-block: var(--space-6);
+  }
+
+  .header__brand {
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+  }
+
+  .header__short {
+    display: block;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* The full name is the accessible label on small screens too, but it is only
+     shown once there is room for it without crowding the navigation. */
+  .header__full {
+    display: none;
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    font-family: var(--font-body);
+  }
+
+  @media (min-width: 40em) {
+    .header__full {
+      display: block;
+      max-width: 22rem;
+    }
+  }
+
+  .header__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header__link {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+    padding-block: var(--space-1);
+    border-block-end: 2px solid transparent;
+  }
+
+  .header__link:hover {
+    color: var(--accent);
+    border-block-end-color: var(--rule);
+  }
+
+  /* The current section is marked with a colour AND an underline, so it is not
+     signalled by colour alone. */
+  .header__link--current {
+    color: var(--accent);
+    border-block-end-color: var(--accent);
+  }
+</style>

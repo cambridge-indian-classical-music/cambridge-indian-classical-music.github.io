@@ -1,0 +1,38 @@
+---
+/**
+ * A responsive grid of event cards.
+ *
+ * The columns come from `auto-fill` rather than breakpoints, so the layout
+ * adapts to any screen width without a list of media queries to maintain.
+ */
+import EventCard from './EventCard.astro';
+import type { Event } from '../lib/events';
+
+interface Props {
+  events: Event[];
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { events, headingLevel = 'h3' } = Astro.props;
+---
+
+<ul class="grid" role="list">
+  {
+    events.map((event) => (
+      <li>
+        <EventCard event={event} headingLevel={headingLevel} />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

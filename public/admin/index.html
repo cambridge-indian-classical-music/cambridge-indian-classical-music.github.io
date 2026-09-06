@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- A CMS login page has no business in search results. -->
+    <meta name="robots" content="noindex" />
+    <title>Edit the website — CUICMS</title>
+  </head>
+  <body>
+    <!--
+      The content management system.
+
+      This page loads Sveltia CMS, which reads the editing forms from config.yml
+      in this folder.
+
+      TO SWITCH TO DECAP CMS: replace the script address below with
+        https://unpkg.com/decap-cms@^3.6.0/dist/decap-cms.js
+      and change nothing else. Both read the same config.yml. That portability is
+      the point — see ADR-005 in ARCHITECTURE.md.
+
+      This page does nothing until the authentication setup in
+      docs/DEPLOYMENT.md is finished. It is not a security boundary: anyone can
+      open it, and only GitHub decides whose changes are accepted.
+    -->
+    <script src="https://unpkg.com/@sveltia/cms@^0.206.0/dist/sveltia-cms.js"></script>
+  </body>
+</html>

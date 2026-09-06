@@ -1,0 +1,81 @@
+---
+/**
+ * All events — upcoming and past.
+ *
+ * Concerts and workshops appear in one list because they are one collection
+ * (ADR-003), so this page is a single sorted list rather than a merge of two.
+ *
+ * There is deliberately no filter by event type yet: with the number of events a
+ * society programmes in a year, sections are easier to scan than controls to
+ * operate. If it is ever wanted, add `src/pages/events/type/[type].astro` with
+ * `getStaticPaths` over `EVENT_TYPES` — the one-collection model makes it a
+ * filter on one array. Note that `?type=` query strings cannot work here,
+ * because a static site has no server to read them.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EventGrid from '../../components/EventGrid.astro';
+import { getEventsByTime } from '../../lib/events';
+
+const { upcoming, past } = await getEventsByTime();
+---
+
+<BaseLayout
+  title="Events"
+  description="Upcoming and past concerts, workshops and events from the Cambridge University Indian Classical Music Society."
+>
+  <div class="container">
+    <header class="page-head">
+      <h1>Events</h1>
+      <p class="page-head__lede">
+        Concerts, workshops and gatherings. Everything is open to the public unless stated otherwise.
+      </p>
+    </header>
+
+    <section class="section" aria-labelledby="upcoming-heading">
+      <h2 id="upcoming-heading">Upcoming</h2>
+      {
+        upcoming.length > 0 ? (
+          <EventGrid events={upcoming} headingLevel="h3" />
+        ) : (
+          <p class="empty">No upcoming events to show. Do check back — we programme each term.</p>
+        )
+      }
+    </section>
+
+    {
+      past.length > 0 && (
+        <section class="section" id="past" aria-labelledby="past-heading">
+          <h2 id="past-heading">Past</h2>
+          <EventGrid events={past} headingLevel="h3" />
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: var(--space-12) var(--space-6);
+    max-width: var(--measure);
+  }
+
+  .page-head__lede {
+    margin-block-start: var(--space-4);
+    color: var(--ink-muted);
+    font-size: var(--text-lg);
+  }
+
+  .section {
+    margin-block-start: var(--space-12);
+  }
+
+  .section h2 {
+    margin-block-end: var(--space-6);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .empty {
+    color: var(--ink-muted);
+  }
+</style>

@@ -1,0 +1,99 @@
+---
+/**
+ * About the society, plus the current committee.
+ *
+ * The prose comes from src/content/pages/about.md and the committee from
+ * src/content/committee.yml, so both can be updated without touching this file.
+ */
+import { getEntry, getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../site.config';
+
+const page = await getEntry('pages', 'about');
+if (!page) {
+  // A clear failure at build time beats a mysteriously empty page in production.
+  throw new Error('Missing src/content/pages/about.md — the About page needs it.');
+}
+
+const { Content } = await render(page);
+const committee = await getCollection('committee');
+---
+
+<BaseLayout title={page.data.title} description={page.data.description}>
+  <div class="container">
+    <header class="page-head">
+      <h1>{page.data.title}</h1>
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {
+      committee.length > 0 && (
+        <section class="committee">
+          <h2>The committee</h2>
+          <ul class="committee__list" role="list">
+            {committee.map((member) => (
+              <li>
+                <p class="committee__name">{member.data.name}</p>
+                <p class="committee__role">{member.data.role}</p>
+                {member.data.email && (
+                  <p class="committee__email">
+                    <a href={`mailto:${member.data.email}`}>{member.data.email}</a>
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="contact">
+      <h2>Get in touch</h2>
+      <p>
+        Email us at <a href={`mailto:${site.email}`}>{site.email}</a>. We are always glad to hear from people
+        who want to listen, perform or help out.
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: var(--space-12) var(--space-8);
+  }
+
+  .committee,
+  .contact {
+    margin-block-start: var(--space-16);
+  }
+
+  .committee h2,
+  .contact h2 {
+    margin-block-end: var(--space-6);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .committee__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .committee__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .committee__role,
+  .committee__email {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+</style>

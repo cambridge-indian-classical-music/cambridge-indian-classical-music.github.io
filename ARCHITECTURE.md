@@ -1,0 +1,479 @@
+# Architecture
+
+This document records **why** the website is built the way it is. It is aimed at a
+future developer (or a technically-curious committee member) who needs to change
+something significant and wants to know what will break.
+
+For _how to do things_, see [docs/MAINTAINING.md](docs/MAINTAINING.md) and
+[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md).
+
+---
+
+## 1. The forces shaping this design
+
+The society is not a software company. The constraints that actually matter here
+are organisational, not technical:
+
+| Constraint                               | Consequence for the architecture                                                                                |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **The committee turns over every year.** | Nothing may depend on one person's knowledge or accounts. Setup steps must be written down, not remembered.     |
+| **Most maintainers are not engineers.**  | Editing content must not require reading code. Mistakes must fail loudly and early, not silently in production. |
+| **Budget is roughly zero.**              | Hosting must be free or a few pounds a year, with no bill-shock risk.                                           |
+| **The site must outlive us.**            | Prefer boring, portable formats. Minimise the number of services that can die or start charging.                |
+| **Nobody is on call.**                   | No servers, no databases, no background jobs, no runtime that can fall over at 2am.                             |
+
+Every decision below is downstream of that table. When in doubt, the tie-breaker
+was _"which option is easier to hand over?"_ rather than _"which is more capable?"_
+
+---
+
+## 2. Decisions
+
+### ADR-001 — Static site generation, no server
+
+**Decision:** The site is generated entirely at build time and served as static
+files. `output: 'static'` in `astro.config.mjs`, with no server adapter.
+
+**Why:** Nothing on this site needs a server. Ticketing is delegated to an
+external provider (ADR-006), there are no user accounts, no comments and no
+search-at-scale. Static output means:
+
+- the hosting bill is ~£0 and cannot spike;
+- there is no runtime to patch, exploit or restart — the security surface is the
+  build pipeline and the hosting account, not a live process;
+- the site keeps working even if every service we depend on has an outage,
+  because it is just files on a CDN;
+- page loads are fast by default, which matters because a good share of traffic
+  is students on phones checking a venue while walking to a concert.
+
+**Rejected:** Server-side rendering. It would buy us nothing today and would add
+a runtime, a deploy target with more moving parts, and a class of failure the
+committee cannot debug.
+
+**Reversibility:** High. Adding `@astrojs/cloudflare` and marking a single page
+`export const prerender = false` converts one route to dynamic without touching
+anything else. We are not painting ourselves into a corner; we are declining to
+pay for a room we do not use.
+
+---
+
+### ADR-002 — Astro as the site framework
+
+**Decision:** Astro 7, TypeScript, with content stored as Markdown + YAML
+frontmatter in Astro **content collections**.
+
+**Why Astro over the alternatives:**
+
+The deciding factor was not performance or developer fashion. It was **schema
+validation of content**. Astro content collections validate every content file
+against a Zod schema at build time. If a committee member writes
+`date: 14th March` instead of a real date, or references an artist who does not
+exist, or forgets alt text on a photograph, **the build fails with a readable
+error naming the file and the field**. The mistake is caught before it reaches
+the public site, and the error message is aimed at a human.
+
+For a project whose maintainers are not engineers, that safety net is worth more
+than every other feature under consideration. It converts a whole category of
+silent content bugs into loud, early, self-explaining failures.
+
+Secondary reasons: Astro ships zero JavaScript to the browser by default (good
+for speed and accessibility), `.astro` components are close enough to plain HTML
+that a non-specialist can follow them, and image optimisation and sitemaps are
+first-party rather than bolted on.
+
+**Alternatives considered:**
+
+- **Next.js — rejected.** It is an application framework being used as a
+  brochure-site generator. React, hydration, the App Router's server/client
+  distinction and its Vercel-shaped defaults are all complexity we would pay for
+  and never use. It would also make the codebase harder for a future volunteer to
+  pick up.
+- **Plain HTML/CSS/JS — rejected, though tempting.** It is maximally durable and
+  has no dependencies to rot. It fails on the requirement that actually matters:
+  adding one concert would mean hand-editing the listing page, a new detail page,
+  the homepage and the sitemap, keeping four copies of the same facts in sync. The
+  first committee member to forget one leaves a wrong date on the site. There
+  would also be no schema, so nothing would ever catch a mistake. Single source of
+  truth beats zero dependencies here.
+- **Eleventy — a close second.** Genuinely stable with a small dependency
+  footprint, and slower-moving than Astro, which is a real advantage for a
+  long-lived site. Rejected because it has no built-in content schema validation
+  (the whole reason we chose Astro), a weaker TypeScript story, and no first-party
+  image pipeline. If Astro ever becomes a burden, Eleventy is the migration
+  target — our content is portable Markdown, so the content survives intact.
+- **Hugo — rejected, but respected.** A single Go binary with no npm supply chain
+  and exceptional version stability: on pure longevity it beats everything here.
+  Rejected because Go templating is genuinely unfriendly to a newcomer, and
+  because we judged that "content errors fail the build with a clear message"
+  helps this society more than "the toolchain never changes".
+
+**The honest cost of choosing Astro:** major versions arrive quickly — v5 in
+December 2024, v6 in March 2026, v7 in June 2026. A site left untouched for two
+years will be several majors behind. Mitigations, in order of importance:
+
+1. **A static site does not rot in production.** Once built and deployed, it
+   keeps serving regardless of what npm does. An out-of-date toolchain is a
+   maintenance problem, not an outage.
+2. Dependencies are deliberately few (see ADR-009), so upgrades are small.
+3. `docs/MAINTAINING.md` documents the upgrade procedure, and CI proves whether
+   an upgrade worked before it is merged.
+
+---
+
+### ADR-003 — One `events` collection with a `type` field, not separate Event and Workshop types
+
+**Decision:** Concerts, workshops and other society events are **one content
+collection**, distinguished by a `type` field (`concert`, `workshop`, `social`,
+`other`). Artists are a **separate collection**, referenced by events.
+
+**Why:** This was the most consequential modelling question, and the brief
+explicitly asked us to think about it.
+
+Concerts and workshops overlap almost entirely: title, date, time, venue,
+description, people involved, images, brochure, booking link, status. That is
+around ninety per cent of the fields. The genuine differences are a handful of
+optional extras.
+
+Modelling them separately would mean:
+
+- every listing, calendar and "upcoming" query merging two differently-shaped
+  arrays and re-sorting them — the same fiddly code repeated in several places,
+  and the first thing to break when someone adds a third kind of event;
+- two sets of pages, two URL spaces and two CMS sections to keep in step;
+- duplicated schema that will inevitably drift.
+
+With one collection, adding a "lecture-demonstration" event type later is
+**adding one value to an enum**, not creating a collection, a page, a route and a
+CMS section. The requirement for a combined events calendar becomes trivial
+rather than a merge.
+
+**Why artists are separate:** artists genuinely are a distinct thing. They recur
+across many events, they have their own biography and photograph, and they will
+eventually want their own pages. Storing an artist inline on each event would
+mean re-typing a biography every time they perform, and the versions would
+diverge. Events reference artists by ID, and Astro validates those references at
+build time — **deleting an artist who is still booked fails the build** rather
+than silently producing an empty performer list.
+
+**Guarding against a mushy schema.** The risk of one shared collection is a
+soup of optional fields. Two things prevent that:
+
+- The schema _refines_ by type: a `concert` or a `workshop` must list at least
+  one person, so neither can be published without its performers or its teacher.
+  Type-appropriate rules are enforced even though the collection is shared.
+- People are modelled uniformly as `people: [{ artist, role }]`, where `role` is
+  free text — "Vocal", "Mridangam", "Workshop leader". This covers a concert's
+  lead-plus-accompanists and a workshop's teacher with one mechanism, and it
+  correctly captures that a workshop teacher _is_ an artist, with the same
+  biography and photograph as when they perform.
+
+**Two deliberate modelling choices worth knowing about:**
+
+- **"Past" is not a status.** Whether an event is upcoming or past is _derived_
+  from its date, every time the site builds. There is no checkbox to forget to
+  tick. `status` is reserved for things the calendar cannot infer — `cancelled`,
+  `postponed`, `sold-out`. This is the difference between a site that stays
+  correct by itself and one that quietly goes stale.
+- **Times are stored as full date-times and rendered in `Europe/London`.**
+  Storing a date and a time as separate strings makes sorting and comparison
+  fragile, and gets British Summer Time wrong twice a year. One timestamp,
+  formatted explicitly for London, avoids both.
+
+**Venues are inline, not a collection — for now.** A venues collection would
+avoid re-typing the same college address, but it adds a third collection, another
+relation widget and another concept to explain, to save a small amount of typing.
+That is premature today. The trigger for revisiting is written down in
+`docs/CONTENT_GUIDE.md`: if the same venue is being re-entered often enough that
+details drift, promote it to a collection. Venue includes an `accessNotes` field,
+because step-free access is something an audience needs to know before booking.
+
+---
+
+### ADR-004 — Content is Markdown files in Git, with no database
+
+**Decision:** All content lives as Markdown and YAML in the repository. There is
+no database and no external content API.
+
+**Why:** The content is a few dozen events and artists that change a handful of
+times a term. A database would add hosting cost, a backup obligation, an outage
+mode and a migration burden, in exchange for nothing at this scale.
+
+Keeping content in Git also gives the society properties it would otherwise have
+to buy: full history of who changed what and when, review before publication,
+trivial rollback of a bad edit, and a complete backup on every committee member's
+laptop. If every hosting service we use disappeared tomorrow, the website's
+entire content would still exist in a folder of readable text files.
+
+**When to revisit:** if content ever needs to change without a rebuild, or
+non-committee members need to submit content directly, this decision is worth
+re-examining. Neither is close.
+
+---
+
+### ADR-005 — CMS: a portable config, with Sveltia CMS as the recommended editor
+
+**Decision:** Ship a **Decap-compatible CMS configuration** at
+`public/admin/config.yml`, loaded by **Sveltia CMS**. The CMS is **optional and
+inert until someone completes the authentication setup**, and the site is fully
+maintainable without it.
+
+**The insight this rests on:** Sveltia CMS and Decap CMS read the _same_
+configuration file format. That makes the **config file — not the CMS — the
+durable asset**. Switching between them is changing one `<script>` tag in
+`public/admin/index.html`. Because the choice is nearly free to reverse, we can
+pick the one with the better experience today without taking on lock-in.
+
+**Why Sveltia over Decap as the default:** Decap CMS is still maintained but has
+slowed to a maintenance pace. Sveltia is actively developed, has a markedly
+better editing experience (particularly for image handling, which is where
+non-technical editors struggle most), and a less painful authentication story.
+Its risk is that it is pre-1.0 and small-team — which is precisely the risk the
+shared config format neutralises. If Sveltia stalls, we change a script tag and
+carry on with Decap, keeping our config and every content file.
+
+**Why the CMS is optional rather than load-bearing:** it needs a GitHub OAuth
+application and a small authentication worker to be deployed — the one genuinely
+fiddly piece of setup in this project, described step by step in
+`docs/DEPLOYMENT.md`. Making the site _depend_ on that would mean a committee
+that has not finished the setup cannot update the site at all. Instead:
+
+- **Editing content directly on GitHub always works**, needs no extra
+  infrastructure, and is documented as the primary path in
+  `docs/CONTENT_GUIDE.md`. For changing a date or a ticket link it is genuinely
+  quicker than a CMS.
+- The CMS is an upgrade for editors who want a friendlier interface, especially
+  for uploading images.
+
+Either way the result is identical: a commit in this repository, validated by the
+same schema, deployed by the same pipeline. There is no second source of truth
+and no lock-in — the CMS is a text editor with a nicer face.
+
+**Security note:** `/admin` is not a security boundary. It is a static page
+anyone can open. Authorisation is enforced entirely by GitHub: the CMS acts as
+the logged-in user, and someone without write access to the repository cannot
+change anything through it. Access control therefore means **GitHub repository
+permissions**, not anything on this site.
+
+---
+
+### ADR-006 — Ticketing is a link, not a feature
+
+**Decision:** The site never processes payments. An event carries an optional
+`ticketUrl` plus a `ticketProvider` label and a human-readable `priceInfo`
+string. Booking happens entirely on the provider's own domain.
+
+**Why:** Handling payments would mean PCI obligations, refund handling, a
+database of orders, and a legal and financial responsibility that rotates to a
+new student every year. That is not a reasonable thing to hand over. Delegating
+to Eventbrite, Stripe Checkout or the University's booking system moves all of it
+to organisations equipped to carry it.
+
+**Why three fields rather than only a URL:** the extra two cost nothing and are
+what the page actually needs. `ticketProvider` lets the button say "Book on
+Eventbrite" instead of a vague "Tickets", which measurably reduces the "is this
+a scam link?" hesitation. `priceInfo` is free text — "£8 / £5 students",
+"Free, no booking required" — because ticket pricing has more shapes than a
+number, and the site only ever displays it.
+
+Crucially, `ticketProvider` is **cosmetic**. No code branches on it. Switching
+from Eventbrite to Stripe is editing a URL and a label on each event — no code
+change, no migration, no redesign. See `docs/TICKETING.md`.
+
+**Absence is meaningful:** an event with no `ticketUrl` renders as needing no
+booking, rather than showing a dead button.
+
+---
+
+### ADR-007 — Hosting on Cloudflare Pages, built by Cloudflare, verified by GitHub Actions
+
+**Decision:** Deploy to **Cloudflare Pages**, connected directly to the GitHub
+repository. **GitHub Actions runs checks only and never deploys.**
+
+**Why Cloudflare Pages:**
+
+| Option               | Verdict                                                                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cloudflare Pages** | **Chosen.** Free tier with unlimited bandwidth, automatic preview deployments for every pull request, free custom domain and TLS, good reliability.                                                                                     |
+| GitHub Pages         | Strong runner-up, and _one fewer account to hand over_ — a real advantage. Rejected because it has no preview deployments, which matter most for the non-technical editors this site is designed around. Kept as a documented fallback. |
+| Netlify              | Excellent experience, but a metered free tier with a history of tightening. Bill-shock risk is exactly what a student society cannot absorb.                                                                                            |
+| Vercel               | Best-in-class for Next.js, which we are not using. Free-tier terms are awkward for organisational use.                                                                                                                                  |
+
+**Unlimited bandwidth is the decisive detail.** This site will serve photographs
+and PDF programmes, and traffic spikes around concerts. On a metered free tier a
+successful event is a financial risk. On Cloudflare it is not.
+
+**Why previews matter more than saving an account:** when a committee member
+edits a concert, the pull request gets its own URL showing exactly how the change
+will look. They can check their own work before it goes live, without installing
+anything. For non-technical maintainers that is the difference between confident
+edits and nervous ones.
+
+**Why CI does not deploy — a deliberate security property.** Cloudflare builds
+from GitHub directly, so **no deployment credentials exist in GitHub Actions at
+all**. There is no API token to leak, rotate or hand over, and a compromised
+workflow cannot deploy. GitHub Actions' only job is to tell us whether a change
+builds cleanly. Splitting the two keeps each simple and removes a whole class of
+secret-management problem.
+
+**Portability:** the build produces plain static files with no host-specific
+APIs. Moving to GitHub Pages, Netlify or any static host is a configuration
+change, not a rewrite. Lock-in here is close to zero, which is why choosing on
+today's merits is safe.
+
+---
+
+### ADR-008 — Media in the repository, with a documented exit
+
+**Decision:** Photographs live in `src/assets/` and are optimised by Astro at
+build time. PDF programmes live in `public/brochures/` and are served unchanged.
+
+**Why:** At this scale — perhaps a few hundred photographs over several years —
+repository storage means one thing to back up, one thing to hand over, and no
+extra account. Photographs in `src/assets/` go through Astro's image pipeline,
+which generates responsive, modern-format variants automatically, so large source
+files do not become large downloads.
+
+PDFs sit in `public/` instead because they need stable, permanent URLs: a
+brochure link may be printed on a poster or shared in a WhatsApp group, and it
+must not change when the site rebuilds.
+
+**The real risk, stated plainly:** Git keeps binary files forever. Deleting a
+large photograph does not shrink the repository, and history cannot be trimmed
+without rewriting it for everyone. `docs/CONTENT_GUIDE.md` therefore gives a size
+budget and a one-line command to resize images before committing.
+
+**The exit, if the gallery outgrows this:** move bulk media to Cloudflare R2 or a
+similar object store and reference it by URL, keeping only a handful of key
+images in the repository. This is written down so a future maintainer recognises
+the situation rather than rediscovering it.
+
+**Alt text is enforced by the schema.** Images are stored as `{ src, alt }`
+objects, so an image without alt text is not a missing best practice — it is a
+build failure. Accessibility that depends on remembering does not survive a
+committee handover; accessibility the build insists on does. This is the single
+most effective accessibility decision in the project.
+
+---
+
+### ADR-009 — A deliberately small dependency budget
+
+**Decision:** Direct dependencies are Astro, its MDX and sitemap integrations,
+TypeScript, Prettier and Astro's type checker. Nothing else without a clear
+reason.
+
+**Why:** Every dependency is a future upgrade, a possible security advisory and
+another thing a volunteer must understand. There is no CSS framework and no UI
+library: the design system is a small file of CSS custom properties and plain
+modern CSS (see ADR-010). Tests use Node's built-in test runner rather than a
+test framework.
+
+The practical effect is that upgrades stay small enough for a non-specialist to
+attempt, and the whole toolchain is explainable in a paragraph.
+
+---
+
+### ADR-010 — Hand-written CSS with design tokens, no framework
+
+**Decision:** A small set of CSS custom properties (colour, type scale, spacing)
+in one stylesheet, plus modern CSS layout. No Tailwind, no component library.
+
+**Why:** The site has perhaps a dozen distinct layouts. A framework would add a
+build step, a large vocabulary and an upgrade treadmill to solve a problem this
+site does not have. Tokens in one file mean a future committee can restyle the
+site by changing a handful of values, without touching a single template — which
+is exactly the kind of change a non-engineer might reasonably want to make.
+
+Colour choices are documented with their measured contrast ratios so that a
+future restyle does not accidentally break accessibility.
+
+---
+
+### ADR-011 — Analytics: none by default
+
+**Decision:** No analytics are installed. If the committee wants them,
+**Cloudflare Web Analytics** is the recommendation, enabled by a single
+configuration flag.
+
+**Why:** Most analytics require a cookie banner, put visitor data into someone
+else's hands, and answer questions nobody has actually asked. Cloudflare Web
+Analytics is free, cookieless and collects no personal data, so it needs no
+consent banner under UK GDPR/PECR — and it is on an account the society will
+already hold, so it adds no new service to hand over.
+
+Off by default, because a site that collects nothing has nothing to explain, leak
+or comply with.
+
+---
+
+## 3. Security model
+
+There is no server, no database and no authentication of our own, so the
+attack surface is small and mostly organisational rather than technical.
+
+**What could actually go wrong, in rough order of likelihood:**
+
+1. **A committee member's GitHub account is compromised.** This is the main risk:
+   whoever can write to the repository can change the website. Mitigations —
+   require two-factor authentication across the GitHub organisation, protect
+   `main` so changes arrive by pull request, and remove leavers promptly at
+   handover.
+2. **Loss of access to an account.** More likely than an attack, and more
+   damaging. Every service must have at least two committee members as owners and
+   be registered to a society email address, never a personal one. See
+   `docs/HANDOVER.md`.
+3. **A leaked OAuth secret**, if the CMS is set up. It lives only in the
+   authentication worker's environment, never in Git, and can be rotated by
+   generating a new one in GitHub.
+
+**Boundaries, stated explicitly:**
+
+- **Secrets never enter the repository.** The only secret in the whole system is
+  the CMS OAuth client secret, held in the worker's environment. There are no
+  deployment tokens at all, by design (ADR-007).
+- **`/admin` is not access control.** Anyone can load it; only GitHub's
+  permissions decide whether their edits are accepted (ADR-005).
+- **Payment data never touches this site or this repository** (ADR-006). Card
+  details are entered on the provider's domain. We could not leak them if we
+  tried, which is the point.
+- **External links** carry `rel="noopener noreferrer"`.
+- **Response headers**, including a content security policy, are set in
+  `public/_headers`. Because the site ships almost no JavaScript, the policy can
+  be strict.
+
+---
+
+## 4. Handover model
+
+The architecture is shaped so that a new committee member can do the common jobs
+without understanding the codebase:
+
+| Task                  | What it actually involves                         |
+| --------------------- | ------------------------------------------------- |
+| Add or edit a concert | Edit one Markdown file — via GitHub or the CMS    |
+| Add an artist         | Add one Markdown file and one photograph          |
+| Upload a brochure     | Drop a PDF into a folder, reference its name      |
+| Change a ticket link  | Change one line                                   |
+| Update the committee  | Edit one data file                                |
+| Deploy                | Nothing — merging to `main` deploys automatically |
+
+The corresponding risk is **losing access to the accounts**, not losing the code.
+`docs/HANDOVER.md` lists every account the society must own, who should hold it,
+and how to recover it. That checklist matters more to the site's survival than
+anything in this document.
+
+---
+
+## 5. Known open decisions
+
+Honest list of what is deliberately unresolved:
+
+- **Ticketing provider.** The architecture supports any of them (ADR-006); the
+  society has not chosen. Nothing needs to be decided before launch.
+- **Domain name.** Not yet registered. Affects `site` in `astro.config.mjs`, and
+  therefore canonical URLs and the sitemap.
+- **Whether to set up the CMS at all.** Try editing on GitHub first; add the CMS
+  only if editors find that uncomfortable. Do not build infrastructure nobody has
+  asked for.
+- **Venues as a collection** — deliberately deferred (ADR-003), with the trigger
+  for revisiting written down.
+- **Gallery.** Not built. Depends on the media decision in ADR-008.
