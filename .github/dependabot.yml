@@ -1,5 +1,13 @@
 # Keeps dependencies up to date without becoming a chore.
 #
+# This costs nothing. GitHub lists Dependabot alongside public repositories and
+# Pages as free on standard runners, whatever the plan or repository visibility.
+#
+# Note also that deleting this file would NOT disable Dependabot's security
+# alerts and security updates — those are a repository setting, not a file, and
+# they are the ones that matter. This file only controls the routine monthly
+# version updates. See docs/DEPLOYMENT.md, "What this costs".
+#
 # Updates are grouped into a single monthly pull request rather than arriving one
 # at a time, because a committee that gets twelve notifications a month will
 # start ignoring all of them. Security fixes still arrive immediately.

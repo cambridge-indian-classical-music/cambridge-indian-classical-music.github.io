@@ -90,6 +90,56 @@ social previews all point at the old address.
 
 ---
 
+## What this costs
+
+> **Checked September 2026.** Provider free tiers change; re-check before relying
+> on these figures for a decision.
+
+**The domain is the only guaranteed recurring cost.** Everything else in this
+project sits inside a free tier with room to spare.
+
+| Service                  | What we use it for            | Cost                                                                                    |
+| ------------------------ | ----------------------------- | --------------------------------------------------------------------------------------- |
+| **Domain registrar**     | The web address               | **~£10–15/year — the only certain cost**                                                |
+| GitHub Actions           | Running the checks            | Free on public repos; 2,000 min/month on a Free org's private repos                     |
+| Dependabot               | Monthly dependency updates    | Free — GitHub lists Dependabot as free on standard runners, like public repos and Pages |
+| Cloudflare Pages         | Hosting and previews          | Free — 500 builds/month, unlimited preview deployments, up to 20,000 files              |
+| Cloudflare Worker        | CMS sign-in, _if_ set up      | Free tier, far beyond what a login page uses                                            |
+| Cloudflare Web Analytics | Visitor numbers, _if_ enabled | Free                                                                                    |
+| unpkg                    | Serving the CMS code          | Free CDN, no account needed                                                             |
+| Ticketing provider       | Selling tickets               | Per-ticket fee only, and only when selling. See [TICKETING.md](TICKETING.md)            |
+
+**Headroom, in practice.** The checks take about two minutes per run. Twenty
+content pull requests a month is roughly 40 minutes against 2,000 — about 2% —
+and that only applies at all if the repository is private. Cloudflare's 500
+builds a month is far beyond a society's editing rate.
+
+**Making the repository public removes the Actions question entirely**, since
+public repositories have no Actions billing surface at all. It suits this project:
+there are no secrets in the repository by design, and the only personal data —
+committee email addresses — is already published on the website itself. The one
+thing to weigh is that draft events become visible to anyone browsing the
+repository before you announce them.
+
+### What would start costing money
+
+Nothing here is close, but for the avoidance of doubt:
+
+- **Adding Git LFS.** It has its own storage and bandwidth quotas. This project
+  deliberately does not use it; large media should go to object storage instead
+  (ADR-008).
+- **Exceeding 500 Cloudflare builds a month**, which would mean roughly 16
+  merges a day.
+- **Moving media to Cloudflare R2** — the documented escape hatch in ADR-008. It
+  has a free tier, but it is a metered service rather than a flat one.
+- **Larger GitHub Actions runners.** Always billable. The workflow uses
+  `ubuntu-latest`, which is a standard runner.
+- **Any file over 25 MiB**, which Cloudflare Pages will not serve. Relevant only
+  if someone commits an uncompressed video.
+
+There is no database, no object storage, no email service and no server — so
+there is nothing that bills by usage.
+
 ## Setting up the editing interface (optional)
 
 The `/admin` page gives committee members forms instead of text files. **It is
