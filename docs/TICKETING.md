@@ -7,8 +7,8 @@ visitor to a ticketing company's own site, where they pay. That is the whole
 design.
 
 ```yaml
-ticketUrl: https://www.eventbrite.co.uk/e/your-event-123456
-ticketProvider: eventbrite # only changes the button wording
+ticketUrl: https://www.trybooking.com/uk/events/landing/123456
+ticketProvider: trybooking # only changes the button wording
 priceInfo: £10 / £6 students # free text, shown on the page
 ```
 
@@ -34,63 +34,92 @@ tickets.
 
 ## Choosing a provider
 
-> **Fees checked September 2026.** Payment pricing changes; re-check the
-> providers' own pages before acting on the numbers below. The _reasoning_ ages
-> better than the figures — read that first.
+> **Fees checked September 2026**, each against the provider's own pricing page.
+> Payment pricing changes; re-check before acting on the numbers. The _reasoning_
+> ages better than the figures — read that first.
 
-### The thing that matters: fixed fees, not headline percentages
+### First decide which kind of thing you need
+
+This is the question the rest of the analysis depends on, and it is easy to skip.
+
+- A **payment processor** (SumUp, Stripe, Square) only moves money. It takes a
+  card payment and pays you. It does not know what a ticket is.
+- A **ticketing platform** (TryBooking, Eventbrite) sells tickets. It caps how
+  many are available, issues a QR ticket, emails it to the buyer, gives you a
+  scanning app on the door and an attendee list.
+
+Comparing their percentages directly is comparing the price of one job with the
+price of five. **A payment processor cannot sell a limited number of tickets.**
+If you need "only 60 seats exist", a bare payment link cannot do it — nothing is
+counting. You either buy a ticketing platform or build the counting yourself
+(and see "Do not build a payment interface" below for why not).
+
+### The fee trap: fixed pence, not headline percentages
 
 Society tickets are cheap — usually £5 to £10. At that size a flat "+20p" costs
 more than the percentage does, so the provider with the lowest advertised rate is
 often not the cheapest. **Compare the fee on an actual ticket price, never the
 headline percentage.**
 
-| Provider       | Rate                     | Fee on £8 | Fee on £10 | Effective      |
-| -------------- | ------------------------ | --------- | ---------- | -------------- |
-| **Eventbrite** | 6.95% + 59p              | £1.15     | £1.29      | **12.9–14.3%** |
-| Square         | 1.4% + 25p               | £0.36     | £0.39      | 3.9–4.5%       |
-| **Stripe**     | 1.5% + 20p               | £0.32     | £0.35      | 3.5–4.0%       |
-| **SumUp**      | ~1.69%, **no fixed fee** | £0.14     | £0.17      | **1.69%**      |
-| Open banking   | ~20p flat                | £0.20     | £0.20      | 2.0–2.5%       |
-| Bank transfer  | —                        | £0        | £0         | 0%             |
+| Provider                       | Rate                   | Fee on £8 | Fee on £10 | What you get   |
+| ------------------------------ | ---------------------- | --------- | ---------- | -------------- |
+| **TryBooking**                 | 5% + 15p               | £0.55     | £0.65      | Full ticketing |
+| **Eventbrite**                 | 6.95% + 59p            | £1.15     | £1.29      | Full ticketing |
+| **SumUp** (online)             | 2.5%, **no fixed fee** | £0.20     | £0.25      | Payment only   |
+| **Stripe**                     | 1.5% + 20p             | £0.32     | £0.35      | Payment only   |
+| SumUp (card reader, in person) | 1.69%                  | £0.14     | £0.17      | Payment only   |
+| Bank transfer                  | —                      | £0        | £0         | Nothing        |
 
-### Recommendation: SumUp for paid tickets
+> **Correction, September 2026.** An earlier version of this document quoted
+> SumUp at **1.69% online**. That is SumUp's **card-reader** rate. Their
+> published **online** rate is **2.5%** on every plan, including the £19/month
+> one. The error mattered: it moved the Stripe break-even from a real £20 per
+> transaction to an imaginary £105, and made SumUp look like an obvious winner
+> when it is roughly a tie. Check the rate for the channel you are actually
+> using.
 
-SumUp charges a percentage with **no fixed pence component**, which is the whole
-argument at these prices. Stripe's 20p is already 2.5% of an £8 ticket before its
-own percentage applies.
+### Recommendation: TryBooking
 
-Stripe only becomes cheaper above roughly **£105 per transaction**. The society
-will not sell a £105 ticket, so SumUp wins on every realistic concert.
+**Use TryBooking for paid tickets.** It charges a 5% processing fee (paid by the
+society by default) plus a 15p ticket fee (paid by the buyer by default), and it
+is **completely free for free events**, which covers the society's workshops.
 
-Two caveats to check before committing:
+Why it wins here:
 
-- Published sources disagree on SumUp's online rate (1.69% versus 2.5%). Even at
-  2.5% it beats Stripe below £20 a ticket, but confirm it on SumUp's own page.
-- SumUp also sells card readers, which are useful for payments on the door.
+- It does the whole job — capacity caps, multi-ticket orders, QR tickets, email
+  delivery, a free scanning app for the door, and a dashboard several committee
+  members can share.
+- **Either fee can be reassigned** to the buyer or the society. Pass both on and
+  an £8 ticket costs the buyer £8.55 and the society **nothing at all**.
+- It has a **documented account-owner transfer process**, which matters more here
+  than the fee does — see "Who owns the payment account" below.
+- It is a UK company, so support and refunds happen in the right timezone and
+  currency.
 
-**Stripe remains an excellent second choice** and is better documented. If
-whoever sets this up is more comfortable with Stripe, the difference is a few
-pounds per concert — not worth agonising over.
+**Do not use TryBooking's Stripe payment option** for tickets at this price. It
+costs 75p plus Stripe's own 1.5% + 20p — about **£1.07 on an £8 ticket**, against
+£0.55 for built-in processing. The Stripe route only makes sense on expensive
+tickets.
+
+**Avoid Eventbrite for paid tickets.** At £1.15 on an £8 ticket it is roughly
+twice TryBooking and about **5.7 times** what a bare payment processor costs. It
+remains free for free tickets, so it is a reasonable choice for free workshops if
+someone already knows it — but TryBooking is free for those too.
 
 ### The saving that actually matters
 
 At a realistic 40 tickets at £8 — £320 a concert:
 
-| Provider      | Lost in fees |
-| ------------- | ------------ |
-| Eventbrite    | **~£46**     |
-| Stripe        | ~£13         |
-| SumUp         | ~£5          |
-| Bank transfer | £0           |
+| Approach                          | Cost to the society |
+| --------------------------------- | ------------------- |
+| Eventbrite                        | **~£46**            |
+| TryBooking (default fee split)    | £16                 |
+| TryBooking (fees passed to buyer) | **£0**              |
+| Bank transfer                     | £0                  |
 
-Eventbrite costs roughly **nine times** what SumUp does. Moving from Stripe to
-SumUp saves about £8 a concert; moving off Eventbrite saves about £40. If only
-one thing is done, do that one.
-
-**But Eventbrite is free for free tickets**, so it remains a perfectly sensible
-choice for free workshops, where it handles sign-up lists well. Providers can be
-mixed per event — nothing in the site cares.
+**Moving off Eventbrite is the only fee decision worth real effort.** Everything
+below that line is a few pounds a concert, which is less than the value of one
+committee member's afternoon.
 
 ### Zero-commission: direct bank transfer
 
@@ -107,38 +136,102 @@ Publishing a sort code and account number is low-risk in the UK — they are
 receive-only and appear on every invoice. The real risk is somebody impersonating
 the society, not the digits themselves.
 
-Weigh it honestly: bank transfer saves about **£5 a concert** against SumUp, in
-exchange for twenty to thirty minutes of reconciliation by a volunteer who
-changes every year. That is usually a bad trade. Offer it as a secondary option
-for people who ask, not as the main route.
+It also **cannot cap numbers**. Nothing counts the seats, so an event that must
+not oversell cannot be run this way.
+
+Weigh it honestly: bank transfer saves about **£16 a concert** against
+TryBooking's default fee split — and **nothing at all** if the fees are passed to
+the buyer instead, which costs the society the same £0 without any of the
+reconciliation. In exchange it costs twenty to thirty minutes of matching
+statement lines to names, by a volunteer who changes every year. That is usually
+a bad trade. Offer it as a secondary option for people who ask, not as the main
+route.
 
 ### Open banking — not worth it at this scale
 
 Pay-by-bank providers (TrueLayer, Volt, Yapily) offer near-zero flat fees, but
-they are sales-led and priced for volume. The integration work alone would cost
-more than a decade of SumUp fees. Revisit only if ticket income grows by an order
-of magnitude.
+they are sales-led, priced for volume, and sell payment rather than ticketing —
+so they leave the counting, the QR tickets and the door list still to do. The
+integration work alone would cost more than a decade of the fees it saves.
+Revisit only if ticket income grows by an order of magnitude.
 
 ### Do not build a payment interface
 
-Tempting, and the one thing that would genuinely damage this project.
+Tempting, and the one thing that would genuinely damage this project. This was
+costed properly in September 2026, so the next person to propose it can read the
+numbers rather than re-deriving them.
 
-The moment card details touch a page the society controls, it acquires
-**PCI-DSS obligations** and needs a backend — which breaks the static
-architecture (ADR-001) and hands the next committee a live secret key to look
-after.
+**The money case for building does not exist.** A self-built system on SumUp
+would cost about **£8 a concert** in processing fees against **£16** for
+TryBooking — a saving of roughly **£60 a year**, or about one extra ticket sold
+per concert. Pass TryBooking's fees to the buyer and the saving becomes
+**negative**: buying is cheaper than building.
 
-**Hosted payment links avoid all of it.** Stripe Payment Links and SumUp Pay by
-Link both produce a URL with no code at all:
+**What that £60 a year would buy you**, all of it inherited by a new committee
+every year with nobody on call:
+
+- a backend with a live payment API key, breaking the static architecture (ADR-001)
+- webhook handling, including getting the security right — SumUp's webhooks are
+  **unsigned** and carry no payment status, so every one must be re-fetched from
+  their API to be trusted; a future maintainer who "optimises away" that re-fetch
+  creates a silent free-ticket vulnerability
+- inventory logic that survives two people buying the last two seats at once
+- QR generation, PDF rendering, and transactional email deliverability (SPF,
+  DKIM, DMARC on a domain the society must keep renewing)
+- an admin interface, and a login system to protect it
+
+The moment card details touch a page the society controls it also acquires
+**PCI-DSS obligations**. Hosted checkout avoids that, but nothing avoids the rest.
+
+**A warning about the obvious shortcut.** Stripe Payment Links look like they can
+cap sales, but the limit counts **completed checkout sessions, not tickets**. Turn
+on adjustable quantity so people can buy three at a time and a "40 session" cap
+can sell 400 tickets. Payment Links also issue no QR ticket, send no ticket email
+and have no scanning app. **There is no low-code middle path** — this is exactly
+why the recommendation is to buy a ticketing platform.
+
+Payment links remain the right answer when you genuinely do not need capacity
+limits — an unlimited free event, or a donation:
 
 ```yaml
-ticketUrl: https://pay.sumup.com/b2c/XXXXX
-ticketProvider: sumup
+ticketUrl: https://buy.stripe.com/XXXXX
+ticketProvider: stripe
 priceInfo: £8 / £5 students
 ```
 
 No backend, no secret, no PCI scope, and it drops straight into the existing
 content model.
+
+### Digital wallet passes (Apple Wallet and Google Wallet)
+
+**Let the ticketing platform do this. Do not build it.** Investigated and
+rejected September 2026; the reasoning is recorded so it is not re-litigated.
+
+**Apple Wallet is closed to an unincorporated society**, and not because of the
+~£79/year. Apple requires organisation accounts to hold a **D-U-N-S number** and
+be "a corporation, limited partnership, or limited liability company" — a typical
+student society is an unincorporated association and fails that test. Apple's
+nonprofit **fee waiver is gated behind the same requirement**, so cost and
+eligibility fail together. The only fallback is an individual membership **in one
+student's legal name**, which is precisely the personal-account dependency this
+project exists to avoid — and worse than most, because it expires silently when
+they graduate and stop paying. Third-party services that sign passes under their
+own certificate cost **£350–500 a year**, which is a fifth of the society's ticket
+income.
+
+_The one route that reopens this:_ if the society becomes a registered charity or
+CIO, or can enrol under a College or the University as an accredited educational
+institution. Worth checking locally before assuming it is impossible.
+
+**Google Wallet is genuinely free and easy** — no legal-entity requirement, and
+an issuer account a society can own and hand over. But it only serves Android
+users, a little under half the UK, and probably fewer among students. Building it
+alone would show every iPhone user a button they cannot use.
+
+A ticketing platform has the legal entity and the Apple membership that the
+society does not, so buying makes this someone else's problem. Check whether the
+chosen platform issues wallet passes; if it does not, a PDF with a QR code works
+on every phone ever made.
 
 ### Who owns the payment account
 
@@ -164,6 +257,13 @@ necessary. If so:
   through them, and their finance guide covers external accounts
 - Register it to the society email address (see [HANDOVER.md](HANDOVER.md))
 
+**At handover, transfer the ticketing account too.** TryBooking documents an
+account-owner transfer process and supports multiple users on one box office, so
+add the incoming treasurer as a user before the outgoing one leaves rather than
+passing a password along. This was a deciding factor in choosing it: a ticketing
+account that can only be transferred by sharing login details is not really
+handoverable at all.
+
 ## Adding tickets to an event
 
 1. Create the event with your ticketing provider.
@@ -172,12 +272,15 @@ necessary. If so:
    [CONTENT_GUIDE.md](CONTENT_GUIDE.md)):
 
    ```yaml
-   ticketUrl: https://www.eventbrite.co.uk/e/your-event-123456
-   ticketProvider: eventbrite
+   ticketUrl: https://www.trybooking.com/uk/events/landing/123456
+   ticketProvider: trybooking
    priceInfo: £10 / £6 students and under-18s
    ```
 
-4. Merge. The page shows a **Book on Eventbrite** button.
+4. Merge. The page shows a **Book on TryBooking** button.
+
+Set the **capacity** on the ticketing provider's side, not here. The website
+shows a link; the provider is what counts seats and stops selling.
 
 ### Free events, or events with no booking
 
@@ -191,7 +294,7 @@ priceInfo: Free for members, £3 otherwise. No booking required.
 
 ### Naming the provider is worth doing
 
-`ticketProvider` only changes the wording of the button — "Book on Eventbrite"
+`ticketProvider` only changes the wording of the button — "Book on TryBooking"
 rather than a bare "Book tickets". It is a small thing that helps: people are
 rightly cautious about unexplained payment links, and naming a company they
 recognise makes the button read as legitimate.
@@ -214,29 +317,28 @@ still no code changes.
 
 ---
 
-## If Stripe Checkout is chosen later
+## If a custom checkout is ever built anyway
 
-Stripe has two routes, and it is worth knowing that the easy one exists:
+Read "Do not build a payment interface" above first — it has the costings, and
+they do not support building. But if the society's needs genuinely outgrow an
+off-the-shelf platform, these are the non-negotiables:
 
-**Payment Links** (recommended). Create a link in the Stripe dashboard and paste
-it in as `ticketUrl`, exactly like Eventbrite. **No code, no keys, nothing to
-deploy.** This is the right first step for almost every society.
-
-**Custom checkout.** Only if you need something Payment Links cannot do —
-per-ticket seat allocation, for instance. This means writing server code, which
-means the site stops being purely static (ADR-001), and it introduces a **secret
-key that must be kept out of this repository**.
-
-If you get there:
-
-- Put the endpoint in a Cloudflare Worker or Pages Function, not in this site.
+- **Use Stripe, not SumUp.** Stripe signs its webhooks with a shared secret, so a
+  forged "payment completed" call fails verification. SumUp's webhooks are
+  unsigned and do not even carry the payment status, so every event has to be
+  re-fetched from their API to be believed. That difference is worth far more
+  than the pennies between their rates.
+- Put the endpoint in a **Cloudflare Worker or Pages Function**, not in this site.
 - The **secret key** goes in the platform's encrypted environment settings, never
   in Git. Only the **publishable** key may appear in the site.
-- Verify webhooks with the signing secret.
-- Never store card details anywhere. Stripe holds them; the society does not.
+- Use **hosted checkout**, so card details are entered on the provider's domain
+  and PCI scope stays minimal. Never build a card form.
+- Hold seats with a **short expiry** when checkout starts, or abandoned baskets
+  will eat the capacity permanently.
+- Never store card details anywhere. The provider holds them; the society does not.
 
-Before doing any of this, ask whether the fee saving justifies handing a new
-committee a system with a live secret key in it. Usually it does not.
+Before any of it, ask whether the saving justifies handing a new committee a
+system with a live secret key in it. On the numbers above, it does not.
 
 ---
 

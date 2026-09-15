@@ -282,20 +282,32 @@ change, no migration, no redesign. See `docs/TICKETING.md`.
 **Absence is meaningful:** an event with no `ticketUrl` renders as needing no
 booking, rather than showing a dead button.
 
-**On choosing a provider (analysis in `docs/TICKETING.md`).** Two findings are
+**On choosing a provider (analysis in `docs/TICKETING.md`).** Three findings are
 worth surfacing here, because they are easy to get wrong:
 
-- **Compare fees on a real ticket price, not on the headline percentage.** At
-  £5–£10 a ticket, a flat "+20p" costs more than the percentage does, which
-  inverts the apparent ranking. As of September 2026 this favours SumUp, which
-  charges no fixed fee. The far larger saving, though, is avoiding Eventbrite's
-  combined fee — around 13% of a £10 ticket against roughly 2%.
+- **Buy a ticketing platform; do not build one.** A payment processor moves
+  money, but it cannot cap how many tickets exist. Anything involving "only 60
+  seats" needs something counting seats. Building that yourself was costed in
+  September 2026 and saves roughly **£60 a year** — about one extra ticket per
+  concert — in exchange for a payment backend, a database, inventory logic and an
+  admin login, inherited annually by non-engineers. **TryBooking** is the chosen
+  provider; it is free for free events, and its fees can be passed to the buyer,
+  at which point buying is cheaper than building.
+- **Compare fees on a real ticket price, and for the right channel.** At £5–£10 a
+  ticket a flat "+20p" costs more than the percentage does, which inverts the
+  apparent ranking. The earlier version of this document recommended SumUp on a
+  **1.69%** figure that turned out to be its **card-reader** rate; SumUp's online
+  rate is **2.5%**. The correction changed the answer. The larger saving by far is
+  avoiding Eventbrite, at roughly twice TryBooking's fee.
 - **The payment account must belong to the society, not to an individual.** A
   payment provider account is tied to the bank account behind it, so a personal
   account makes the payment account personal too — and unhandoverable. That would
-  reintroduce precisely the dependency the rest of this architecture removes.
+  reintroduce precisely the dependency the rest of this architecture removes. The
+  same test ruled out **Apple Wallet** passes: Apple requires a D-U-N-S number and
+  legal-entity status that an unincorporated society does not have, leaving only a
+  membership in one student's name.
 
-Neither affects the code. `ticketProvider` stays cosmetic, so acting on any of
+None of it affects the code. `ticketProvider` stays cosmetic, so acting on any of
 this is content editing.
 
 ---
@@ -486,12 +498,6 @@ committee decision, not on more work.
 
 **Waiting on a decision:**
 
-- **Ticketing provider.** The architecture supports any of them (ADR-006).
-  `docs/TICKETING.md` recommends **SumUp** on the fee analysis, but nothing has
-  been chosen and nothing needs to be before launch. Two loose ends there: the
-  published sources disagree on SumUp's online rate, so confirm it with SumUp
-  directly; and the sample event still names Eventbrite, which should be changed
-  to match whatever is picked.
 - **Which bank account receives ticket income.** It must be a **society**
   account with two signatories, not a committee member's personal or sole trader
   account — otherwise the payment provider account is personal too and cannot be
@@ -519,3 +525,8 @@ committee decision, not on more work.
   that a `?type=` query string **cannot** work: a static site has no server to
   read one.
 - **Gallery.** Not built. Depends on the media decision in ADR-008.
+- **Self-hosted ticketing** — buying instead (ADR-006, costed September 2026).
+  Revisit only if the society outgrows what a ticketing platform will do, and
+  only once the saving is worth more than a payment backend maintained by
+  volunteers. At current volumes it is worth about one ticket per concert.
+  `docs/TICKETING.md` has the numbers and the non-negotiables if it ever happens.

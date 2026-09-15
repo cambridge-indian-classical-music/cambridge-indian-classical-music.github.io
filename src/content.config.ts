@@ -105,7 +105,14 @@ export const EVENT_STATUSES = ['scheduled', 'cancelled', 'postponed', 'sold-out'
  * else. No code behaves differently based on it, which is exactly why the
  * society can change ticketing provider by editing a link. See ADR-006.
  */
-export const TICKET_PROVIDERS = ['sumup', 'eventbrite', 'stripe', 'university', 'other'] as const;
+export const TICKET_PROVIDERS = [
+  'trybooking',
+  'sumup',
+  'eventbrite',
+  'stripe',
+  'university',
+  'other',
+] as const;
 
 const events = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),

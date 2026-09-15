@@ -24,8 +24,8 @@ image:
   src: ../../assets/images/placeholder-concert.png
   alt: Placeholder image — a warm abstract gradient in sand and deep red tones.
 brochure: /brochures/sample-programme.pdf
-ticketUrl: https://www.eventbrite.co.uk/
-ticketProvider: eventbrite
+ticketUrl: https://www.trybooking.com/uk
+ticketProvider: trybooking
 priceInfo: £10 / £6 students and under-18s
 status: scheduled
 featured: true
