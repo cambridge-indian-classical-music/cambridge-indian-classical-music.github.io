@@ -43,6 +43,7 @@ repository.
 | **Domain registrar**     | The web address                       | ~£10–15/year                                        |                | **Renews annually — see below**                                                      |
 | **Ticketing provider**   | Selling tickets                       | Per-ticket fee                                      |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
 | **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free                                                |                | Optional. Omit if not using the CMS                                                  |
+| **Cloudflare Access**    | Gate on `/admin`, _if_ set up         | Free                                                |                | Not a separate account — a list of allowed emails on the Cloudflare account above    |
 | **Society bank account** | Receiving ticket income               | Usually free                                        |                | Two signatories. Check with Cambridge SU first                                       |
 | **Password manager**     | Holds the above credentials           | Free–£                                              |                | Or the Students' Union's arrangements                                                |
 
@@ -71,6 +72,8 @@ Work through this with the outgoing committee, ideally in one sitting together.
 - [ ] New members added to the **Cloudflare** account
 - [ ] New members added to the **domain registrar** account
 - [ ] New members added to the **ticketing provider** account
+- [ ] New members' emails added to the **Cloudflare Access** policy for `/admin`,
+      if the CMS gate is set up — otherwise they cannot open the editing page
 - [ ] Credentials and **two-factor recovery codes** transferred to the society
       password manager
 - [ ] Confirmed the **society email** is being read by someone continuing
@@ -84,6 +87,9 @@ Work through this with the outgoing committee, ideally in one sitting together.
 
 - [ ] Departing members **removed** from GitHub, Cloudflare, the registrar and
       the ticketing provider
+- [ ] Departing members' emails **removed from the Cloudflare Access policy**
+      for `/admin`. Removing someone from GitHub stops their edits being
+      accepted, but not their ability to open the page
 - [ ] Passwords on shared accounts **changed**
 - [ ] `src/content/committee.yml` updated — see
       [CONTENT_GUIDE.md](CONTENT_GUIDE.md)

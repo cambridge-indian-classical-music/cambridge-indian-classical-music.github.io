@@ -254,6 +254,29 @@ the logged-in user, and someone without write access to the repository cannot
 change anything through it. Access control therefore means **GitHub repository
 permissions**, not anything on this site.
 
+**Decided September 2026: gate `/admin` with Cloudflare Access, once the custom
+domain exists.** This does not change the paragraph above — GitHub still decides
+whose edits are accepted, and Access adds no authorisation of its own. It closes
+a smaller gap: a page only the committee should be opening should not be sitting
+open to the internet.
+
+Access was chosen over a shared username and password for the reason that decides
+most things in this project. It authenticates **each person individually**, so
+removing someone is deleting an email address from a list and there is an audit
+trail of who edited what. A single shared password would be handed down through
+committees, never rotated when somebody left, and would become the project's
+first deployment secret — which ADR-007 otherwise avoids entirely. It is also
+free, needs no code, and lives on the Cloudflare account the society already
+holds, so it adds nothing to hand over beyond one list of email addresses.
+
+**It is sequenced behind the domain deliberately.** On Cloudflare Pages, Access
+protects preview deployments by default; covering the production site properly
+wants the custom domain on Cloudflare, and doing it on the `*.pages.dev` address
+needs a workaround not worth the trouble. Steps are in `docs/DEPLOYMENT.md`.
+
+The cost is that editors log in twice — Access, then GitHub — which is worth
+naming because it looks like a bug if nobody warned you.
+
 ---
 
 ### ADR-006 — Ticketing is a link, not a feature
@@ -506,7 +529,9 @@ committee decision, not on more work.
   external account may be necessary; check with them first. See
   `docs/TICKETING.md` and `docs/HANDOVER.md`.
 - **Domain name.** Not yet registered. Affects `site` in `astro.config.mjs`, and
-  therefore canonical URLs, the sitemap and social previews.
+  therefore canonical URLs, the sitemap and social previews. It also **blocks
+  restricting `/admin`** with Cloudflare Access (ADR-005), which is the agreed
+  approach but is awkward to apply to a `*.pages.dev` address.
 - **Whether to set up the CMS at all.** Try editing on GitHub first; add the CMS
   only if editors find that uncomfortable. Do not build infrastructure nobody has
   asked for.

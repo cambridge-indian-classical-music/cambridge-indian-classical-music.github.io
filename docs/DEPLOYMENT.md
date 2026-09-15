@@ -88,6 +88,10 @@ are the main reason this host was chosen.
 Step 4 is easy to forget. Until it is done, canonical links, the sitemap and
 social previews all point at the old address.
 
+The domain also **unblocks restricting `/admin`** with Cloudflare Access, which
+is awkward to do on a `*.pages.dev` address — see "Setting up the editing
+interface" below.
+
 ---
 
 ## What this costs
@@ -190,6 +194,52 @@ pull request.
 The `/admin` page itself is public — it is a login screen, not a lock. GitHub
 enforces the permissions. To give someone editing rights, add them to the
 repository on GitHub; to remove them, remove them there.
+
+### 5. Put Cloudflare Access in front of `/admin`
+
+**Decided September 2026. Do this after the custom domain is set up — not
+before.** See ADR-005.
+
+This adds a login before anyone can even see the `/admin` page. It is a gate, not
+a permission system: GitHub still decides whose edits are accepted (step 4). The
+point is that a page which only committee members should be opening should not be
+sitting open to the whole internet.
+
+**Why Access rather than a username and password.** Access makes each person sign
+in **as themselves** — so you can see who did what, and removing someone is
+deleting their email address from a list. A single shared password would be
+passed down through committees, never rotated when somebody leaves, and tell you
+nothing about who used it. It would also be this project's first deployment
+secret, which ADR-007 otherwise goes out of its way to avoid.
+
+**Why it waits for the domain.** On Cloudflare Pages, Access covers **preview
+deployments** by default; protecting the production site properly wants the
+custom domain on Cloudflare. Doing it on the `*.pages.dev` address needs a
+workaround and is not worth the trouble — set the domain up first (step 3).
+
+To set it up:
+
+1. In the Cloudflare dashboard: **Zero Trust → Access → Applications → Add an
+   application → Self-hosted**.
+2. Set the domain to the society's domain and the **path** to `admin`. Access
+   supports path-scoped applications, so the rest of the website stays public.
+3. Add a policy with action **Allow**, using the **Emails** selector, listing the
+   committee members who should be able to edit.
+4. Leave the default Cloudflare one-time-PIN login method on. Editors receive a
+   code by email; there is no password to store, share or leak. Google or GitHub
+   sign-in can be added instead if preferred.
+5. Visit `/admin` in a private window to confirm you are challenged.
+
+**Expect two logins.** Access first, then GitHub for the CMS itself. That is
+normal — they are doing different jobs — but warn editors so it does not look
+broken.
+
+**At handover, update the email list**, or last year's committee keeps access.
+It is on the checklist in [HANDOVER.md](HANDOVER.md).
+
+> The Zero Trust free plan is generous — far more users than a committee will
+> ever need — but Cloudflare does not state the limit on its public plans page.
+> Check it at signup rather than assuming.
 
 ### If you would rather use Decap CMS
 
