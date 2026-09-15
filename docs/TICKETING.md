@@ -282,6 +282,111 @@ handoverable at all.
 Set the **capacity** on the ticketing provider's side, not here. The website
 shows a link; the provider is what counts seats and stops selling.
 
+### Before you sell: three settings to get right first
+
+All three are far easier to set before the first ticket is sold than to fix
+afterwards, and the first one cannot be fixed at all. Work through them when you
+create the event, not on the morning of the concert.
+
+#### 1. Collect the attendee name on every ticket
+
+**Turn on the Prebuilt Attendee Name field in TryBooking's Custom Forms, and ask
+it per ticket rather than once per booking.** Do it when you create the event.
+
+**Why.** The scanning app can look somebody up by name on the door, but it
+searches two different things:
+
+- **Booked By** — whoever paid. Always recorded, no setup needed.
+- **Attendee Name** — the person the ticket is actually for. Recorded **only** if
+  you asked for it.
+
+TryBooking's documentation is explicit: _"To search by Attendee Name, you must use
+our Prebuilt Attendee Name fields in Custom Forms."_
+
+Without it, a parent booking for two children, or one student booking for three
+friends, produces tickets that name only the payer. The people actually standing
+in front of you are invisible to the search.
+
+**Use the Prebuilt field, not a question you write yourself.** A custom text
+question called "Name" will print on the ticket and appear in reports, but it is
+**not** wired into the app's search. Only the prebuilt one is.
+
+**This matters most for memberships.** The question you need to answer all year is
+"is this person a member?", and the payer's name cannot answer it. A single
+concert is more forgiving, because a group usually arrives together with whoever
+booked.
+
+**It cannot be fixed afterwards.** Anyone who buys before the field exists has no
+attendee name against their ticket, and there is no way to go back and collect it.
+If in doubt, switch it on — an unused field costs nothing, a missing one costs a
+year.
+
+Source:
+[TryBooking scanning app](https://learn.trybooking.com/en/articles/42585-trybooking-scanning-app).
+
+#### 2. Turn on Apple and Google Wallet passes
+
+**Dashboard → Global event settings → "Apple and Google wallet tickets".** Check
+it is switched on before selling. TryBooking's wording is _"Now you can decide if
+your ticket buyers can add their tickets to their smartphone wallets. Simply
+toggle this option to either enable or disable"_ — and the documentation **does
+not say which way it defaults**, so look rather than assume.
+
+**Why it matters more than it looks.** TryBooking has no account for ticket
+buyers — its own help centre says "Accounts are for Event Organisers only." There
+is no attendee app and no purchase history to log into. Email is the only channel
+TryBooking owns, and its self-service resend page carries an unresolved
+contradiction: one help page says it returns tickets booked "within the last 12
+months", another does not mention a limit. **The wallet pass is therefore the only
+durable copy a buyer holds**, and it survives a changed email address, a lost
+inbox and a new phone.
+
+That matters most for anything long-lived. A membership bought in September 2026
+and valid until October 2027 is exactly the case where "find the email from last
+year" fails. Tell buyers to add the pass at the moment of purchase.
+
+A useful property: wallet passes **update automatically** if you later correct the
+event or booking details, so a mistake in a membership's dates can still be fixed
+after the passes are issued.
+
+Note it is a **global** setting that applies account-wide; cloned events inherit
+it, though individual events can be adjusted afterwards.
+
+Source:
+[Global event settings](https://learn.trybooking.com/en/articles/41723-global-event-settings).
+
+#### 3. Decide how you will check people in at the door
+
+**A ticket is marked used the first time it is scanned.** TryBooking applies a
+"No duplicates" rule by default; scanning the same ticket again returns _"Invalid
+Ticket Already Scanned"_. For a single concert that is exactly what you want.
+
+**For anything valid more than once, that default is wrong**, and the fix is more
+work than it first appears. Multi-use scanning needs **Settings → Scanning Rules →
+Create a Rule (Custom)**, with **one rule per session**, and the multi-use ticket
+selected in every rule. It also needs a second step that is easy to miss: tickets
+must be **checked out** between sessions — _"To allow the multi-day ticket to be
+scanned in successfully on the next day/session, it needs to be checked-out"_ —
+which resets them from checked-in so they can be scanned again. That sync needs
+an internet connection.
+
+**Be honest about whether this is worth it for a membership.** Scanning a
+year-long membership at every concert means creating a scanning rule for each
+event and checking every ticket out afterwards, all year, by a volunteer who
+changes. **The simpler route is the [Attendee List
+Report](https://learn.trybooking.com/en/articles/41801-attendee-list-report)** as
+a door list, searched by name — which is the other reason setting up the Prebuilt
+Attendee Name field above matters. Keep scanning for single concerts, where it is
+genuinely quick and the default behaviour is correct.
+
+**One scanning-app setting worth knowing** whatever you choose: leave **Real-Time
+Verification off** in a venue with poor signal. With it off the app scans
+offline and syncs when the connection returns; with it on, scanning needs a live
+connection and will stall at the door.
+
+Source:
+[Multi-day access scanning](https://learn.trybooking.com/en/articles/46348).
+
 ### Free events, or events with no booking
 
 Leave `ticketUrl` out. The page then says "No booking needed — just come along"
