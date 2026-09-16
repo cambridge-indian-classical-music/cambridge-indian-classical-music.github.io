@@ -284,11 +284,21 @@ This is the one genuinely fiddly part of the project, because the CMS needs
 permission to write to GitHub on the editor's behalf. That needs a small
 authentication service; a static site cannot do it alone.
 
-> **Since the site moved to GitHub Pages, this also means creating a Cloudflare
-> account** — one the society otherwise no longer needs, holding the project's
-> only real secret, and one more thing to hand over every year. That is a fair
-> cost if editors genuinely want forms instead of text files, and a poor one
-> otherwise. Try editing on GitHub first.
+> **Since the site moved to GitHub Pages, the OAuth route below also means
+> creating a Cloudflare account** — one the society otherwise no longer needs,
+> holding the project's only real secret, and one more thing to hand over every
+> year. That is a fair cost if editors genuinely want forms instead of text
+> files, and a poor one otherwise. Try editing on GitHub first.
+>
+> **There is a second route that needs no server at all.** Sveltia also supports
+> signing in with a GitHub personal access token — its documentation calls this
+> the quickest start, with _"no server setup required"_: the editor pastes a
+> token and it is kept in their browser. That avoids the OAuth app, the worker
+> and the Cloudflare account entirely. The catch is that generating a correctly
+> scoped token is arguably harder to explain to a non-technical editor than the
+> sign-in button it replaces, and it puts a long-lived credential in each
+> editor's browser rather than a short-lived session. Worth knowing it exists;
+> not obviously the easier path.
 
 ### 1. Create a GitHub OAuth application
 
