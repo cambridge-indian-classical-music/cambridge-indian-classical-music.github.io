@@ -25,6 +25,13 @@ updates:
     groups:
       all-dependencies:
         patterns: ['*']
+    # typescript 7 is the Go-based compiler rewrite. @astrojs/check@0.9.10 (the
+    # latest release) still peer-depends on typescript ^5 || ^6, so a 7.x bump
+    # fails npm ci with an ERESOLVE conflict before anything even runs — see
+    # issue #3. Remove this once @astrojs/check's peer range covers 7.x.
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: 'deps'
 
