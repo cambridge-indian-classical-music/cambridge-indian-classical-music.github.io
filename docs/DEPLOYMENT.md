@@ -177,6 +177,31 @@ for this to cost money unexpectedly**, which is the property that matters. If a
 limit is exceeded, the fix is to make the site smaller or move hosting, not to
 pay.
 
+### Can any of this bill us by surprise?
+
+**No — and not by luck.** Two things make it structural rather than something a
+committee has to watch:
+
+- **There is no payment method on the GitHub account.** GitHub's documentation is
+  explicit about what happens at the limit: _"If your account does not have a
+  valid payment method on file, usage is blocked once you use up your quota."_
+  Blocked, not billed. A workflow would fail with a message — annoying, visible,
+  and free.
+- **On a public repository the question does not arise at all.** GitHub Actions
+  usage is _"free for self-hosted runners and for public repositories that use
+  standard GitHub-hosted runners."_ Both workflows here use `ubuntu-latest`, a
+  standard runner.
+
+The Pages limits in the table above behave the same way. They are _soft_ limits:
+GitHub contacts you and asks you to reduce usage. There is no mechanism by which
+exceeding them produces an invoice.
+
+**Keep it that way.** Do not add a payment method to the GitHub organisation
+"just in case" — an account that cannot be charged is a guarantee, and a spending
+limit is only a setting somebody can change. The same holds for Cloudflare, if
+the society ever needs it for the CMS worker: its free plan takes no card, and a
+Worker over its daily request limit returns an error rather than a charge.
+
 ### What would start costing money
 
 Nothing here is close, but for the avoidance of doubt:
@@ -347,19 +372,29 @@ bigger commitment than it first appears.
 The site is plain static files with nothing host-specific, so this is a
 configuration change rather than a rewrite.
 
-**Cloudflare Pages** — the host this project originally chose, and the one to
-move back to if any of what GitHub Pages lacks starts to hurt. It restores
-response headers from `public/_headers`, preview deployments on every pull
-request, unlimited bandwidth, and the option of Cloudflare Access on `/admin`:
+**Cloudflare** — where this project originally went, and where to go back to if
+any of what GitHub Pages lacks starts to hurt. It restores response headers from
+`public/_headers`, preview deployments on every pull request, unlimited
+bandwidth, and the option of Cloudflare Access on `/admin`.
 
-1. **Workers & Pages → Create → Pages → Connect to Git**, and choose this
-   repository.
-2. Build settings: framework preset **Astro**, build command `npm run build`,
-   output directory `dist`, environment variable `NODE_VERSION` set to `22`.
-3. Delete `.github/workflows/deploy.yml` — Cloudflare builds from GitHub itself,
+> **Use Workers, not Pages.** Cloudflare's documentation now says: _"Workers
+> supports most Pages use cases and offers a broader feature set. It is
+> Cloudflare's primary platform for building applications. Start new projects
+> with Workers."_ Pages still works and existing projects are still supported,
+> but all new development goes into Workers, so a site set up on Pages today is
+> starting on the path Cloudflare is moving away from. **Checked September
+> 2026** — if this is more than a year old, re-check before following it.
+
+1. In the Cloudflare dashboard, create a **Worker** and connect it to this
+   repository, serving **static assets** from `dist`.
+2. Build settings: build command `npm run build`, output directory `dist`, and
+   Node 22 or newer.
+3. `public/_headers` starts working again as written — Workers static assets read
+   the same file format Pages did, which is why the file is kept.
+4. Delete `.github/workflows/deploy.yml` — Cloudflare builds from GitHub itself,
    so keeping a second publisher would mean two sites drifting apart.
-4. Move the custom domain over, and update `site` in `astro.config.mjs`.
-5. Update ADR-007, ADR-005 and this document, or the next committee will be
+5. Move the custom domain over, and update `site` in `astro.config.mjs`.
+6. Update ADR-007, ADR-005 and this document, or the next committee will be
    working from a description of a system that no longer exists.
 
 The cost is a second account to hand over, which is exactly what ADR-007 weighed.

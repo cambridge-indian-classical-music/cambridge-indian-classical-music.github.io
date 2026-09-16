@@ -419,8 +419,9 @@ repository `<organisation>.github.io` instead gives a root address for free.
 `docs/DEPLOYMENT.md` has the details.
 
 **Portability:** the build still produces plain static files with no
-host-specific APIs. Moving back to Cloudflare Pages, or on to Netlify, remains a
-configuration change rather than a rewrite — and would restore the response
+host-specific APIs. Moving back to Cloudflare — on **Workers**, which is what
+Cloudflare now tells new projects to use rather than Pages — or on to Netlify,
+remains a configuration change rather than a rewrite — and would restore the response
 headers immediately, since `public/_headers` is kept in place for exactly that
 reason. Lock-in is close to zero, which is what makes a decision like this one
 safe to revisit.
