@@ -2,10 +2,10 @@ name: Checks
 
 # Runs on every pull request and on every push to main.
 #
-# This workflow only CHECKS the site — it never deploys it. Cloudflare Pages
-# builds and publishes directly from GitHub, which means there are no deployment
-# credentials stored in GitHub at all: nothing to leak, rotate or hand over. See
-# ADR-007 in ARCHITECTURE.md.
+# This workflow only CHECKS the site — it never deploys it. Publishing is a
+# separate workflow, deploy.yml, which runs only on main. Keeping them apart
+# means a pull request from anyone can be checked without that check having any
+# ability to publish anything. See ADR-007 in ARCHITECTURE.md.
 #
 # If this fails on a pull request, the message says what is wrong. The most
 # common cause is a mistake in a content file, and the error names the file.

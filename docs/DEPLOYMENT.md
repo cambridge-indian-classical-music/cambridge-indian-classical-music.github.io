@@ -13,84 +13,130 @@ all up from scratch.
           ▼
    Pull request on GitHub
           │
-          ├──► GitHub Actions runs the checks  ──► red cross stops it here
-          │
-          └──► Cloudflare Pages builds a preview ──► a private URL to check
+          └──► GitHub Actions runs the checks  ──► red cross stops it here
           │
      Merge to main
           │
           ▼
-  Cloudflare Pages builds and publishes    (about 1–2 minutes)
+  GitHub Actions builds and publishes to      (about 1–2 minutes)
+  GitHub Pages
 ```
 
-Two separate things happen, on purpose:
+Two workflows, doing different jobs:
 
-- **GitHub Actions** only _checks_ the site. It has no ability to publish
-  anything.
-- **Cloudflare Pages** builds and publishes, straight from GitHub.
-
-Keeping them apart means **there are no deployment credentials stored in
-GitHub** — no API token to leak, rotate or hand over. See ADR-007.
+- **`.github/workflows/ci.yml` ("Checks")** runs on every pull request. It
+  checks formatting, types, content, that the site builds, and that the built
+  pages are sound. It cannot publish anything.
+- **`.github/workflows/deploy.yml` ("Deploy")** runs only on `main`. It builds
+  the site again, re-runs the output tests, and publishes the result to GitHub
+  Pages. If anything fails, nothing is published and the current site stays up.
 
 **Nobody deploys manually.** Merging to `main` is the deploy.
+
+**There is no deployment password anywhere.** The Deploy workflow authenticates
+with a token GitHub mints for that single run, scoped in the workflow file to
+just what publishing needs. There is nothing to leak, rotate or hand over — but
+it does mean **whoever can change the workflow can change the live site**, which
+is why protecting `main` below is not optional.
 
 ---
 
 ## First-time setup
 
-Roughly 30 minutes. Do it once; then it looks after itself.
+Roughly 30 minutes, done once. Steps 1–4 are required before the site can go
+live at all.
 
-### 1. GitHub
+### 1. The repository must be public
 
-The repository must belong to a **GitHub organisation owned by the society**,
-not to a personal account. See [HANDOVER.md](HANDOVER.md).
+**This is a hard requirement, not a preference.** GitHub's documentation:
+_"If the account that owns the repository uses GitHub Free or GitHub Free for
+organizations, the repository must be public."_ The society's organisation is on
+the free plan, so GitHub Pages will not publish from a private repository. The
+alternative is paying for GitHub Team.
 
-Recommended settings (**Settings → Branches → Add branch protection rule** for
-`main`):
+Making it public suits this project — there are no secrets in the repository by
+design, and the only personal data in it, committee email addresses, is already
+published on the website. **The one real consequence: draft events become
+visible to anyone browsing the repository before you announce them.** If that
+matters for a particular event, keep it out of the repository until you are ready
+to announce it.
+
+**Settings → General → Danger Zone → Change repository visibility → Public.**
+
+### 2. Name the repository so the site sits at the root of its address
+
+Every internal link in this project is a plain path (`/events`). That only works
+if the site is served from the root of a domain. A normal GitHub Pages repository
+is published at `https://<organisation>.github.io/<repository>` — a sub-path,
+which would break every link, every stylesheet and every image.
+
+**Name the repository `cambridge-indian-classical-music.github.io`** and GitHub
+publishes it at `https://cambridge-indian-classical-music.github.io/` instead —
+the root. Nothing in the code has to change, then or later.
+
+**Settings → General → Repository name.** GitHub redirects the old address, so
+existing clones and links keep working.
+
+Two things to do after renaming:
+
+- Update `repo:` in `public/admin/config.yml` to the new name.
+- Anyone with a local clone should run
+  `git remote set-url origin git@github.com:cambridge-indian-classical-music/cambridge-indian-classical-music.github.io.git`.
+
+> **If you would rather not rename**, the other way to get a root address is to
+> attach the custom domain (step 5) straight away and simply not use the
+> `github.io` address. The only unacceptable option is publishing at a sub-path
+> without doing the work in ADR-007 — the site will appear unstyled and every
+> link will 404.
+
+### 3. Turn on Pages, published by Actions
+
+**Settings → Pages → Build and deployment → Source: GitHub Actions.**
+
+Not "Deploy from a branch". Nothing else on that page needs changing. The
+workflow in this repository does the rest.
+
+Then push to `main`, or run the **Deploy** workflow by hand from the **Actions**
+tab. The first run takes a couple of minutes; the run's summary links to the
+published site.
+
+### 4. Protect `main`
+
+**Settings → Branches → Add branch protection rule** for `main`:
 
 - Require a pull request before merging
 - Require status checks to pass — select the **Checks** workflow
 
-That means a broken site cannot be published even by accident.
+This matters more than it did before. The Deploy workflow can publish, so the
+protection on `main` is what stands between a bad change and the live site.
 
-Also, under **Settings → Actions → General**, leave workflow permissions as
-read-only. Nothing here needs write access.
+Under **Settings → Actions → General**, leave workflow permissions as
+**read-only**. The Deploy workflow asks for the extra permissions it needs in its
+own file, which is the safer way round.
 
-### 2. Cloudflare Pages
-
-1. Create a Cloudflare account with the **society email address**.
-2. **Workers & Pages → Create → Pages → Connect to Git**, and choose this
-   repository.
-3. Build settings:
-
-   | Setting                | Value                                           |
-   | ---------------------- | ----------------------------------------------- |
-   | Framework preset       | Astro                                           |
-   | Build command          | `npm run build`                                 |
-   | Build output directory | `dist`                                          |
-   | Node version           | set environment variable `NODE_VERSION` to `22` |
-
-4. **Save and Deploy.** The site appears at
-   `https://<project>.pages.dev`.
-
-Preview deployments for pull requests are on by default. Leave them on — they
-are the main reason this host was chosen.
-
-### 3. Custom domain
+### 5. Custom domain
 
 1. Register a domain (see [HANDOVER.md](HANDOVER.md) for the pitfalls — this is
    the one part that costs money and can be lost).
-2. In Cloudflare Pages: **Custom domains → Set up a custom domain**.
-3. Follow the DNS instructions. The TLS certificate is issued automatically.
-4. **Update `site` in `astro.config.mjs` to the new address**, and merge that
+2. At the registrar, create the DNS records GitHub asks for:
+   - for `www.example.org`, a **CNAME** record pointing at
+     `cambridge-indian-classical-music.github.io`
+   - for a bare `example.org`, the **A / AAAA records** listed in GitHub's
+     documentation — take them from GitHub's page rather than copying them from
+     anywhere else, as they change
+3. **Settings → Pages → Custom domain**, enter the domain, and save. GitHub
+   checks the DNS and issues a TLS certificate — this can take up to 24 hours.
+4. Tick **Enforce HTTPS** once it becomes available.
+5. **Update `site` in `astro.config.mjs` to the new address**, and merge that
    change.
 
-Step 4 is easy to forget. Until it is done, canonical links, the sitemap and
+Step 5 is easy to forget. Until it is done, canonical links, the sitemap and
 social previews all point at the old address.
 
-The domain also **unblocks restricting `/admin`** with Cloudflare Access, which
-is awkward to do on a `*.pages.dev` address — see "Setting up the editing
-interface" below.
+> GitHub stores the custom domain in the repository settings, and it survives
+> deploys — with the Actions publishing source there is no `CNAME` file to
+> commit. If you later switch the publishing source to a branch, you will need
+> one.
 
 ---
 
@@ -102,47 +148,88 @@ interface" below.
 **The domain is the only guaranteed recurring cost.** Everything else in this
 project sits inside a free tier with room to spare.
 
-| Service                  | What we use it for            | Cost                                                                                    |
-| ------------------------ | ----------------------------- | --------------------------------------------------------------------------------------- |
-| **Domain registrar**     | The web address               | **~£10–15/year — the only certain cost**                                                |
-| GitHub Actions           | Running the checks            | Free on public repos; 2,000 min/month on a Free org's private repos                     |
-| Dependabot               | Monthly dependency updates    | Free — GitHub lists Dependabot as free on standard runners, like public repos and Pages |
-| Cloudflare Pages         | Hosting and previews          | Free — 500 builds/month, unlimited preview deployments, up to 20,000 files              |
-| Cloudflare Worker        | CMS sign-in, _if_ set up      | Free tier, far beyond what a login page uses                                            |
-| Cloudflare Web Analytics | Visitor numbers, _if_ enabled | Free                                                                                    |
-| unpkg                    | Serving the CMS code          | Free CDN, no account needed                                                             |
-| Ticketing provider       | Selling tickets               | Per-ticket fee only, and only when selling. See [TICKETING.md](TICKETING.md)            |
+| Service              | What we use it for                | Cost                                                                                    |
+| -------------------- | --------------------------------- | --------------------------------------------------------------------------------------- |
+| **Domain registrar** | The web address                   | **~£10–15/year — the only certain cost**                                                |
+| GitHub Pages         | Hosting, TLS, custom domain       | Free on public repositories                                                             |
+| GitHub Actions       | Running the checks and the deploy | Free on public repositories — no minute limit at all                                    |
+| Dependabot           | Monthly dependency updates        | Free — GitHub lists Dependabot as free on standard runners, like public repos and Pages |
+| unpkg                | Serving the CMS code              | Free CDN, no account needed                                                             |
+| Ticketing provider   | Selling tickets                   | Per-ticket fee only, and only when selling. See [TICKETING.md](TICKETING.md)            |
 
-**Headroom, in practice.** The checks take about two minutes per run. Twenty
-content pull requests a month is roughly 40 minutes against 2,000 — about 2% —
-and that only applies at all if the repository is private. Cloudflare's 500
-builds a month is far beyond a society's editing rate.
+**Because the repository is public (and it must be — see step 1), GitHub Actions
+has no billing surface at all.** Minutes are unlimited on public repositories, so
+the checks and the deploy are free however often they run.
 
-**Making the repository public removes the Actions question entirely**, since
-public repositories have no Actions billing surface at all. It suits this project:
-there are no secrets in the repository by design, and the only personal data —
-committee email addresses — is already published on the website itself. The one
-thing to weigh is that draft events become visible to anyone browsing the
-repository before you announce them.
+### The limits that do exist
+
+GitHub Pages is free but not unmetered. The documented limits:
+
+| Limit               | Value                | What it means here                                                        |
+| ------------------- | -------------------- | ------------------------------------------------------------------------- |
+| Published site size | 1 GB                 | Photographs and PDFs count. Watch this as the archive grows — see ADR-008 |
+| Bandwidth           | 100 GB/month, _soft_ | Roughly 200,000 views of a 500 KB page. A society site is nowhere near    |
+| Builds              | 10/hour, _soft_      | Ten merges in an hour is not a normal day                                 |
+| Deploy timeout      | 10 minutes           | This site builds in seconds                                               |
+
+"Soft" means GitHub contacts you rather than sending a bill — **there is no way
+for this to cost money unexpectedly**, which is the property that matters. If a
+limit is exceeded, the fix is to make the site smaller or move hosting, not to
+pay.
 
 ### What would start costing money
 
 Nothing here is close, but for the avoidance of doubt:
 
+- **Making the repository private again.** GitHub Pages would stop working
+  entirely on the free plan, and Actions minutes would become metered.
 - **Adding Git LFS.** It has its own storage and bandwidth quotas. This project
   deliberately does not use it; large media should go to object storage instead
   (ADR-008).
-- **Exceeding 500 Cloudflare builds a month**, which would mean roughly 16
-  merges a day.
-- **Moving media to Cloudflare R2** — the documented escape hatch in ADR-008. It
-  has a free tier, but it is a metered service rather than a flat one.
-- **Larger GitHub Actions runners.** Always billable. The workflow uses
+- **Outgrowing the 1 GB site limit**, which means moving media out of the
+  repository — the exit already described in ADR-008.
+- **Larger GitHub Actions runners.** Always billable. Both workflows use
   `ubuntu-latest`, which is a standard runner.
-- **Any file over 25 MiB**, which Cloudflare Pages will not serve. Relevant only
-  if someone commits an uncompressed video.
+- **Turning on analytics** now means creating a Cloudflare account. Still free,
+  but it is a new account to hand over — see ADR-011.
 
 There is no database, no object storage, no email service and no server — so
 there is nothing that bills by usage.
+
+---
+
+## Security headers on GitHub Pages
+
+**`public/_headers` is not applied.** It is a Cloudflare and Netlify feature;
+GitHub Pages does not read it, and there is no equivalent — GitHub Pages serves
+static files and does not let you set response headers. So the content security
+policy, `X-Frame-Options` and the rest of that file are **currently doing
+nothing**. Nothing breaks visibly, which is precisely why it is written down in
+three places: here, in ADR-007, and at the top of the file itself.
+
+**How much this matters: less than it sounds, but it is not nothing.** The site
+ships almost no JavaScript of its own, takes no user input, sets no cookies and
+has no session to steal, so the usual thing a content security policy defends
+against barely applies. What is lost is defence in depth — a cheap safety net if
+a future change introduces something riskier.
+
+**Keep the file up to date anyway.** If you add a script, an embedded video or a
+web font, update `public/_headers` as though it were live. It costs a minute, it
+is the record of what the policy should be, and it starts working again the
+moment the site moves to a host that reads it.
+
+**The options, if a committee decides this matters:**
+
+- **Move hosting to Cloudflare Pages or Netlify**, both of which read the file as
+  written. ADR-007 sets out what else that trade buys and costs.
+- **Add a `<meta http-equiv="Content-Security-Policy">` tag** in
+  `src/layouts/BaseLayout.astro`. This recovers the content security policy — the
+  most valuable part — on any host. It cannot express `frame-ancestors`, so
+  clickjacking protection stays lost, and it needs testing carefully because a
+  mistake blocks the site's own stylesheets. Not done by default; it is a change
+  with real failure modes and nobody has asked for it.
+
+---
 
 ## Setting up the editing interface (optional)
 
@@ -153,6 +240,12 @@ and only do this if editors find it uncomfortable.
 This is the one genuinely fiddly part of the project, because the CMS needs
 permission to write to GitHub on the editor's behalf. That needs a small
 authentication service; a static site cannot do it alone.
+
+> **Since the site moved to GitHub Pages, this also means creating a Cloudflare
+> account** — one the society otherwise no longer needs, holding the project's
+> only real secret, and one more thing to hand over every year. That is a fair
+> cost if editors genuinely want forms instead of text files, and a poor one
+> otherwise. Try editing on GitHub first.
 
 ### 1. Create a GitHub OAuth application
 
@@ -174,8 +267,8 @@ Note the **Client ID**, and generate a **Client Secret**.
 
 Sveltia CMS provides a ready-made Cloudflare Worker for this. Follow the
 instructions at <https://github.com/sveltia/sveltia-cms-auth>. In short: deploy
-the worker to the society's Cloudflare account, then set two **encrypted**
-environment variables on it:
+the worker to a Cloudflare account, then set two **encrypted** environment
+variables on it:
 
 - `GITHUB_CLIENT_ID`
 - `GITHUB_CLIENT_SECRET`
@@ -195,51 +288,22 @@ The `/admin` page itself is public — it is a login screen, not a lock. GitHub
 enforces the permissions. To give someone editing rights, add them to the
 repository on GitHub; to remove them, remove them there.
 
-### 5. Put Cloudflare Access in front of `/admin`
+### 5. `/admin` is a public page — and stays one
 
-**Decided September 2026. Do this after the custom domain is set up — not
-before.** See ADR-005.
+The plan agreed in September 2026 was to put Cloudflare Access in front of
+`/admin`, once the custom domain existed. **That plan is withdrawn.** GitHub
+Pages serves every file publicly and offers no way to put a login in front of one
+path, and adding a second host back just for this would undo the reason the site
+moved (ADR-007). See ADR-005 for the full reasoning.
 
-This adds a login before anyone can even see the `/admin` page. It is a gate, not
-a permission system: GitHub still decides whose edits are accepted (step 4). The
-point is that a page which only committee members should be opening should not be
-sitting open to the whole internet.
+In practice this changes nothing about who can edit: **`/admin` is a sign-in
+screen, not a lock.** GitHub's repository permissions decide whose edits are
+accepted, and loading the page gains a stranger nothing. What is lost is a layer
+of obscurity, which was always the smaller half of the argument.
 
-**Why Access rather than a username and password.** Access makes each person sign
-in **as themselves** — so you can see who did what, and removing someone is
-deleting their email address from a list. A single shared password would be
-passed down through committees, never rotated when somebody leaves, and tell you
-nothing about who used it. It would also be this project's first deployment
-secret, which ADR-007 otherwise goes out of its way to avoid.
-
-**Why it waits for the domain.** On Cloudflare Pages, Access covers **preview
-deployments** by default; protecting the production site properly wants the
-custom domain on Cloudflare. Doing it on the `*.pages.dev` address needs a
-workaround and is not worth the trouble — set the domain up first (step 3).
-
-To set it up:
-
-1. In the Cloudflare dashboard: **Zero Trust → Access → Applications → Add an
-   application → Self-hosted**.
-2. Set the domain to the society's domain and the **path** to `admin`. Access
-   supports path-scoped applications, so the rest of the website stays public.
-3. Add a policy with action **Allow**, using the **Emails** selector, listing the
-   committee members who should be able to edit.
-4. Leave the default Cloudflare one-time-PIN login method on. Editors receive a
-   code by email; there is no password to store, share or leak. Google or GitHub
-   sign-in can be added instead if preferred.
-5. Visit `/admin` in a private window to confirm you are challenged.
-
-**Expect two logins.** Access first, then GitHub for the CMS itself. That is
-normal — they are doing different jobs — but warn editors so it does not look
-broken.
-
-**At handover, update the email list**, or last year's committee keeps access.
-It is on the checklist in [HANDOVER.md](HANDOVER.md).
-
-> The Zero Trust free plan is generous — far more users than a committee will
-> ever need — but Cloudflare does not state the limit on its public plans page.
-> Check it at signup rather than assuming.
+If a future committee wants the gate back, the honest options are to move hosting
+back to Cloudflare Pages, or to stop publishing `/admin` altogether and edit on
+GitHub — which works today and needs none of this setup.
 
 ### If you would rather use Decap CMS
 
@@ -252,6 +316,10 @@ format. That portability is deliberate (ADR-005).
 ## Turning on analytics (optional)
 
 Off by default (ADR-011). If the committee wants visitor numbers:
+
+> **This now means creating a Cloudflare account**, which the society no longer
+> otherwise needs. Free, but it is a new account to hand over and keep access to.
+> Worth it if the committee actually wants the numbers; not worth it otherwise.
 
 1. Cloudflare dashboard → **Web Analytics** → add the site. Copy the token.
 2. In `src/site.config.ts`:
@@ -279,37 +347,50 @@ bigger commitment than it first appears.
 The site is plain static files with nothing host-specific, so this is a
 configuration change rather than a rewrite.
 
-**GitHub Pages** (one fewer account, but no preview deployments):
+**Cloudflare Pages** — the host this project originally chose, and the one to
+move back to if any of what GitHub Pages lacks starts to hurt. It restores
+response headers from `public/_headers`, preview deployments on every pull
+request, unlimited bandwidth, and the option of Cloudflare Access on `/admin`:
 
-1. Add a workflow that builds and publishes to Pages
-   (`actions/deploy-pages`).
-2. Set `site` in `astro.config.mjs` to the Pages address.
-3. **Note what is lost:** `public/_headers` is a Cloudflare feature. On GitHub
-   Pages the security headers, including the content security policy, stop
-   applying. Nothing breaks visibly, which is exactly why it is worth writing
-   down here.
+1. **Workers & Pages → Create → Pages → Connect to Git**, and choose this
+   repository.
+2. Build settings: framework preset **Astro**, build command `npm run build`,
+   output directory `dist`, environment variable `NODE_VERSION` set to `22`.
+3. Delete `.github/workflows/deploy.yml` — Cloudflare builds from GitHub itself,
+   so keeping a second publisher would mean two sites drifting apart.
+4. Move the custom domain over, and update `site` in `astro.config.mjs`.
+5. Update ADR-007, ADR-005 and this document, or the next committee will be
+   working from a description of a system that no longer exists.
+
+The cost is a second account to hand over, which is exactly what ADR-007 weighed.
 
 **Netlify** reads `public/_headers` too, so headers keep working. Watch the
 metered bandwidth on the free tier.
+
+Either way, note the reverse of step 2 of the setup above: on a host that serves
+the site from the root of a domain, the repository name stops mattering.
 
 ---
 
 ## Troubleshooting
 
-| Symptom                                     | Cause and fix                                                                                        |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Merged, but the site is unchanged           | Check the Cloudflare Pages deployment log. Builds take a minute or two                               |
-| Build fails on Cloudflare but works locally | Usually the Node version. Set `NODE_VERSION` to `22`                                                 |
-| Checks fail on a pull request               | A content mistake — see [CONTENT_GUIDE.md](CONTENT_GUIDE.md)                                         |
-| Whole site offline                          | Domain expiry first (see [HANDOVER.md](HANDOVER.md)), then Cloudflare status                         |
-| Images or scripts silently not loading      | The content security policy in `public/_headers` is blocking them. Add the source there              |
-| `/admin` will not sign in                   | The worker is down, or `base_url` in `config.yml` is wrong, or the OAuth callback URL does not match |
+| Symptom                                       | Cause and fix                                                                                           |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Merged, but the site is unchanged             | Open the **Actions** tab and look at the latest **Deploy** run. Builds take a minute or two             |
+| The Deploy workflow fails at the publish step | Pages is not turned on, or its source is not **GitHub Actions**. See step 3 of the setup                |
+| Site is unstyled and every link 404s          | It is being served from a sub-path. See step 2 of the setup                                             |
+| Checks fail on a pull request                 | A content mistake — see [CONTENT_GUIDE.md](CONTENT_GUIDE.md)                                            |
+| Custom domain shows a certificate warning     | The certificate is still being issued — it can take up to 24 hours. Then tick **Enforce HTTPS**         |
+| Whole site offline                            | Domain expiry first (see [HANDOVER.md](HANDOVER.md)), then <https://www.githubstatus.com>               |
+| Images or scripts silently not loading        | Not the content security policy — that is not applied on GitHub Pages. Check the path and the build log |
+| `/admin` will not sign in                     | The worker is down, or `base_url` in `config.yml` is wrong, or the OAuth callback URL does not match    |
 
 ### Rolling back a bad change
 
 On GitHub, open the pull request that caused it and click **Revert**. Merge the
-revert. The site rebuilds with the previous content.
+revert. The Deploy workflow republishes with the previous content, which takes a
+minute or two.
 
-For an urgent fix, Cloudflare Pages can also roll back to a previous deployment
-instantly from its dashboard — but that is only until the next merge, so still
-revert properly in Git afterwards.
+There is no instant dashboard rollback on GitHub Pages — reverting in Git is the
+only route, which is why it is worth knowing where the **Revert** button is
+before you need it.

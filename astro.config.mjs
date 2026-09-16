@@ -15,10 +15,17 @@ export default defineConfig({
    * sitemap and social preview links, so it must match the real address.
    *
    * TODO: change this to the society's own domain once one is registered.
-   * Until then, this is the default address Cloudflare Pages gives the project.
+   * Until then, this is the address GitHub Pages serves the site from.
    * See docs/DEPLOYMENT.md.
+   *
+   * IMPORTANT — the site must be served from the ROOT of its address, not from
+   * a sub-path. There is deliberately no `base` set below, because every
+   * internal link in this project is written as a plain path (`/events`), which
+   * is the form a non-programmer can read and edit. Setting `base` would mean
+   * rewriting all of those, and rewriting them back again once the custom
+   * domain arrives. docs/DEPLOYMENT.md explains how to get a root address.
    */
-  site: 'https://cuicms.pages.dev',
+  site: 'https://cambridge-indian-classical-music.github.io',
 
   /**
    * Every page is built to a static file. There is no server. See ADR-001.

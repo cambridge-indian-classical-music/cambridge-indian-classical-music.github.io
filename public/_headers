@@ -1,8 +1,21 @@
-# Response headers, applied by Cloudflare Pages.
-# https://developers.cloudflare.com/pages/configuration/headers/
+# ---------------------------------------------------------------------------
+# NOT IN EFFECT. Read this before trusting anything below.
 #
-# If the site is moved to a host that does not read this file (GitHub Pages, for
-# example), these protections are lost — see docs/DEPLOYMENT.md.
+# This file sets response headers on hosts that read it — Cloudflare Pages and
+# Netlify do; GITHUB PAGES DOES NOT. The site is currently on GitHub Pages
+# (ADR-007), so NONE of the protections below are being applied to the live
+# site. Nothing breaks visibly, which is exactly why it is written here.
+#
+# The file is kept rather than deleted for two reasons: it is the record of what
+# the policy should be, and it starts working again the moment the site moves to
+# a host that reads it — no re-derivation needed.
+#
+# What this costs today, and what to do about it, is in docs/DEPLOYMENT.md
+# ("Security headers on GitHub Pages"). If you add a script or an embedded video
+# to the site, still update this file, so that the record stays accurate.
+#
+# Format: https://developers.cloudflare.com/pages/configuration/headers/
+# ---------------------------------------------------------------------------
 
 /*
   # Stop the site being framed by another site.

@@ -42,7 +42,9 @@ there with its reasoning and the alternatives that were rejected.
 
 1. Every concert, workshop and artist is a **text file** in `src/content/`.
 2. Changing one of those files and merging it to the `main` branch **rebuilds and
-   republishes the site automatically**, usually within a minute or two.
+   republishes the site automatically**, usually within a minute or two. GitHub
+   Actions does the building and publishing; see
+   [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 3. Before anything is published, the change is **checked automatically**. If a
    date is malformed, a photograph has no description, or a link points at
    something that does not exist, the check fails and says so. **A broken site
@@ -103,7 +105,7 @@ src/
 public/
   brochures/        PDF programmes (served exactly as they are)
   admin/            Content management system configuration
-  _headers          Security headers
+  _headers          Security headers — NOT applied on GitHub Pages, see DEPLOYMENT.md
 tests/              Automated checks run against the built site
 docs/               The guides listed above
 ```
@@ -137,7 +139,13 @@ rm public/brochures/sample-programme.pdf src/assets/images/placeholder-*.png
 | `astro.config.mjs`           | `site:` → the real domain, once registered                                 |
 | `public/admin/config.yml`    | `repo:` and `base_url:` — only if the CMS is being set up                  |
 
-**3. Decisions that are genuinely open** — section 5 of
+**3. Turn on hosting.** The site is not published until someone works through
+the first-time setup in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Two of those
+steps are requirements rather than preferences: **the repository must be public**,
+and **it must be named so the site is served from the root of an address**. The
+document explains both.
+
+**4. Decisions that are genuinely open** — section 5 of
 [ARCHITECTURE.md](ARCHITECTURE.md) gives the reasoning behind each:
 
 - [ ] Which **society** bank account receives ticket income — confirm the existing
@@ -147,7 +155,7 @@ rm public/brochures/sample-programme.pdf src/assets/images/placeholder-*.png
 - [ ] Whether to set up the CMS at all
 - [ ] Whether to turn on analytics
 
-**4. Accounts.** Work through the checklist in
+**5. Accounts.** Work through the checklist in
 [docs/HANDOVER.md](docs/HANDOVER.md). It matters more to the site's survival than
 anything in the code.
 

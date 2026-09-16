@@ -35,17 +35,20 @@ everything else. Guard it accordingly.
 Fill this in and keep it current. It is the single most valuable page in this
 repository.
 
-| Service                  | What it does                          | Cost                                                | Who has access | Notes                                                                                |
-| ------------------------ | ------------------------------------- | --------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------ |
-| **Society email**        | Recovery address for everything below | —                                                   |                | The master key. Set it up first                                                      |
-| **GitHub organisation**  | Holds this repository                 | Free (no usage limits at all if the repo is public) |                | Must be an organisation, not a personal account                                      |
-| **Cloudflare**           | Hosting, DNS, TLS certificate         | Free                                                |                | See [DEPLOYMENT.md](DEPLOYMENT.md)                                                   |
-| **Domain registrar**     | The web address                       | ~£10–15/year                                        |                | **Renews annually — see below**                                                      |
-| **Ticketing provider**   | Selling tickets                       | Per-ticket fee                                      |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
-| **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free                                                |                | Optional. Omit if not using the CMS                                                  |
-| **Cloudflare Access**    | Gate on `/admin`, _if_ set up         | Free                                                |                | Not a separate account — a list of allowed emails on the Cloudflare account above    |
-| **Society bank account** | Receiving ticket income               | Free–£8.50/month                                    |                | Two signatories, held by the society. See [TICKETING.md](TICKETING.md)               |
-| **Password manager**     | Holds the above credentials           | Free–£                                              |                | Or the Students' Union's arrangements                                                |
+| Service                  | What it does                          | Cost             | Who has access | Notes                                                                                |
+| ------------------------ | ------------------------------------- | ---------------- | -------------- | ------------------------------------------------------------------------------------ |
+| **Society email**        | Recovery address for everything below | —                |                | The master key. Set it up first                                                      |
+| **GitHub organisation**  | Holds the repository, hosts the site  | Free             |                | Must be an organisation, not a personal account. The repository must be **public**   |
+| **Domain registrar**     | The web address                       | ~£10–15/year     |                | **Renews annually — see below**                                                      |
+| **Ticketing provider**   | Selling tickets                       | Per-ticket fee   |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
+| **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free             |                | Optional. Omit if not using the CMS                                                  |
+| **Cloudflare**           | CMS sign-in or analytics, _if_ set up | Free             |                | Optional, and not needed for hosting. Omit unless one of those is actually set up    |
+| **Society bank account** | Receiving ticket income               | Free–£8.50/month |                | Two signatories, held by the society. See [TICKETING.md](TICKETING.md)               |
+| **Password manager**     | Holds the above credentials           | Free–£           |                | Or the Students' Union's arrangements                                                |
+
+**Hosting is on GitHub**, not on a separate account (ADR-007). That was chosen
+partly so this table is one line shorter: whoever has the GitHub organisation has
+the website. The trade-offs are in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ### The domain is the one that bites
 
@@ -101,11 +104,10 @@ Work through this with the outgoing committee, ideally in one sitting together.
 
 - [ ] New committee members added to the **GitHub organisation**, with at least
       two as **Owners**
-- [ ] New members added to the **Cloudflare** account
 - [ ] New members added to the **domain registrar** account
 - [ ] New members added to the **ticketing provider** account
-- [ ] New members' emails added to the **Cloudflare Access** policy for `/admin`,
-      if the CMS gate is set up — otherwise they cannot open the editing page
+- [ ] New members added to the **Cloudflare** account, _only if_ the CMS sign-in
+      worker or analytics are set up — most committees will have neither
 - [ ] Credentials and **two-factor recovery codes** transferred to the society
       password manager
 - [ ] Confirmed the **society email** is being read by someone continuing
@@ -117,11 +119,11 @@ Work through this with the outgoing committee, ideally in one sitting together.
 
 ### After they have left
 
-- [ ] Departing members **removed** from GitHub, Cloudflare, the registrar and
-      the ticketing provider
-- [ ] Departing members' emails **removed from the Cloudflare Access policy**
-      for `/admin`. Removing someone from GitHub stops their edits being
-      accepted, but not their ability to open the page
+- [ ] Departing members **removed** from GitHub, the registrar, the ticketing
+      provider, and Cloudflare if it is in use
+- [ ] Removing someone from the **GitHub organisation** is what actually stops
+      them editing the website — the `/admin` page is public and always was, so
+      there is no separate list to prune
 - [ ] Passwords on shared accounts **changed**
 - [ ] `src/content/committee.yml` updated — see
       [CONTENT_GUIDE.md](CONTENT_GUIDE.md)
@@ -139,19 +141,19 @@ Work through this with the outgoing committee, ideally in one sitting together.
 
 ## What to do when something is wrong
 
-| Symptom                                          | Where to look                                                                                     |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| The site is completely offline                   | Domain expired (check the registrar), or Cloudflare Pages — see [DEPLOYMENT.md](DEPLOYMENT.md)    |
-| A change was merged but the site has not updated | Cloudflare Pages deployment log                                                                   |
-| A pull request shows a red cross                 | A content mistake — [CONTENT_GUIDE.md](CONTENT_GUIDE.md) lists the common messages                |
-| A page shows the wrong thing                     | Edit the content file; or revert the change on GitHub                                             |
-| Nobody can log in to something                   | Recovery codes in the password manager. If those are gone, the society email can usually reset it |
+| Symptom                                          | Where to look                                                                                                  |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| The site is completely offline                   | Domain expired (check the registrar), then <https://www.githubstatus.com> — see [DEPLOYMENT.md](DEPLOYMENT.md) |
+| A change was merged but the site has not updated | The **Deploy** workflow on GitHub's Actions tab                                                                |
+| A pull request shows a red cross                 | A content mistake — [CONTENT_GUIDE.md](CONTENT_GUIDE.md) lists the common messages                             |
+| A page shows the wrong thing                     | Edit the content file; or revert the change on GitHub                                                          |
+| Nobody can log in to something                   | Recovery codes in the password manager. If those are gone, the society email can usually reset it              |
 
 ### If access to an account is genuinely lost
 
 1. Try a password reset to the **society email**.
 2. If the second factor is the problem, use the **recovery codes**.
-3. If both are gone, contact the provider's support. GitHub and Cloudflare have
+3. If both are gone, contact the provider's support. GitHub and most registrars have
    account-recovery processes for organisations, but they take time and proof.
 4. Worst case, most of it is recoverable: **the entire website is in this
    repository**, and any committee member with a copy can publish it elsewhere.

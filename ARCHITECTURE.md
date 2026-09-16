@@ -50,10 +50,13 @@ search-at-scale. Static output means:
 a runtime, a deploy target with more moving parts, and a class of failure the
 committee cannot debug.
 
-**Reversibility:** High. Adding `@astrojs/cloudflare` and marking a single page
-`export const prerender = false` converts one route to dynamic without touching
-anything else. We are not painting ourselves into a corner; we are declining to
-pay for a room we do not use.
+**Reversibility:** High, but it now costs a host. Adding an Astro server adapter
+and marking a single page `export const prerender = false` converts one route to
+dynamic without touching anything else — however, **GitHub Pages serves static
+files only** (ADR-007), so the first dynamic route means moving hosting, most
+obviously back to Cloudflare Pages with `@astrojs/cloudflare`. Still a
+configuration change rather than a rewrite. We are not painting ourselves into a
+corner; we are declining to pay for a room we do not use.
 
 ---
 
@@ -254,28 +257,31 @@ the logged-in user, and someone without write access to the repository cannot
 change anything through it. Access control therefore means **GitHub repository
 permissions**, not anything on this site.
 
-**Decided September 2026: gate `/admin` with Cloudflare Access, once the custom
-domain exists.** This does not change the paragraph above — GitHub still decides
-whose edits are accepted, and Access adds no authorisation of its own. It closes
-a smaller gap: a page only the committee should be opening should not be sitting
-open to the internet.
+**September 2026: the plan to gate `/admin` is withdrawn, not delivered.** The
+agreed approach was Cloudflare Access, sequenced behind the custom domain. Moving
+the site to GitHub Pages (ADR-007) removed the mechanism: **GitHub Pages serves
+every file publicly and has no way to put a login in front of one path.** Nothing
+equivalent is available without adding back a second host — which is the cost
+ADR-007 has just chosen to avoid.
 
-Access was chosen over a shared username and password for the reason that decides
-most things in this project. It authenticates **each person individually**, so
-removing someone is deleting an email address from a list and there is an audit
-trail of who edited what. A single shared password would be handed down through
-committees, never rotated when somebody left, and would become the project's
-first deployment secret — which ADR-007 otherwise avoids entirely. It is also
-free, needs no code, and lives on the Cloudflare account the society already
-holds, so it adds nothing to hand over beyond one list of email addresses.
+**So `/admin` is a public page, and that is acceptable.** It is the position the
+paragraph above already describes and was always the fallback: the page is a
+login screen, not a lock, and GitHub's repository permissions remain the only
+thing deciding whose edits are accepted. Nobody gains any ability by loading it.
 
-**It is sequenced behind the domain deliberately.** On Cloudflare Pages, Access
-protects preview deployments by default; covering the production site properly
-wants the custom domain on Cloudflare, and doing it on the `*.pages.dev` address
-needs a workaround not worth the trouble. Steps are in `docs/DEPLOYMENT.md`.
+What is genuinely lost is defence in depth — a stranger can see that the society
+uses a CMS, and can reach its sign-in form. That is a small, and largely
+cosmetic, exposure. It is written down here rather than quietly dropped, because
+a decision that gets reversed without a record is how a project acquires
+mysteries.
 
-The cost is that editors log in twice — Access, then GitHub — which is worth
-naming because it looks like a bug if nobody warned you.
+**If a future committee wants the gate back**, the honest options are: move
+hosting back to Cloudflare Pages and follow the original plan (ADR-007 explains
+what else that would buy back), or stop publishing `/admin` altogether and edit
+on GitHub, which costs nothing and is already the documented primary path. A
+shared username and password remains rejected for the original reason — it would
+be handed down through committees, never rotated when somebody left, and tell
+you nothing about who used it.
 
 ---
 
@@ -335,41 +341,89 @@ this is content editing.
 
 ---
 
-### ADR-007 — Hosting on Cloudflare Pages, built by Cloudflare, verified by GitHub Actions
+### ADR-007 — Hosting on GitHub Pages, built and published by GitHub Actions
 
-**Decision:** Deploy to **Cloudflare Pages**, connected directly to the GitHub
-repository. **GitHub Actions runs checks only and never deploys.**
+**Decision:** Deploy to **GitHub Pages**, built and published by a GitHub
+Actions workflow (`.github/workflows/deploy.yml`) on every push to `main`.
 
-**Why Cloudflare Pages:**
+**Superseded the original decision (Cloudflare Pages), September 2026.** The
+reasoning for both is kept below, because a future committee deserves to know
+what was traded away rather than rediscovering it when something is missing.
 
-| Option               | Verdict                                                                                                                                                                                                                                 |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cloudflare Pages** | **Chosen.** Free tier with unlimited bandwidth, automatic preview deployments for every pull request, free custom domain and TLS, good reliability.                                                                                     |
-| GitHub Pages         | Strong runner-up, and _one fewer account to hand over_ — a real advantage. Rejected because it has no preview deployments, which matter most for the non-technical editors this site is designed around. Kept as a documented fallback. |
-| Netlify              | Excellent experience, but a metered free tier with a history of tightening. Bill-shock risk is exactly what a student society cannot absorb.                                                                                            |
-| Vercel               | Best-in-class for Next.js, which we are not using. Free-tier terms are awkward for organisational use.                                                                                                                                  |
+**Why GitHub Pages:**
 
-**Unlimited bandwidth is the decisive detail.** This site will serve photographs
-and PDF programmes, and traffic spikes around concerts. On a metered free tier a
-successful event is a financial risk. On Cloudflare it is not.
+| Option           | Verdict                                                                                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **GitHub Pages** | **Chosen.** One account for the whole project — the single biggest handover saving available. Free custom domain and TLS. 100 GB/month soft bandwidth limit, 1 GB site limit.                          |
+| Cloudflare Pages | Originally chosen, and still the better host on the merits: unlimited bandwidth, preview deployments, response headers. Rejected now because it is a second account and a second service to hand over. |
+| Netlify          | Excellent experience, but a metered free tier with a history of tightening. Bill-shock risk is exactly what a student society cannot absorb.                                                           |
+| Vercel           | Best-in-class for Next.js, which we are not using. Free-tier terms are awkward for organisational use.                                                                                                 |
 
-**Why previews matter more than saving an account:** when a committee member
-edits a concert, the pull request gets its own URL showing exactly how the change
-will look. They can check their own work before it goes live, without installing
-anything. For non-technical maintainers that is the difference between confident
-edits and nervous ones.
+**Why one account beats a better host.** Section 1 of this document says the
+tie-breaker is _"which option is easier to hand over?"_ Every account the society
+holds is a thing that can be lost: registered to the wrong email, left with a
+graduate, or simply forgotten until it is needed. Hosting on GitHub removes an
+entire account from `docs/HANDOVER.md` — no second login, no second set of
+recovery codes, no second place where a permission has to be revoked when
+somebody leaves. Against that, the things Cloudflare does better are real but
+survivable.
 
-**Why CI does not deploy — a deliberate security property.** Cloudflare builds
-from GitHub directly, so **no deployment credentials exist in GitHub Actions at
-all**. There is no API token to leak, rotate or hand over, and a compromised
-workflow cannot deploy. GitHub Actions' only job is to tell us whether a change
-builds cleanly. Splitting the two keeps each simple and removes a whole class of
-secret-management problem.
+**What this costs us, stated plainly.** Three things, and none of them is
+hypothetical:
 
-**Portability:** the build produces plain static files with no host-specific
-APIs. Moving to GitHub Pages, Netlify or any static host is a configuration
-change, not a rewrite. Lock-in here is close to zero, which is why choosing on
-today's merits is safe.
+1. **No preview deployments.** This is the biggest loss, and it was the original
+   deciding factor. A committee member editing a concert no longer gets a URL
+   showing their change before it is live. The mitigations are the checks on
+   every pull request — which catch broken content, not ugly content — and
+   `npm run dev` for anyone willing to install Node. Editors will be publishing
+   with slightly less confidence than the original design intended.
+2. **No response headers.** `public/_headers` is a Cloudflare and Netlify
+   feature; GitHub Pages does not read it. The content security policy and the
+   other protections in that file **are not applied to the live site.** See
+   section 3, and the header comment in the file itself.
+3. **Metered bandwidth.** GitHub Pages documents a _soft_ limit of 100 GB per
+   month and a 1 GB site size limit, where Cloudflare's bandwidth was unlimited.
+   For a society site serving photographs and PDF programmes this is ample —
+   100 GB is roughly 200,000 views of a 500 KB page — but it is a ceiling where
+   there was none, and heavy video would eventually meet it. ADR-008's exit to
+   object storage is the answer if that ever happens.
+
+**Why CI now deploys, and what that changes.** The original decision kept
+GitHub Actions deliberately unable to publish, so that no deployment credential
+existed anywhere. That property is preserved in substance rather than form:
+publishing uses the workflow's own short-lived `GITHUB_TOKEN` and an OIDC
+identity token, scoped in the workflow file to `pages: write` and
+`id-token: write` for that run alone. **There is still no long-lived API token
+stored in the repository, and nothing to rotate or hand over.** What has changed
+is that a compromised workflow file could now publish — so the mitigation moves
+to protecting `main`: changes must arrive by pull request, and the checks must
+pass. That is set up in `docs/DEPLOYMENT.md` and it is not optional.
+
+**The repository must be public.** GitHub's documentation is explicit: _"If the
+account that owns the repository uses GitHub Free or GitHub Free for
+organizations, the repository must be public."_ The society's organisation is on
+the free plan, so Pages on a private repository is not available without paying
+for GitHub Team. Making it public was already the recommendation in
+`docs/DEPLOYMENT.md` for unrelated reasons — there are no secrets in the
+repository by design, and the only personal data in it, committee email
+addresses, is published on the website anyway. The one real consequence is that
+**draft events are visible to anyone browsing the repository before they are
+announced.**
+
+**The site must be served from the root of its address.** Every internal link in
+this project is a plain path (`/events`), which is the form a non-programmer can
+read and edit. A GitHub Pages _project_ site lives under `/<repo>`, which would
+require setting `base` in `astro.config.mjs` and rewriting every one of those
+links — and rewriting them back once the custom domain arrives. Naming the
+repository `<organisation>.github.io` instead gives a root address for free.
+`docs/DEPLOYMENT.md` has the details.
+
+**Portability:** the build still produces plain static files with no
+host-specific APIs. Moving back to Cloudflare Pages, or on to Netlify, remains a
+configuration change rather than a rewrite — and would restore the response
+headers immediately, since `public/_headers` is kept in place for exactly that
+reason. Lock-in is close to zero, which is what makes a decision like this one
+safe to revisit.
 
 ---
 
@@ -448,8 +502,14 @@ configuration flag.
 **Why:** Most analytics require a cookie banner, put visitor data into someone
 else's hands, and answer questions nobody has actually asked. Cloudflare Web
 Analytics is free, cookieless and collects no personal data, so it needs no
-consent banner under UK GDPR/PECR — and it is on an account the society will
-already hold, so it adds no new service to hand over.
+consent banner under UK GDPR/PECR.
+
+**Note since ADR-007.** Cloudflare Web Analytics is a script tag and works on any
+host, so the recommendation stands. But it no longer rides on an account the
+society already holds — turning it on now means creating a Cloudflare account,
+and therefore adds a line to `docs/HANDOVER.md`. That is a fair price for
+analytics the committee actually wants, and a bad one for analytics nobody asked
+for. Which is the existing default.
 
 Off by default, because a site that collects nothing has nothing to explain, leak
 or comply with.
@@ -479,17 +539,24 @@ attack surface is small and mostly organisational rather than technical.
 **Boundaries, stated explicitly:**
 
 - **Secrets never enter the repository.** The only secret in the whole system is
-  the CMS OAuth client secret, held in the worker's environment. There are no
-  deployment tokens at all, by design (ADR-007).
+  the CMS OAuth client secret, held in the worker's environment. There is no
+  stored deployment token: publishing uses a short-lived token minted for a
+  single workflow run (ADR-007). The corresponding control is that **`main` must
+  be protected**, because whoever can change the deploy workflow can change the
+  site.
 - **`/admin` is not access control.** Anyone can load it; only GitHub's
   permissions decide whether their edits are accepted (ADR-005).
 - **Payment data never touches this site or this repository** (ADR-006). Card
   details are entered on the provider's domain. We could not leak them if we
   tried, which is the point.
 - **External links** carry `rel="noopener noreferrer"`.
-- **Response headers**, including a content security policy, are set in
-  `public/_headers`. Because the site ships almost no JavaScript, the policy can
-  be strict.
+- **Response headers are currently NOT applied.** `public/_headers` defines a
+  content security policy and the usual hardening headers, but GitHub Pages does
+  not read that file (ADR-007). The file is kept as the record of the intended
+  policy, and starts working again on any host that reads it. The practical
+  exposure is small — the site ships almost no JavaScript of its own, accepts no
+  input and holds no session — but it is a real reduction in defence in depth,
+  and `docs/DEPLOYMENT.md` gives the partial mitigation available on Pages.
 
 ---
 
@@ -529,9 +596,9 @@ committee decision, not on more work.
   external account may be necessary; check with them first. See
   `docs/TICKETING.md` and `docs/HANDOVER.md`.
 - **Domain name.** Not yet registered. Affects `site` in `astro.config.mjs`, and
-  therefore canonical URLs, the sitemap and social previews. It also **blocks
-  restricting `/admin`** with Cloudflare Access (ADR-005), which is the agreed
-  approach but is awkward to apply to a `*.pages.dev` address.
+  therefore canonical URLs, the sitemap and social previews. It no longer blocks
+  anything else: the plan to gate `/admin` was withdrawn with the move to GitHub
+  Pages, not deferred (ADR-005).
 - **Whether to set up the CMS at all.** Try editing on GitHub first; add the CMS
   only if editors find that uncomfortable. Do not build infrastructure nobody has
   asked for.

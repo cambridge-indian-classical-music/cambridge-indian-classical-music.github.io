@@ -1,0 +1,91 @@
+name: Deploy
+
+# Builds the site and publishes it to GitHub Pages. This runs on every push to
+# main, which means: merging a pull request is the deploy. Nobody publishes
+# manually. See ADR-007 in ARCHITECTURE.md.
+#
+# The separate "Checks" workflow (ci.yml) runs on pull requests and catches
+# mistakes before they reach main. This workflow repeats the build and the
+# output tests, deliberately, so that a change which somehow reaches main in a
+# broken state is never published. Formatting and type checks are not repeated
+# here — they cannot produce a broken site, only an untidy repository.
+#
+# If this fails, nothing is published and the previous version of the site stays
+# up. Open the failed run to see which step failed.
+
+on:
+  push:
+    branches: [main]
+  # Lets a maintainer re-publish from the Actions tab without making a commit —
+  # useful if a deploy failed for a transient reason.
+  workflow_dispatch:
+
+# The GITHUB_TOKEN needs write access to Pages to publish, and an OIDC token to
+# prove to Pages that the request came from this workflow. Nothing else. This is
+# requested here rather than granted repository-wide, so the default workflow
+# permissions can stay read-only. See docs/DEPLOYMENT.md.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deploys at once. Unlike the checks workflow, queued runs are NOT
+# cancelled: a deploy that is already publishing should be allowed to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # `npm ci` installs exactly what package-lock.json specifies, so the
+      # published site is built from the same dependencies every time.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the site
+        run: npm run build
+
+      # Checks the built pages: no broken links, every image described, headings
+      # sensible. See tests/build-output.test.js. This is the last gate before
+      # anything reaches the public site.
+      - name: Test the built site
+        run: npm test
+
+      # Reads the repository's Pages settings. It does not change anything.
+      - uses: actions/configure-pages@v6
+
+      # Packages dist/ into the artifact that Pages publishes.
+      - name: Package the built site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Publishing is a separate job with its own environment so that the live
+    # site's URL shows up on the run, and so branch/environment protection rules
+    # can be added later without touching the build.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
