@@ -116,21 +116,39 @@ own file, which is the safer way round.
 
 ### 5. Custom domain
 
-1. Register a domain (see [HANDOVER.md](HANDOVER.md) for the pitfalls — this is
-   the one part that costs money and can be lost).
-2. At the registrar, create the DNS records GitHub asks for:
-   - for `www.example.org`, a **CNAME** record pointing at
-     `cambridge-indian-classical-music.github.io`
-   - for a bare `example.org`, the **A / AAAA records** listed in GitHub's
-     documentation — take them from GitHub's page rather than copying them from
-     anywhere else, as they change
-3. **Settings → Pages → Custom domain**, enter the domain, and save. GitHub
+The society's address is expected to be a **subdomain of the University's own
+domain**, requested from University IT rather than bought from a registrar. That
+makes the DNS record something a third party controls and will not want to change
+often, so it is worth getting right first time.
+
+**The record to ask for:**
+
+```
+<the-subdomain>    CNAME    cambridge-indian-classical-music.github.io.
+```
+
+**Point it at `cambridge-indian-classical-music.github.io`, not at the repository
+name.** GitHub's documentation is explicit: _"The `CNAME` record should always
+point to `<user>.github.io` or `<organization>.github.io`, excluding the
+repository name."_ This is worth understanding rather than just copying, because
+it is what makes the record durable: it stays correct if the repository is
+renamed, or if the site is one day rebuilt in a different repository in the same
+organisation. **University IT should never need to change it again.**
+
+If the address is ever an apex domain instead (`example.org`, no subdomain), a
+CNAME will not do — that needs the four **A** records and four **AAAA** records
+GitHub publishes. Take them from GitHub's documentation on the day, not from
+here, because they change.
+
+Then, on GitHub:
+
+1. **Settings → Pages → Custom domain**, enter the domain, and save. GitHub
    checks the DNS and issues a TLS certificate — this can take up to 24 hours.
-4. Tick **Enforce HTTPS** once it becomes available.
-5. **Update `site` in `astro.config.mjs` to the new address**, and merge that
+2. Tick **Enforce HTTPS** once it becomes available.
+3. **Update `site` in `astro.config.mjs` to the new address**, and merge that
    change.
 
-Step 5 is easy to forget. Until it is done, canonical links, the sitemap and
+Step 3 is easy to forget. Until it is done, canonical links, the sitemap and
 social previews all point at the old address.
 
 > GitHub stores the custom domain in the repository settings, and it survives

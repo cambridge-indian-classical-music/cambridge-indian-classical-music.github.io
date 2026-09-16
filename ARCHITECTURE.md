@@ -359,6 +359,30 @@ what was traded away rather than rediscovering it when something is missing.
 | Netlify          | Excellent experience, but a metered free tier with a history of tightening. Bill-shock risk is exactly what a student society cannot absorb.                                                           |
 | Vercel           | Best-in-class for Next.js, which we are not using. Free-tier terms are awkward for organisational use.                                                                                                 |
 
+**The decisive constraint, added September 2026: the domain belongs to the
+University.** The society's address is a subdomain of the University's domain,
+and University IT adds the DNS record on request. That has two consequences which
+together settle the question:
+
+- **Cloudflare Workers — the product Cloudflare now directs new projects to — is
+  not usable at all.** Attaching a custom domain to a Worker requires the domain
+  to be an active zone on your own Cloudflare account: _"You cannot create a
+  Custom Domain on a hostname with an existing CNAME DNS record or on a zone you
+  do not own."_ The University is not going to delegate its nameservers to a
+  student society's Cloudflare account. Only the older Cloudflare Pages supports
+  a CNAME-only setup for a subdomain whose DNS lives elsewhere — so the Cloudflare
+  route means committing to the product Cloudflare is moving away from.
+- **A re-point is expensive.** Changing the record means another request to a
+  third party on their timescale, so the choice should be the one least likely to
+  force one. GitHub Pages' record points at `<organisation>.github.io`,
+  **excluding the repository name**, which means it survives a repository rename
+  or a rebuild in a different repository. It is the more stable target, on the
+  more stable product.
+
+This reasoning did not exist when the original comparison below was written, and
+it outweighs it. Had it been known earlier, GitHub Pages would have been the
+choice on the merits and not only on the handover argument.
+
 **Why one account beats a better host.** Section 1 of this document says the
 tie-breaker is _"which option is easier to hand over?"_ Every account the society
 holds is a thing that can be lost: registered to the wrong email, left with a
