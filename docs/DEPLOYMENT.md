@@ -377,6 +377,16 @@ any of what GitHub Pages lacks starts to hurt. It restores response headers from
 `public/_headers`, preview deployments on every pull request, unlimited
 bandwidth, and the option of Cloudflare Access on `/admin`.
 
+**It would also let the repository go private again.** Cloudflare builds from
+private repositories on its free plan, so the public-repository requirement in
+step 1 of the setup is a GitHub Pages constraint, not a constraint of this
+project. If unannounced events becoming visible in the repository ever turns out
+to matter more than the committee expected, this is the way to undo it — bearing
+in mind that GitHub Actions minutes become metered on a private repository (2,000
+a month on a Free organisation, against roughly 40 used by twenty content pull
+requests). The cheaper answer is usually to keep an event out of the repository
+until you are ready to announce it.
+
 > **Use Workers, not Pages.** Cloudflare's documentation now says: _"Workers
 > supports most Pages use cases and offers a broader feature set. It is
 > Cloudflare's primary platform for building applications. Start new projects
