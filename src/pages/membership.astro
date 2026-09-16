@@ -1,0 +1,179 @@
+---
+/**
+ * Society membership.
+ *
+ * Membership is its own collection, not an event (see ADR-003 and
+ * docs/TICKETING.md): it runs for over a year, has no venue, and would sit at
+ * the top of the events list until it expired.
+ *
+ * Joining happens entirely on the payment provider's own page. This site never
+ * takes a payment — it shows the terms and a link, exactly as it does for
+ * concert tickets (ADR-006).
+ */
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { formatDate, formatTime, toMachineDateTime } from '../lib/datetime';
+import { site } from '../site.config';
+
+/**
+ * The membership currently on offer.
+ *
+ * One file per year, newest first. A committee preparing next year's membership
+ * early should mark it `draft: true` until it opens, or it will be shown here
+ * before it is real.
+ */
+const published = (await getCollection('membership')).filter(
+  (entry) => import.meta.env.DEV || !entry.data.draft,
+);
+const current = published.sort((a, b) => b.data.opens.localeCompare(a.data.opens))[0];
+
+if (!current) {
+  // A clear failure at build time beats a mysteriously empty page in production.
+  throw new Error('No membership found. Add a file to src/content/membership/ — see docs/CONTENT_GUIDE.md.');
+}
+
+const { title, summary, price, opens, closes, joinUrl, benefits } = current.data;
+const { Content } = await render(current);
+---
+
+<BaseLayout title={title} description={summary}>
+  <div class="container">
+    <header class="page-head">
+      <h1>{title}</h1>
+      <p class="lede">{summary}</p>
+    </header>
+
+    <dl class="facts">
+      <div>
+        <dt>Price</dt>
+        <dd>{price}</dd>
+      </div>
+      <div>
+        <dt>Valid from</dt>
+        <dd>
+          <time datetime={toMachineDateTime(opens)}>
+            {formatDate(opens)}, {formatTime(opens)}
+          </time>
+        </dd>
+      </div>
+      <div>
+        <dt>Valid until</dt>
+        <dd>
+          <time datetime={toMachineDateTime(closes)}>
+            {formatDate(closes)}, {formatTime(closes)}
+          </time>
+        </dd>
+      </div>
+    </dl>
+
+    <section class="includes">
+      <h2>What membership includes</h2>
+      <ul role="list">
+        {benefits.map((benefit) => <li>{benefit}</li>)}
+      </ul>
+    </section>
+
+    <section class="join">
+      {
+        joinUrl ? (
+          <>
+            <a class="button" href={joinUrl} rel="noopener noreferrer">
+              Join the Society — {price}
+            </a>
+            <p class="join__note">
+              Payment is taken on our payment provider's own secure page. This website never sees your card
+              details.
+            </p>
+          </>
+        ) : (
+          <p class="join__note">
+            <strong>Joining opens shortly.</strong> The link will appear here once it is ready — in the
+            meantime, email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
+          </p>
+        )
+      }
+    </section>
+
+    <div class="prose">
+      <Content />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: var(--space-12) var(--space-8);
+  }
+
+  .lede {
+    margin-block-start: var(--space-3);
+    font-size: var(--text-lg);
+    color: var(--ink-muted);
+    max-width: 48ch;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding-block: var(--space-6);
+    border-block: 1px solid var(--rule);
+  }
+
+  .facts dt {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .facts dd {
+    margin: 0;
+    margin-block-start: var(--space-1);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .includes {
+    margin-block-start: var(--space-10);
+  }
+
+  .includes h2 {
+    margin-block-end: var(--space-4);
+  }
+
+  .includes ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  /* A marker that does not depend on list-style, so it survives role="list". */
+  .includes li {
+    padding-inline-start: var(--space-6);
+    position: relative;
+  }
+
+  .includes li::before {
+    content: '\2014';
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--accent);
+  }
+
+  .join {
+    margin-block-start: var(--space-10);
+  }
+
+  .join__note {
+    margin-block-start: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    max-width: 52ch;
+  }
+
+  .prose {
+    margin-block-start: var(--space-12);
+  }
+</style>

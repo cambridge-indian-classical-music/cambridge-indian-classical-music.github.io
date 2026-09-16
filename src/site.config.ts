@@ -9,19 +9,23 @@
 
 export const site = {
   name: 'Cambridge University Indian Classical Music Society',
-  shortName: 'CUICMS',
+  shortName: 'CUICM',
 
   /** Used as the fallback page description and in social previews. */
   description:
     'The Cambridge University Indian Classical Music Society presents concerts, workshops and talks in the Carnatic and Hindustani traditions.',
 
-  /** TODO: replace with the society address once one exists. See docs/HANDOVER.md. */
-  email: 'committee@example.org',
+  /**
+   * The society's own address, held by Cambridge SU rather than any individual.
+   * It must never become a personal one — see docs/HANDOVER.md.
+   */
+  email: 'indianclassicalmusic@cambridgesu.co.uk',
 
   /** The main navigation, in order. */
   nav: [
     { label: 'Events', href: '/events' },
     { label: 'Artists', href: '/artists' },
+    { label: 'Membership', href: '/membership' },
     { label: 'About', href: '/about' },
   ],
 

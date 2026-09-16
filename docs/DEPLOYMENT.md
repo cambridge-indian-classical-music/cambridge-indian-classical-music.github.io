@@ -160,7 +160,7 @@ authentication service; a static site cannot do it alone.
 
 | Field                      | Value                                        |
 | -------------------------- | -------------------------------------------- |
-| Application name           | CUICMS website editor                        |
+| Application name           | CUICM website editor                         |
 | Homepage URL               | the site's address                           |
 | Authorization callback URL | `https://<your-worker>.workers.dev/callback` |
 

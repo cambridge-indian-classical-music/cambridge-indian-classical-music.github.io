@@ -1,4 +1,4 @@
-# CUICMS website
+# CUICM website
 
 The website of the **Cambridge University Indian Classical Music Society**.
 
@@ -32,6 +32,7 @@ there with its reasoning and the alternatives that were rejected.
 | [docs/MAINTAINING.md](docs/MAINTAINING.md)     | Running the site locally, making code changes, upgrading |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Hosting, domain, deploys, setting up the CMS             |
 | [docs/TICKETING.md](docs/TICKETING.md)         | How ticketing works and how to change provider           |
+| [docs/TERMS.md](docs/TERMS.md)                 | Ticket and membership terms and conditions               |
 | [docs/HANDOVER.md](docs/HANDOVER.md)           | Accounts, access and the annual handover checklist       |
 | [ARCHITECTURE.md](ARCHITECTURE.md)             | Why the site is built the way it is                      |
 
@@ -127,19 +128,21 @@ rm public/brochures/sample-programme.pdf src/assets/images/placeholder-*.png
 
 **2. Replace the placeholder values:**
 
-| File                         | What to change                                                                  |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| `src/site.config.ts`         | `committee@example.org` → the society address; the Instagram and Facebook links |
-| `src/content/committee.yml`  | The three `A. N. Example` entries                                               |
-| `src/content/pages/about.md` | Placeholder text — rewrite in the society's own words                           |
-| `astro.config.mjs`           | `site:` → the real domain, once registered                                      |
-| `public/admin/config.yml`    | `repo:` and `base_url:` — only if the CMS is being set up                       |
+| File                         | What to change                                                             |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `src/site.config.ts`         | The Instagram and Facebook links (the society email is already set)        |
+| `src/content/committee.yml`  | The three `A. N. Example` entries                                          |
+| `src/content/pages/about.md` | Placeholder text — rewrite in the society's own words                      |
+| `src/content/membership/`    | `joinUrl` — add the payment link once it exists; check the price and dates |
+| `astro.config.mjs`           | `site:` → the real domain, once registered                                 |
+| `public/admin/config.yml`    | `repo:` and `base_url:` — only if the CMS is being set up                  |
 
 **3. Decisions that are genuinely open** — section 5 of
 [ARCHITECTURE.md](ARCHITECTURE.md) gives the reasoning behind each:
 
-- [ ] Ticketing provider (fee analysis and recommendation in [docs/TICKETING.md](docs/TICKETING.md))
-- [ ] Which **society** bank account receives ticket income
+- [ ] Which **society** bank account receives ticket income — confirm the existing
+      Lloyds account is held by the society with two signatories, not by an
+      individual
 - [ ] Domain name
 - [ ] Whether to set up the CMS at all
 - [ ] Whether to turn on analytics

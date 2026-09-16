@@ -6,7 +6,7 @@ import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 /**
- * The content model for the CUICMS website.
+ * The content model for the CUICM website.
  *
  * Everything the site publishes is validated here before it can be built. If a
  * content file breaks one of these rules, `npm run build` fails with a message
@@ -232,6 +232,68 @@ const artists = defineCollection({
 });
 
 /* -------------------------------------------------------------------------- */
+/* Membership                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The annual society membership.
+ *
+ * This is its own collection rather than an event, because a membership is not
+ * an event: it runs for over a year, has no venue, and would otherwise sit at
+ * the top of the "upcoming events" list until it expired. See docs/TICKETING.md.
+ *
+ * It is a collection rather than settings in code because the price, the dates
+ * and the joining link all change every year, and changing them must not require
+ * editing TypeScript. One file per membership year, so last year's terms stay
+ * readable in Git.
+ */
+const membership = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/membership' }),
+  schema: z
+    .object({
+      /** e.g. "Membership 2026–27". Shown as the page heading. */
+      title: z.string().min(1),
+
+      /** Used on the page and in social previews. One sentence. */
+      summary: z
+        .string()
+        .min(1)
+        .max(200, 'Keep the summary under 200 characters — it is used as the page description.'),
+
+      /**
+       * Free text, exactly as the member will be charged — e.g. "£15".
+       * Write what they pay, not what the society receives after fees.
+       */
+      price: z.string().min(1).describe('e.g. "£15" or "£15 / £10 concessions".'),
+
+      /** When membership becomes valid, and when it runs out. */
+      opens: wallClock,
+      closes: wallClock,
+
+      /**
+       * Where to join — a hosted payment page on the provider's own domain.
+       * Leave it out until one exists: the page then says joining opens soon,
+       * rather than showing a button that goes nowhere. See ADR-006.
+       */
+      joinUrl: z.url('Must be a full web address starting with https://').optional(),
+
+      /** What a member actually gets. At least one, or there is nothing to sell. */
+      benefits: z
+        .array(z.string().min(1))
+        .min(1, 'List at least one thing membership entitles a member to.')
+        .describe('One line each, e.g. "Perform in Society concerts".'),
+
+      /** Work in progress — hidden from the built site. */
+      draft: z.boolean().default(false),
+    })
+    /* A membership that expires before it starts is always a typo. */
+    .refine((data) => data.closes > data.opens, {
+      message: 'Membership closes before it opens — check both dates.',
+      path: ['closes'],
+    }),
+});
+
+/* -------------------------------------------------------------------------- */
 /* Ordinary pages and committee list                                          */
 /* -------------------------------------------------------------------------- */
 
@@ -260,4 +322,4 @@ const committee = defineCollection({
   }),
 });
 
-export const collections = { events, artists, pages, committee };
+export const collections = { events, artists, membership, pages, committee };

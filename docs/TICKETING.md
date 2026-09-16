@@ -61,14 +61,27 @@ more than the percentage does, so the provider with the lowest advertised rate i
 often not the cheapest. **Compare the fee on an actual ticket price, never the
 headline percentage.**
 
-| Provider                       | Rate                   | Fee on £8 | Fee on £10 | What you get   |
-| ------------------------------ | ---------------------- | --------- | ---------- | -------------- |
-| **TryBooking**                 | 5% + 15p               | £0.55     | £0.65      | Full ticketing |
-| **Eventbrite**                 | 6.95% + 59p            | £1.15     | £1.29      | Full ticketing |
-| **SumUp** (online)             | 2.5%, **no fixed fee** | £0.20     | £0.25      | Payment only   |
-| **Stripe**                     | 1.5% + 20p             | £0.32     | £0.35      | Payment only   |
-| SumUp (card reader, in person) | 1.69%                  | £0.14     | £0.17      | Payment only   |
-| Bank transfer                  | —                      | £0        | £0         | Nothing        |
+| Provider                        | Rate                       | Fee on £8 | Fee on £10 | What you get   |
+| ------------------------------- | -------------------------- | --------- | ---------- | -------------- |
+| **TryBooking**                  | 5% + 15p                   | £0.55     | £0.65      | Full ticketing |
+| **FIXR** (student rate)         | 3.99% + 49p **plus VAT**   | ~£0.97    | ~£1.07     | Full ticketing |
+| **Eventbrite**                  | 6.95% + 59p                | £1.15     | £1.29      | Full ticketing |
+| **SumUp** (online)              | 2.5%, **no fixed fee**     | £0.20     | £0.25      | Payment only   |
+| **Stripe**                      | 1.5% + 20p                 | £0.32     | £0.35      | Payment only   |
+| SumUp (card reader, in person)  | 1.69%                      | £0.14     | £0.17      | Payment only   |
+| TryBooking Box Office, **cash** | 15p, **no processing fee** | £0.15     | £0.15      | Full ticketing |
+| Bank transfer                   | —                          | £0        | £0         | Nothing        |
+
+Two rows deserve a second look.
+
+**Cash through TryBooking's Box Office app skips the processing fee entirely** —
+only the 15p ticket fee applies. At a freshers' fair, where somebody is standing
+there anyway, that turns a 55p fee into 15p. Card sales through Box Office are
+charged normally.
+
+**FIXR's rate is quoted excluding VAT**, unlike TryBooking's, which includes it.
+Comparing like with like, FIXR's 3.99% is really 4.79% and its 49p is really 59p.
+Fees are also rounded up to the nearest 10p.
 
 > **Correction, September 2026.** An earlier version of this document quoted
 > SumUp at **1.69% online**. That is SumUp's **card-reader** rate. Their
@@ -106,20 +119,66 @@ twice TryBooking and about **5.7 times** what a bare payment processor costs. It
 remains free for free tickets, so it is a reasonable choice for free workshops if
 someone already knows it — but TryBooking is free for those too.
 
+#### FIXR, and an important qualification to "cheaper"
+
+**The society already has a FIXR page.** The original comparison above was made
+without knowing that, which weakened it: "we already run a working platform" is a
+real argument that never entered the reckoning. Anyone re-reading this should
+weigh it.
+
+FIXR is student-focused, and on **percentage alone it beats TryBooking** — its
+student rate is 3.99% against TryBooking's 5%. The gap is entirely in the fixed
+fee: **59p including VAT against 15p**. The two are level at about **£207 a
+ticket**, and TryBooking is cheaper the whole way below that — £0.55 against
+£0.97 on an £8 ticket, £2.65 against £2.98 even at £50. So on total fees
+TryBooking wins at every price this society will ever charge, and FIXR's lower
+percentage never gets the chance to matter.
+
+**But "cheaper" needs qualifying, because it depends who pays.** FIXR's fee is
+**always added to the buyer** and cannot be absorbed; the society always receives
+face value. TryBooking lets you choose — and this society chose to absorb. On an
+£8 ticket:
+
+| Setup                                | Society receives | Buyer pays |
+| ------------------------------------ | ---------------- | ---------- |
+| FIXR                                 | **£8.00**        | £9.00      |
+| TryBooking, fees absorbed _(in use)_ | **£7.45**        | £8.00      |
+| TryBooking, fees passed to buyer     | £8.00            | £8.55      |
+
+TryBooking is genuinely more efficient — 45p less per ticket leaves the system.
+But because the society absorbs rather than passes on, that efficiency is handed
+to the buyer, and **the society's own income is about 55p per ticket lower than it
+would be on FIXR**. Across a few hundred tickets a year that is well over £100.
+
+So: TryBooking is cheaper in total, FIXR is better for the bank balance under the
+current settings, and TryBooking is cheaper for the audience. All three statements
+are true at once, and which matters is a judgement rather than a calculation.
+
+**What would actually justify moving off FIXR** is capability, not fees: whether
+it can do a 13-month membership, a searchable per-ticket attendee name, and wallet
+passes. That was never established. Whoever revisits this should check those
+before assuming a switch is warranted.
+
 ### The saving that actually matters
 
 At a realistic 40 tickets at £8 — £320 a concert:
 
-| Approach                          | Cost to the society |
-| --------------------------------- | ------------------- |
-| Eventbrite                        | **~£46**            |
-| TryBooking (default fee split)    | £16                 |
-| TryBooking (fees passed to buyer) | **£0**              |
-| Bank transfer                     | £0                  |
+| Approach                                           | Cost to the society |
+| -------------------------------------------------- | ------------------- |
+| Eventbrite                                         | **~£46**            |
+| **TryBooking, society absorbs both fees** ← in use | **£22**             |
+| TryBooking (default fee split)                     | £16                 |
+| TryBooking (fees passed to buyer)                  | **£0**              |
+| Bank transfer                                      | £0                  |
 
 **Moving off Eventbrite is the only fee decision worth real effort.** Everything
 below that line is a few pounds a concert, which is less than the value of one
 committee member's afternoon.
+
+The society absorbs both fees by choice, which is the dearest TryBooking option
+rather than the cheapest. The reasoning — honest advertised prices, and refunds
+that actually return what people paid — is in "Before you sell" below, along with
+the reason not to change it casually.
 
 ### Zero-commission: direct bank transfer
 
@@ -282,9 +341,9 @@ handoverable at all.
 Set the **capacity** on the ticketing provider's side, not here. The website
 shows a link; the provider is what counts seats and stops selling.
 
-### Before you sell: three settings to get right first
+### Before you sell: four settings to get right first
 
-All three are far easier to set before the first ticket is sold than to fix
+All four are far easier to set before the first ticket is sold than to fix
 afterwards, and the first one cannot be fixed at all. Work through them when you
 create the event, not on the morning of the concert.
 
@@ -326,24 +385,38 @@ Source:
 
 #### 2. Turn on Apple and Google Wallet passes
 
-**Dashboard → Global event settings → "Apple and Google wallet tickets".** Check
-it is switched on before selling. TryBooking's wording is _"Now you can decide if
-your ticket buyers can add their tickets to their smartphone wallets. Simply
-toggle this option to either enable or disable"_ — and the documentation **does
-not say which way it defaults**, so look rather than assume.
+**Dashboard → Global event settings → "Apple and Google wallet tickets".**
+TryBooking's wording is _"Now you can decide if your ticket buyers can add their
+tickets to their smartphone wallets. Simply toggle this option to either enable or
+disable"_. **Observed to be on by default when an account was created in September
+2026**, which their documentation does not state either way — so glance at it
+rather than trusting this note, particularly if a future committee starts from a
+fresh account.
 
 **Why it matters more than it looks.** TryBooking has no account for ticket
 buyers — its own help centre says "Accounts are for Event Organisers only." There
 is no attendee app and no purchase history to log into. Email is the only channel
-TryBooking owns, and its self-service resend page carries an unresolved
-contradiction: one help page says it returns tickets booked "within the last 12
-months", another does not mention a limit. **The wallet pass is therefore the only
-durable copy a buyer holds**, and it survives a changed email address, a lost
-inbox and a new phone.
+TryBooking owns, and the self-service resend at `trybooking.com/resend-tickets`
+has **two limits**: it only returns tickets for events still in the future, _and_
+only for bookings made "within the last 12 months". **The wallet pass is therefore
+the only durable copy a buyer holds**, and it survives a changed email address, a
+lost inbox and a new phone.
 
-That matters most for anything long-lived. A membership bought in September 2026
-and valid until October 2027 is exactly the case where "find the email from last
-year" fails. Tell buyers to add the pass at the moment of purchase.
+**Worked through for a membership**, because the twelve-month limit is easy to
+miss. A member who books on a given day loses self-service resend twelve months
+later. For a membership running 15 September 2026 to 30 October 2027, anyone
+joining before 30 October 2026 loses it _before their membership expires_ — a
+member who joins on the opening day is cut off 45 days early. Since most people
+join in the first weeks of Michaelmas, that is most of the membership.
+
+It is survivable because of two things, but only if both are in place: buyers who
+added the **wallet pass** are unaffected, and **organiser-side resend** (Booking &
+Refunds → Manage bookings → Resend Booking Confirmation) has no documented
+lookback limit, so the committee is always the backstop. Expect a few "I've lost
+my membership" emails each autumn and resend them by hand.
+
+Tell buyers to add the pass at the moment of purchase — it is the only step that
+makes a long-lived ticket genuinely durable.
 
 A useful property: wallet passes **update automatically** if you later correct the
 event or booking details, so a mistake in a membership's dates can still be fixed
@@ -386,6 +459,292 @@ connection and will stall at the door.
 
 Source:
 [Multi-day access scanning](https://learn.trybooking.com/en/articles/46348).
+
+#### 4. Fees: the society absorbs both (decided September 2026)
+
+**Dashboard → Global event settings → fee structure.** TryBooking charges two
+things on top of your ticket price, and each can be billed either to the society
+or to the buyer:
+
+|                    | What it is             | Setting      |
+| ------------------ | ---------------------- | ------------ |
+| **Processing fee** | 5% of the ticket price | Society pays |
+| **Ticket fee**     | 15p per ticket         | Society pays |
+
+Neither is the ticket price. TryBooking's "ticket fee" is its own service charge —
+in their words, _"a service fee for using the system… not a fee for attending the
+event"_. The buyer always pays the ticket price regardless.
+
+**The effect:** an £8 membership costs the buyer exactly £8.00, and the society
+receives £7.45. Nothing is added at checkout. The advertised price is the price on
+the poster, the website, the card statement and the refund.
+
+**Why this rather than passing the fees on**, which would cost the society
+nothing:
+
+- **The advertised price is honest.** Fees appearing at the last screen are a
+  well-known cause of abandoned baskets, and for a membership — where the ask is
+  "join us" — a £0.55 surprise is a poor first impression.
+- **It is the only setting under which refunds work properly.** See below. This is
+  the load-bearing reason.
+
+**The cost, so it is not a surprise:** roughly **£22 on a 40-ticket concert at
+£8**, or about **£176 a year** across eight events. That is about £48 a year more
+than the default split and £176 more than passing everything to buyers. It was
+judged worth it for the two reasons above.
+
+> **Do not flip this without reading TERMS.md.** The 15p ticket fee is **never
+> refunded** — TryBooking keep it "in any circumstances (including where the
+> ticket price has been refunded by the Event Organiser)". The 5% processing fee
+> _is_ reversed. So while the society absorbs the ticket fee, a refunded buyer
+> gets back exactly what they paid, and clause 4.1 of [TERMS.md](TERMS.md) —
+> _"If we cancel an event, you will receive a full refund"_ — is a promise that
+> can be kept. Move the ticket fee onto the buyer and it silently becomes one that
+> cannot: they would be 15p short on every refund, including refunds caused by the
+> society cancelling. If a future committee changes this setting, clause 4.1 must
+> be reworded at the same time.
+
+One consequence to expect: a cancelled event now costs the society the 15p booking
+fee on every ticket sold, on top of the lost income. That is the right way round —
+it should not fall on the audience — but it is a real cost of cancelling.
+
+### Does the membership need a ticketing platform at all?
+
+Ask this before configuring anything. It was asked late, and the answer is less
+obvious than it looks.
+
+**The reason to buy a ticketing platform is capacity counting.** A payment link
+cannot stop selling at sixty seats. But **the membership is uncapped** — so that
+argument, which drives the whole of "First decide which kind of thing you need"
+above, simply does not apply to it. Concerts need a platform. The membership may
+not.
+
+**And membership carries no door.** Look at what it actually entitles someone to
+(clause 2.2 of [TERMS.md](TERMS.md)): performing in concerts, voting at the AGM,
+standing for committee. Every one of those is settled by the **committee checking
+a list** — you programme the performers, you check the roll at the AGM, you check
+eligibility at nomination. Nobody arrives at a door and has to convince a stranger
+they belong. That is the opposite of a concert ticket.
+
+**Which makes a QR code decoration.** A QR is only meaningful if something
+validates it — scanning asks a database "is this genuine, and has it been used?"
+With no scanning and no database, a QR on a membership PDF encodes a number nobody
+can check. It looks official and proves nothing. The original specification asked
+for one because the membership was framed as a ticket; on the benefits as written,
+it does not earn its place.
+
+**What the membership actually needs is a reliable list**: name, email, date paid,
+amount. That is all three benefits administered.
+
+#### Cheaper routes that become available
+
+Because no capacity counting is needed, options ruled out for concerts are back.
+Membership is **£15** for 2026–27, so these are costed at that price rather than
+the £8 concert ticket used elsewhere in this document:
+
+| Route                           | Fee on £15 | Effective | Society nets | Worth knowing                                |
+| ------------------------------- | ---------- | --------- | ------------ | -------------------------------------------- |
+| **Cambridge SU societies page** | Unknown    | —         | —            | **Ask first** — see below                    |
+| **Bank transfer**               | £0         | 0%        | £15.00       | Reconciliation by hand                       |
+| **Cash via Box Office app**     | £0.15      | **1.0%**  | £14.85       | In person only; no processing fee on cash    |
+| **SumUp Payment Link**          | £0.38      | 2.5%      | £14.63       | Cheapest card route; thinner data collection |
+| **Stripe Payment Link**         | £0.43      | **2.8%**  | £14.58       | Collects names and custom fields. **Chosen** |
+| TryBooking online               | £0.90      | 6.0%      | £14.10       | Twice the fee, for capacity you do not need  |
+| FIXR                            | ~£1.40     | 9.3%      | £15.00       | Buyer pays £16.40; fee cannot be absorbed    |
+
+**At 100 memberships a year that is £90 in fees if everything is sold online,
+against £15 if it is all taken as cash.** Most sign-ups happen at the freshers'
+fair, where somebody is standing there anyway, so **taking cash through the Box
+Office app is the single largest saving available** — roughly £75 a year for no
+extra work, and everyone still lands in the same attendee list.
+
+A note on the price itself: to net a clean £15 while absorbing the fees you would
+have to charge **£15.95**. That was considered and rejected — £15 is a better
+number to advertise, print and say out loud at a freshers' fair, and the cash
+route recovers most of the same money without making the headline price awkward.
+
+#### Recommendation: a Stripe Payment Link (decided September 2026)
+
+**Use a Stripe Payment Link for online membership, and cash through the Box
+Office app at the freshers' fair.** Keep TryBooking for concerts, where capacity
+counting genuinely earns its fee.
+
+**Why a payment link rather than a ticketing platform.** A membership is a
+fixed-price product with no capacity cap, no QR code and no door check. That is
+exactly what a payment link is for, and payment links cost roughly **half** what
+a ticketing platform does — 2.8% against 6.0%, or about **£43 a year instead of
+£90** across a hundred memberships. Paying a ticketing platform for a membership
+means paying for seat counting that nothing is counting.
+
+**Why Stripe rather than SumUp**, which is 5p cheaper: Stripe Payment Links can
+collect, with no code at all —
+
+- the member's **name**, as a built-in option;
+- their **email**, as standard;
+- **custom fields** — free text, number or dropdown — for anything else worth
+  asking;
+- a **terms-of-service checkbox** linking to the society's published terms, which
+  matters because membership carries AGM voting rights (see [TERMS.md](TERMS.md)).
+
+Everything collected appears against the payment in the Stripe dashboard, which is
+searchable and exportable. **That is the membership registry** — the list this
+document says the membership actually needs. It arrives free, with no database, no
+admin page and no code to maintain. SumUp's link product is thinner and much less
+clear about what it captures; for a membership where the record _is_ the point,
+Stripe's data collection is worth the 5p.
+
+**What this costs:** a second payment account to hand over. Stripe requires
+identity checks on a named individual and ties to a bank account, so it carries
+the same discipline as everything else — society email, society bank account,
+never personal. See "Who owns the payment account" above.
+
+**What the website does about it.** `/membership` shows the price, the validity
+dates and what membership includes, then links out to the payment link. It never
+takes a payment and holds no member data, exactly as with concert tickets
+(ADR-006). Content lives in `src/content/membership/`, one file per year, so the
+price, dates and joining link can be changed without touching code. Leave
+`joinUrl` out until a real link exists and the page says joining opens shortly
+rather than showing a button that goes nowhere.
+
+**Setting it up** is dashboard work, not development: create a product at £15,
+create a Payment Link for it, switch on name collection and the terms-of-service
+checkbox, then paste the link into `joinUrl`. No keys, no webhooks, nothing
+deployed.
+
+**Ask Cambridge SU first.** Many students' unions run a societies portal where
+students join and pay through the union, often at no commission. The society is
+SU-registered, so if Cambridge SU offers this it could be free **and** solve the
+society bank account problem that blocks everything else. This could not be
+confirmed from their published material — **email activities@cambridgesu.co.uk**
+and ask whether societies can collect membership fees through their SU page, and
+at what commission.
+
+**Bank transfer deserves a fairer hearing here than in "Zero-commission" above.**
+That section's objections are that it cannot cap numbers and cannot issue a ticket
+at the moment of payment. Neither applies to an uncapped membership that does not
+need a ticket. What remains is reconciliation — and at a freshers' fair somebody
+is standing there anyway and can watch the transfer complete and tick the name off
+on the spot. That is the one situation where its weakness largely disappears.
+
+#### Two things to get right if the platform is dropped
+
+**Where the member list lives.** It is personal data, so **never in this
+repository** — it is public. It belongs on society-owned storage, registered to
+the society email, for the same reason as every other account. A list in a
+graduating student's personal Drive is the failure this project exists to prevent.
+
+**Who maintains it, and when it is checked.** A list nobody keeps current is worse
+than none, and the moment it becomes load-bearing — a contested vote at the AGM —
+is the worst moment to discover it is out of date.
+
+#### What would reverse this conclusion
+
+**If members ever get free or discounted entry to concerts**, there _is_ a door,
+strangers _do_ have to be checked, and a scannable ticket earns its place again.
+That is not among the current benefits, but it is the obvious thing a future
+committee might add — and it would change the answer completely. Anybody adding
+that benefit should re-read this section first.
+
+### Modelling the annual membership
+
+TryBooking has **no membership or season-pass product**. Its model is an event
+with sessions, so a membership has to be built out of those parts. This is how,
+and why.
+
+**One event, one long session.** The session _is_ the validity period. For
+2026–27 that is **Tuesday 15 September 2026, 08:00** to **Saturday 30 October
+2027, 16:00** — the same dates as clause 2.1 of [TERMS.md](TERMS.md), which must
+be kept in step.
+
+> Both of those are **BST**, not GMT. British Summer Time in 2027 does not end
+> until Sunday 31 October, so the closing time falls one day inside it. This is
+> exactly the trap the website's own date handling was designed to avoid, and it
+> is easy to repeat when the dates are typed by hand into someone else's system.
+
+**Price: £15** for 2026–27, with the society absorbing both fees, so the buyer is
+charged exactly £15.00 and the society receives £14.10 online or £14.85 on cash.
+See "Cheaper routes" above for why the price was not raised to £15.95 to cover
+the fees.
+
+**Allocation type: Space.** A membership has no seating, so general admission is
+the only sensible choice. Space is also where the capacity number lives. There is
+no confirmed "unlimited" option, so set a comfortably high figure — a thousand,
+say — rather than hunting for one. TryBooking's 100-ticket limit is **per
+transaction**, not a cap on total sales, so it never comes near a membership
+people buy one or two of.
+
+**Venue, not online.** A membership is neither, but online mode implies joining
+instructions and a link that do not exist, which would put nonsense on a
+membership card.
+
+#### Session dates are not the same as booking dates
+
+The mistake to avoid: **if sales close when the session starts, nobody can join
+after the first morning.** Booking availability has to run across the membership
+period so somebody can join in January.
+
+But do not run sales to the very end either, for two reasons:
+
+- Somebody joining on 29 October 2027 pays a full year's fee for one day, which
+  is a refund request waiting to happen.
+- **The membership year overlaps itself.** Thirteen and a half months means that
+  when the 2027–28 membership opens in September 2027, both are on sale at once.
+  The overlap is deliberate — it stops members lapsing at the start of Michaelmas
+  before the new year opens — but it lets somebody buy the _old_ membership by
+  mistake and get six weeks instead of a year.
+
+**So close each year's sales when the next year's open**, around mid-September.
+Set it when the event is created; a future committee will not know the overlap was
+intentional and will not think to close it.
+
+**Not verified:** whether TryBooking permits booking availability to extend beyond
+the session _start_. If it does not, the single-long-session model does not work
+and the membership needs rethinking — check this before building the rest. See
+"Open questions for TryBooking support" below.
+
+### Open questions for TryBooking support
+
+Things this document assumes but could not confirm from TryBooking's own
+documentation, as of September 2026. They are collected here so a future
+committee can see at a glance what is verified and what is merely assumed.
+
+**If you get an answer, write it in here** and delete the question. An
+unanswered question that has quietly become folklore is worse than no note at
+all.
+
+**1. Can booking availability extend beyond the session start?** _(ask this one
+first)_
+
+Some platforms tie ticket sales to the event date. If TryBooking does, the
+membership cannot be modelled as one long session, because sales would close on
+15 September 2026 and nobody could join for the rest of the year. Everything in
+"Modelling the annual membership" above depends on the answer being yes.
+_Assumed: yes._
+
+**2. Is unlimited capacity possible, or must a finite number be entered?**
+
+The capacity documentation only describes typing a number into "Number of
+Attendees". If there is no unlimited option, a high finite cap has to stand in
+for one. _Assumed: no unlimited option; set a high number._ Low stakes — the
+workaround is fine — but worth knowing rather than guessing.
+
+**3. On a refund, is the processing-fee reversal applied at the same moment as
+the payout, or afterwards?**
+
+A refund returns the buyer the full ticket price, but the account balance only
+ever received the price minus fees. If the 5% reversal lands simultaneously the
+balance nets out; if it lands later, the balance can dip below what the refund
+needs. _Assumed: it nets out._ This one may answer itself the first time a refund
+is processed — if it does, record what happened.
+
+**4. Does a session ending far in the future slow payouts?** _(low priority)_
+
+Transfers requested "before your event date" can face additional checks taking up
+to seven days, against one to three normally. The membership's session does not
+end until October 2027, so every withdrawal during the membership year is
+technically pre-event. _Assumed: an inconvenience, not a problem_ — nothing
+time-critical is paid out of membership income, unlike a concert where an artist
+may need paying. Worth asking only if payouts actually turn out to be slow.
 
 ### Free events, or events with no booking
 
@@ -459,3 +818,8 @@ in mind:
   is where they should stay. Do not export them into a spreadsheet in someone's
   personal cloud storage, and do not commit them to this repository — it is
   public.
+
+The society's own terms — refunds, membership rights, non-transferability and
+what happens to a buyer's data — are in **[TERMS.md](TERMS.md)**. That file is the
+master copy; the live version sits in TryBooking's Global event settings and must
+be kept in step with it.

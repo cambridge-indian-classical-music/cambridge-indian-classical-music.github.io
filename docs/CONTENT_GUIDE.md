@@ -225,6 +225,45 @@ See [TICKETING.md](TICKETING.md).
 
 ---
 
+## Membership
+
+Membership has its own page and its own file, because it is not an event — it
+runs for over a year and has no venue.
+
+**One file per year**, in `src/content/membership/`. To open a new year, copy the
+existing file, rename it (`2027-28.md`) and change the details:
+
+```yaml
+title: Membership 2027–28
+summary: Join the Society for the 2027–28 year.
+price: £15
+opens: '2027-09-14T08:00'
+closes: '2028-10-28T16:00'
+joinUrl: https://buy.stripe.com/xxxxxxxxxxxx
+benefits:
+  - Perform in Society concerts
+  - Vote at the Annual General Meeting
+  - Stand for election to the Committee
+```
+
+**Do not delete the old file.** It is the record of what last year's members were
+told they were buying. The page always shows the newest one.
+
+Three things worth knowing:
+
+- **Write the price exactly as the member will be charged**, not what the society
+  receives after fees. If the page says £15, the checkout must say £15.
+- **Leave `joinUrl` out until the payment link exists.** The page then says
+  joining opens shortly, instead of showing a button that goes nowhere.
+- **If you prepare next year's membership early, set `draft: true`** until it
+  opens. Otherwise it replaces the current one on the page as soon as it is
+  merged.
+
+The dates are written the same way as concert times — plain Cambridge clock time,
+no timezone. See "Times: write what is on the poster" above.
+
+---
+
 ## Updating the committee
 
 Once a year, after elections. Open `src/content/committee.yml` on GitHub and

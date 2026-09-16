@@ -229,6 +229,54 @@ collections:
       - { name: body, label: Biography, widget: markdown }
 
   # -------------------------------------------------------------------------
+  # Membership — one file per year. See docs/TICKETING.md.
+  # -------------------------------------------------------------------------
+  - name: membership
+    label: Membership
+    folder: src/content/membership
+    create: true
+    slug: '{{slug}}'
+    fields:
+      - { name: title, label: Title, widget: string, hint: 'e.g. Membership 2026–27' }
+      - {
+          name: summary,
+          label: Summary,
+          widget: string,
+          hint: One sentence. Shown on the page and when shared. Maximum 200 characters.,
+        }
+      - { name: price, label: Price, widget: string, hint: 'Exactly what the member is charged, e.g. "£15".' }
+      - name: opens
+        label: Valid from
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm'
+        date_format: 'DD/MM/YYYY'
+        time_format: 'HH:mm'
+        picker_utc: false
+
+      - name: closes
+        label: Valid until
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm'
+        date_format: 'DD/MM/YYYY'
+        time_format: 'HH:mm'
+        picker_utc: false
+      - {
+          name: joinUrl,
+          label: Joining link,
+          widget: string,
+          required: false,
+          hint: The payment page address. Leave empty until it exists — the page then says joining
+            opens soon instead of showing a dead button.,
+        }
+      - name: benefits
+        label: What membership includes
+        widget: list
+        hint: One per line, e.g. "Perform in Society concerts".
+        field: { name: benefit, label: Benefit, widget: string }
+      - { name: draft, label: Draft (hidden from the site), widget: boolean, default: false }
+      - { name: body, label: Further details, widget: markdown }
+
+  # -------------------------------------------------------------------------
   # Ordinary pages and the committee list
   # -------------------------------------------------------------------------
   - name: pages
