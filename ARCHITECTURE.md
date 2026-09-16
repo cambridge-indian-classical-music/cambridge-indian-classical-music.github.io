@@ -290,14 +290,28 @@ remains rejected for the original reason — it would be handed down through
 committees, never rotated when somebody left, and tell you nothing about who used
 it.
 
-**Authentication: two routes, and the recommended one is OAuth.** The CMS needs
-permission to write to GitHub on the editor's behalf, and a static site cannot
-arrange that alone. `docs/DEPLOYMENT.md` has the steps; the choice is:
+**Authentication: four routes, and the recommended one uses a Cloudflare
+Worker.** The CMS needs permission to write to GitHub on the editor's behalf.
+OAuth requires a client secret, and **a secret cannot live in a static site** —
+anyone could read it — so the sign-in flow needs some small always-on service to
+hold it. That is true on any host: GitHub Pages cannot do it, and neither could
+Cloudflare Pages. It is a property of OAuth, not of where the site lives.
 
-| Route                          | What it needs                              | Why not / why yes                                                                                                                                                                                                                                                                    |
-| ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Personal access token**      | Nothing — no server, no account            | Sveltia's quickest start. But generating a correctly scoped token is arguably harder to explain than the sign-in button it replaces, and it leaves a long-lived credential in each editor's browser. Revoking access means chasing tokens, not removing someone from the repository. |
-| **OAuth app + auth worker** ✅ | A GitHub OAuth app and a Cloudflare Worker | A real "Sign in with GitHub" button. Access is exactly GitHub repository access. Editors handle no credentials. **Recommended if the CMS is set up at all.**                                                                                                                         |
+Sveltia's GitHub backend documentation lists four options.
+`docs/DEPLOYMENT.md` has the steps for the recommended one.
+
+| Route                            | Extra account?            | Assessment                                                                                                                                                                                                                                                                           |
+| -------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Personal access token            | **None** — no server      | Sveltia's quickest start. But generating a correctly scoped token is arguably harder to explain than the sign-in button it replaces, and it leaves a long-lived credential in each editor's browser. Revoking access means chasing tokens, not removing someone from the repository. |
+| **Sveltia CMS Authenticator** ✅ | Cloudflare                | Sveltia's own client, _"that you can deploy on Cloudflare Workers"_ — official, maintained, one-click deploy, no other target documented. **Recommended if the CMS is set up at all.**                                                                                               |
+| Third-party OAuth client         | Depends where you host it | Clients built for Netlify/Decap CMS work unmodified. But Sveltia is explicit: _"Third-party clients are not reviewed or maintained by the Sveltia CMS team."_ Unmaintained auth code is a poor inheritance for a committee that cannot audit it.                                     |
+| Netlify as OAuth client          | Netlify                   | Supported, but documented as being _"for Netlify customers"_ — so it trades a Cloudflare account for a Netlify one. A lateral move, not a saving.                                                                                                                                    |
+
+**So Cloudflare is not mandatory — it is the best-supported of the options that
+need a server.** The genuinely account-free route is the token, and it is
+rejected on editor experience and revocation, not on cost. If the outstanding
+question in section 5 about token scoping resolves favourably, that judgement is
+worth revisiting.
 
 **The auth worker does not imply moving hosting, and this is worth being precise
 about.** Sveltia's authenticator is a **Cloudflare Worker** — the product
@@ -783,6 +797,18 @@ committee decision, not on more work.
   Note that creating whole pages needs code changes first, also in ADR-005.
 - **Whether to turn on analytics.** Off by default (ADR-011). A deliberate
   choice to leave to the committee, not an oversight.
+
+**Unverified, and worth checking before acting on it:**
+
+- **Whether a GitHub personal access token can be scoped narrowly enough to be
+  safe in a non-technical editor's browser.** This is the one thing that could
+  make the CMS work with **no extra account at all** — no Cloudflare, no
+  Netlify, no third-party OAuth client (ADR-005). It was flagged for
+  verification when the CMS options were first compared and has never been
+  checked. If a fine-grained token can be limited to this one repository, with
+  contents write and nothing else, the token route becomes considerably more
+  attractive than its current assessment allows. Until somebody checks, the
+  OAuth recommendation stands on an assumption rather than a finding.
 
 **Deliberately deferred, with the trigger written down:**
 
