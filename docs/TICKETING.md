@@ -83,6 +83,14 @@ charged normally.
 Comparing like with like, FIXR's 3.99% is really 4.79% and its 49p is really 59p.
 Fees are also rounded up to the nearest 10p.
 
+**Every figure here assumes a UK card.** TryBooking applies additional surcharges
+for foreign cards and some alternative payment methods, and every provider does
+something similar — Stripe charges 3.15% + 20p on international cards against
+1.5% + 20p domestically. For a society with a good number of international
+students this is not hypothetical. It does not change which provider wins, since
+they all surcharge, but the real blended rate will run slightly above the numbers
+above.
+
 > **Correction, September 2026.** An earlier version of this document quoted
 > SumUp at **1.69% online**. That is SumUp's **card-reader** rate. Their
 > published **online** rate is **2.5%** on every plan, including the £19/month
@@ -321,7 +329,48 @@ account-owner transfer process and supports multiple users on one box office, so
 add the incoming treasurer as a user before the outgoing one leaves rather than
 passing a password along. This was a deciding factor in choosing it: a ticketing
 account that can only be transferred by sharing login details is not really
-handoverable at all.
+handoverable at all. Which role to give whom is in
+[HANDOVER.md](HANDOVER.md) — the short version is that the **society email
+address must hold the Account Owner role**, because handing it to a person
+silently demotes the society.
+
+### Which bank account, and connecting it
+
+**Lloyds serves unregistered societies**, which matters because the obstacles
+elsewhere in this project — Apple's D-U-N-S requirement, Cambridge SU's finance
+accounts — all turned on not being a registered legal entity. Two products apply:
+
+- **Community Account** — not-for-profit clubs, societies and associations,
+  **explicitly including unregistered societies**, turnover under £250,000.
+- **Treasurer's Account** — charity, church, club or society, turnover under
+  £50,000.
+
+Both support **up to four signatories** with 1-, 2- or 3-to-sign mandates, which
+satisfies the two-signatory requirement above. Note that Lloyds moved to charging
+clubs and societies **up to £8.50 a month**; if that applies it is around £102 a
+year, more than the society's entire ticketing fee bill, so confirm the current
+terms rather than assuming the account is free.
+
+**There is no fee-free way to request a fixed amount by bank transfer.** Lloyds'
+"Request a Payment" — which pre-fills the amount and reference, and would have
+made bank transfer far less painful — is a **personal** banking feature and is not
+available on a society account. Their business equivalent, Pay by Link via
+Cardnet, is a card product with merchant fees, so it is not in the zero-fee
+category at all. Plain bank transfer with hand-typed references is therefore the
+only free route, with all the reconciliation that implies.
+
+**Connecting the account to TryBooking has two traps:**
+
+- **You cannot add a bank account to a fresh TryBooking account.** A **paid event
+  or a fundraising page must exist first**. So the order is: create the account,
+  build the event, then add banking — do not go hunting for the banking screen on
+  day one.
+- **Verification is a micro-deposit, not instant.** TryBooking sends a random
+  amount under £1, which appears on the statement labelled "TryBooking Payment"
+  after one to two business days; you then enter the exact figure. A small
+  balance may be needed before it will run, so this is the long pole — start it
+  early. Multiple bank accounts can be connected, so swapping a test account for
+  the society one later just triggers re-verification.
 
 ## Adding tickets to an event
 
@@ -341,11 +390,29 @@ handoverable at all.
 Set the **capacity** on the ticketing provider's side, not here. The website
 shows a link; the provider is what counts seats and stops selling.
 
+Two small things worth knowing when creating the event. Use the **Space**
+allocation type unless seats are genuinely being allocated — reserved seating
+means drawing a seating plan for every venue, every time, so that people can
+argue about row F. And TryBooking generates a **QR code for the booking page**,
+which is for posters and freshers' fair signage, not for this website: a visitor
+is already on a device and can simply tap the button. Check it resolves to the
+right page before anything goes to print.
+
 ### Before you sell: four settings to get right first
 
 All four are far easier to set before the first ticket is sold than to fix
 afterwards, and the first one cannot be fixed at all. Work through them when you
 create the event, not on the morning of the concert.
+
+> **Rehearse on a throwaway first.** Create a **private test event** with a cheap
+> ticket, buy one from another account, and check the whole path: the confirmation
+> email arrives, the wallet pass adds to a phone, the QR scans, and the attendee
+> name is searchable in the scanning app. It also unlocks the banking screen,
+> which needs a paid event to exist. Doing this on a disposable event rather than
+> on the real membership matters, because setting number 1 below cannot be applied
+> retrospectively — you want the mistakes to land somewhere they cost nothing.
+> Delete it afterwards. The only real cost is a few pence in non-refundable
+> booking fees.
 
 #### 1. Collect the attendee name on every ticket
 
@@ -415,8 +482,12 @@ Refunds → Manage bookings → Resend Booking Confirmation) has no documented
 lookback limit, so the committee is always the backstop. Expect a few "I've lost
 my membership" emails each autumn and resend them by hand.
 
-Tell buyers to add the pass at the moment of purchase — it is the only step that
-makes a long-lived ticket genuinely durable.
+Tell buyers to add the pass at the moment of purchase — it is the single step
+that makes a long-lived ticket genuinely durable. It is not a deadline, though:
+the "add to wallet" buttons appear in the **confirmation email** as well as on the
+confirmation page, so somebody who booked on a laptop can add the pass from their
+phone later. That only works on the phone itself — the link does nothing useful on
+a desktop, which looks like a fault if nobody says so first.
 
 A useful property: wallet passes **update automatically** if you later correct the
 event or booking details, so a mistake in a membership's dates can still be fixed

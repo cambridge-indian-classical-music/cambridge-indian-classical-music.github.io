@@ -44,7 +44,7 @@ repository.
 | **Ticketing provider**   | Selling tickets                       | Per-ticket fee                                      |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
 | **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free                                                |                | Optional. Omit if not using the CMS                                                  |
 | **Cloudflare Access**    | Gate on `/admin`, _if_ set up         | Free                                                |                | Not a separate account — a list of allowed emails on the Cloudflare account above    |
-| **Society bank account** | Receiving ticket income               | Usually free                                        |                | Two signatories. Check with Cambridge SU first                                       |
+| **Society bank account** | Receiving ticket income               | Free–£8.50/month                                    |                | Two signatories, held by the society. See [TICKETING.md](TICKETING.md)               |
 | **Password manager**     | Holds the above credentials           | Free–£                                              |                | Or the Students' Union's arrangements                                                |
 
 ### The domain is the one that bites
@@ -58,6 +58,38 @@ anyone notices, and by then someone else may have registered it.
 - Point renewal notices at the **society email**.
 - Put the renewal date in the committee calendar as well. Do not rely solely on
   the registrar's email.
+
+### The ticketing account has roles — use them
+
+TryBooking gives every person their **own username and password**, with six
+permission levels. Set it up this way and handover becomes adding and removing
+people rather than passing a shared password down the years.
+
+**The society email address must hold the Account Owner role.** There can only be
+one Account Owner at a time, and — this is the trap — when somebody else accepts
+that role, **the previous owner is automatically demoted to Power User**. So
+making a committee member the Account Owner silently moves the root of the
+account onto a personal address. Since only the Account Owner can transfer
+ownership, a student who graduates without remembering to hand it back leaves the
+account stranded behind an inbox nobody reads.
+
+Keep the society email as Account Owner permanently and ownership never has to
+transfer at all. Committee members come and go around a fixed root.
+
+| Role                 | Give it to                                         |
+| -------------------- | -------------------------------------------------- |
+| **Account Owner**    | The society email address. Nobody personally       |
+| **Power User**       | Treasurer and one other — can invite everyone else |
+| **Bookings Manager** | Whoever runs the door                              |
+| **Producer User**    | Committee members who only need to see the numbers |
+
+**Bookings Manager is worth knowing about.** It allows full booking management —
+find, resend, move, refund — while protecting account settings including
+**banking**. That is the role for somebody helping at a concert who has no
+business seeing the bank details.
+
+Each person accepts an activation email and sets their own password, so nobody
+shares credentials and removing one person disturbs nobody else.
 
 ---
 
