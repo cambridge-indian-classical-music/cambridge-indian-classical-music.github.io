@@ -1,14 +1,17 @@
 # ---------------------------------------------------------------------------
 # NOT IN EFFECT. Read this before trusting anything below.
 #
-# This file sets response headers on hosts that read it — Cloudflare Pages and
-# Netlify do; GITHUB PAGES DOES NOT. The site is currently on GitHub Pages
-# (ADR-007), so NONE of the protections below are being applied to the live
-# site. Nothing breaks visibly, which is exactly why it is written here.
+# This file sets response headers on hosts that read it — Cloudflare Pages,
+# Cloudflare Workers and Netlify do; GITHUB PAGES DOES NOT. The site is on
+# GitHub Pages and staying there (ADR-007, settled September 2026), so NONE of
+# the protections below are being applied to the live site, and none of them
+# will be unless hosting moves. Nothing breaks visibly, which is exactly why it
+# is written here.
 #
 # The file is kept rather than deleted for two reasons: it is the record of what
 # the policy should be, and it starts working again the moment the site moves to
-# a host that reads it — no re-derivation needed.
+# a host that reads it — no re-derivation needed. Do not read its presence as a
+# plan to move; there is none.
 #
 # What this costs today, and what to do about it, is in docs/DEPLOYMENT.md
 # ("Security headers on GitHub Pages"). If you add a script or an embedded video

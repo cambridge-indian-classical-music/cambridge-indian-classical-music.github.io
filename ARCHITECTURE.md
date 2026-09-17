@@ -258,11 +258,18 @@ change anything through it. Access control therefore means **GitHub repository
 permissions**, not anything on this site.
 
 **September 2026: the plan to gate `/admin` is withdrawn, not delivered.** The
-agreed approach was Cloudflare Access, sequenced behind the custom domain. Moving
-the site to GitHub Pages (ADR-007) removed the mechanism: **GitHub Pages serves
-every file publicly and has no way to put a login in front of one path.** Nothing
-equivalent is available without adding back a second host — which is the cost
-ADR-007 has just chosen to avoid.
+agreed approach was Cloudflare Access, sequenced behind the custom domain. Two
+separate findings killed it, and the second is the decisive one:
+
+- **GitHub Pages has no mechanism.** It serves every file publicly and offers no
+  way to put a login in front of one path (ADR-007).
+- **Cloudflare Access was never available here either, on any host.** Protecting
+  an application with Access requires the domain to be an active zone on your own
+  Cloudflare account. The alternative that would avoid delegating nameservers — a
+  partial (CNAME) zone setup — is **Business or Enterprise plan only**. The
+  society's address is a University subdomain, so neither route exists at a price
+  a society would pay. This was recorded as a soft caveat before it was checked;
+  it is a hard blocker.
 
 **So `/admin` is a public page, and that is acceptable.** It is the position the
 paragraph above already describes and was always the fallback: the page is a
@@ -275,13 +282,92 @@ cosmetic, exposure. It is written down here rather than quietly dropped, because
 a decision that gets reversed without a record is how a project acquires
 mysteries.
 
-**If a future committee wants the gate back**, the honest options are: move
-hosting back to Cloudflare Pages and follow the original plan (ADR-007 explains
-what else that would buy back), or stop publishing `/admin` altogether and edit
-on GitHub, which costs nothing and is already the documented primary path. A
-shared username and password remains rejected for the original reason — it would
-be handed down through committees, never rotated when somebody left, and tell
-you nothing about who used it.
+**If a future committee wants the gate back**, there is exactly one honest
+option: stop publishing `/admin` altogether and edit on GitHub, which costs
+nothing and is already the documented primary path. Moving hosting does not buy
+the gate back — see the Access finding above. A shared username and password
+remains rejected for the original reason — it would be handed down through
+committees, never rotated when somebody left, and tell you nothing about who used
+it.
+
+**Authentication: four routes, and the recommended one uses a Cloudflare
+Worker.** The CMS needs permission to write to GitHub on the editor's behalf.
+OAuth requires a client secret, and **a secret cannot live in a static site** —
+anyone could read it — so the sign-in flow needs some small always-on service to
+hold it. That is true on any host: GitHub Pages cannot do it, and neither could
+Cloudflare Pages. It is a property of OAuth, not of where the site lives.
+
+Sveltia's GitHub backend documentation lists four options.
+`docs/DEPLOYMENT.md` has the steps for the recommended one.
+
+| Route                            | Extra account?            | Assessment                                                                                                                                                                                                                                                                           |
+| -------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Personal access token            | **None** — no server      | Sveltia's quickest start. But generating a correctly scoped token is arguably harder to explain than the sign-in button it replaces, and it leaves a long-lived credential in each editor's browser. Revoking access means chasing tokens, not removing someone from the repository. |
+| **Sveltia CMS Authenticator** ✅ | Cloudflare                | Sveltia's own client, _"that you can deploy on Cloudflare Workers"_ — official, maintained, one-click deploy, no other target documented. **Recommended if the CMS is set up at all.**                                                                                               |
+| Third-party OAuth client         | Depends where you host it | Clients built for Netlify/Decap CMS work unmodified. But Sveltia is explicit: _"Third-party clients are not reviewed or maintained by the Sveltia CMS team."_ Unmaintained auth code is a poor inheritance for a committee that cannot audit it.                                     |
+| Netlify as OAuth client          | Netlify                   | Supported, but documented as being _"for Netlify customers"_ — so it trades a Cloudflare account for a Netlify one. A lateral move, not a saving.                                                                                                                                    |
+
+**So Cloudflare is not mandatory — it is the best-supported of the options that
+need a server.** The genuinely account-free route is the token, and it is
+rejected on editor experience and revocation, not on cost. If the outstanding
+question in section 5 about token scoping resolves favourably, that judgement is
+worth revisiting.
+
+**The auth worker does not imply moving hosting, and this is worth being precise
+about.** Sveltia's authenticator is a **Cloudflare Worker** — the product
+Cloudflare is actively investing in — and it runs on a `*.workers.dev` address.
+It needs no custom domain, no DNS record and no Cloudflare zone, so it carries
+none of the product risk attached to Cloudflare _Pages_ in ADR-007. A Cloudflare
+account for the worker is one account to hand over; it is not a reason to move
+the site. The two uses are separate decisions and earlier drafts of this project
+conflated them.
+
+**External CMSs such as Contentful were evaluated and rejected.** Not on
+preference — on structure:
+
+- **It breaks ADR-004.** Content would live in a vendor's database rather than
+  the repository: no longer version-controlled with the code, no longer readable
+  as plain files, no longer arriving as reviewable pull requests, and no longer
+  validated at build time by `src/content.config.ts`.
+- **The handover surface grows permanently** — a new vendor, new credentials, and
+  a content store to keep alive independently of the repository, handed to a
+  committee that turns over annually.
+- **The exit is a migration, not a config change.** Leaving Sveltia means
+  deleting a folder. Leaving Contentful means exporting content and rewriting how
+  the site reads it.
+- **A second schema to keep in sync**, which will drift from
+  `src/content.config.ts`.
+- **The pricing shape is wrong for a society** — a free tier with no affordable
+  step up from it is a risk, not a saving.
+
+The honest case for one: if the committee genuinely cannot cope with either
+GitHub or `/admin`, a polished CMS that gets used beats an elegant one that does
+not. But that should be demonstrated by someone actually trying both, not
+assumed. Note that Sveltia already delivers what an external CMS is usually
+wanted for — a visual editor whose changes land in Git and trigger a rebuild —
+without giving up any of the properties above.
+
+**Creating whole pages is deliberately switched off, and turning it on is work.**
+The `pages` collection in `public/admin/config.yml` sets `create: false` and
+`delete: false`. That is not caution; it is accuracy. `src/content/pages/`
+currently holds one file, rendered by a hand-written route
+(`src/pages/about.astro`), and there is no catch-all route for the collection —
+so a page created through the CMS would build into a file with no URL. Making
+"add a page" real needs three things:
+
+1. A `src/pages/[...slug].astro` route over the `pages` collection, excluding
+   `about` (whose route also renders the committee list).
+2. Navigation derived from content rather than the hand-written `nav` array in
+   `src/site.config.ts` — otherwise a new page needs a TypeScript edit to be
+   linked, which defeats the point.
+3. Only then, flip `create` and `delete` to `true`.
+
+**One consequence of a public repository that editors will not expect.** With
+`publish_mode: editorial_workflow`, every CMS change becomes a pull request on a
+public branch. A `draft: true` event is hidden from the website but fully visible
+to anyone browsing the repository. The mitigation is the one in ADR-007 — keep an
+event out of the repository until you are ready to announce it — and it needs
+saying to CMS editors, who have no reason to think about branches at all.
 
 ---
 
@@ -352,12 +438,12 @@ what was traded away rather than rediscovering it when something is missing.
 
 **Why GitHub Pages:**
 
-| Option           | Verdict                                                                                                                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **GitHub Pages** | **Chosen.** One account for the whole project — the single biggest handover saving available. Free custom domain and TLS. 100 GB/month soft bandwidth limit, 1 GB site limit.                          |
-| Cloudflare Pages | Originally chosen, and still the better host on the merits: unlimited bandwidth, preview deployments, response headers. Rejected now because it is a second account and a second service to hand over. |
-| Netlify          | Excellent experience, but a metered free tier with a history of tightening. Bill-shock risk is exactly what a student society cannot absorb.                                                           |
-| Vercel           | Best-in-class for Next.js, which we are not using. Free-tier terms are awkward for organisational use.                                                                                                 |
+| Option           | Verdict                                                                                                                                                                                                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub Pages** | **Chosen.** One account for the whole project — the single biggest handover saving available. Free custom domain and TLS. 100 GB/month soft bandwidth limit, 1 GB site limit.                                                                                         |
+| Cloudflare Pages | Originally chosen, and still the better host on the merits: unlimited bandwidth, preview deployments, response headers. Rejected now because it is a second account and a second service to hand over.                                                                |
+| Netlify          | **Rejected on the numbers, September 2026.** Free tier is 300 credits/month, a hard limit. A production deploy costs 15 credits — so roughly 17–20 publishes a month before traffic — and exceeding it **takes the site offline** rather than billing you. See below. |
+| Vercel           | **Rejected on the terms.** The Hobby plan is free but its documentation states it "restricts users to non-commercial, personal use only". A society selling tickets and memberships is at best a grey area, enforced by account suspension.                           |
 
 **The decisive constraint, added September 2026: the domain belongs to the
 University.** The society's address is a subdomain of the University's domain,
@@ -383,6 +469,46 @@ This reasoning did not exist when the original comparison below was written, and
 it outweighs it. Had it been known earlier, GitHub Pages would have been the
 choice on the merits and not only on the handover argument.
 
+**The question that kept this open is now answered: the source code does not need
+to be private.** That was the one thing that would have forced Cloudflare, since
+GitHub Pages requires a public repository on a free organisation and Cloudflare
+does not. With privacy off the table, nothing else about the two hosts was close
+enough to justify a second account. **This decision is settled, not provisional.**
+
+**Why Netlify is rejected specifically, since it looks like the obvious free
+alternative.** Its free tier is metered in credits: 300 a month, a hard limit,
+with **no auto-recharge available on the free plan**. A production deploy costs
+15 credits; deploy previews and branch deploys are free. Netlify's own wording
+for what happens at zero: _"all of your web projects (sites/apps) are paused and
+visitors to your web projects will find a `Site not available` page at each of
+your web project's URLs."_ Three things follow, and together they rule it out:
+
+- **It prices exactly what this architecture does.** "Merge to `main` is the
+  deploy" is this project's whole publishing model, and Netlify charges 15
+  credits for that event. Fixing a typo costs 5% of the month.
+- **It is worst precisely when the CMS works.** Every published CMS change is its
+  own merge. The easier editing becomes, the faster the budget drains.
+- **The failure mode is an outage, and nobody will see it coming.** A committee
+  that turns over annually will not be watching a credit meter; they will learn
+  credits exist when the site disappears. Compare GitHub Pages, whose limits are
+  soft and produce an email.
+
+**GitHub Pages is mature, not legacy — and this is the opposite of Cloudflare
+Pages.** The concern is a fair one to raise, so the check is recorded: GitHub's
+current documentation describes Pages as a live service, with no deprecation
+notice, no sunset date and no alternative recommended for new projects.
+Cloudflare's Pages documentation, by contrast, says plainly: _"Workers supports
+most Pages use cases and offers a broader feature set. It is Cloudflare's primary
+platform for building applications. Start new projects with Workers."_ Two honest
+qualifications: absence of a deprecation notice is weaker evidence than a positive
+commitment, and GitHub Pages gains few new features. But the structural point
+holds — Pages is load-bearing for GitHub's own documentation hosting and for a
+large share of open source, where Cloudflare Pages was a challenger product now
+being consolidated into Workers. **On product longevity, GitHub Pages is the safer
+choice, not the riskier one.** If this site ever moves, it should move for
+private repositories, preview deployments or response headers — not out of fear
+that GitHub Pages will disappear.
+
 **Why one account beats a better host.** Section 1 of this document says the
 tie-breaker is _"which option is easier to hand over?"_ Every account the society
 holds is a thing that can be lost: registered to the wrong email, left with a
@@ -397,10 +523,28 @@ hypothetical:
 
 1. **No preview deployments.** This is the biggest loss, and it was the original
    deciding factor. A committee member editing a concert no longer gets a URL
-   showing their change before it is live. The mitigations are the checks on
-   every pull request — which catch broken content, not ugly content — and
-   `npm run dev` for anyone willing to install Node. Editors will be publishing
-   with slightly less confidence than the original design intended.
+   showing their change before it is live.
+
+   Be precise about what is actually lost, because it is narrower than it
+   sounds. **Broken builds are already fully covered** — `ci.yml` runs format,
+   type, build and output checks on every pull request, and `deploy.yml` repeats
+   the build and output tests on `main`, so a failure publishes nothing and
+   leaves the previous site up. What a preview uniquely catches is **content
+   that is valid but looks wrong**: a summary that overflows its card, a portrait
+   photo in a landscape slot, a date typed with the wrong year. The schema in
+   `src/content.config.ts` already removes a slice of that — the 200-character
+   caps, the required alt text — which is why previews matter less here than on a
+   typical CMS-backed site.
+
+   **The working mitigation is a person, not a tool.** Anyone who can run
+   `npm run dev` can check a branch locally before merging, and that covers the
+   gap completely while such a person is reviewing content changes.
+
+   **Trigger to revisit hosting: when nobody reviewing content pull requests can
+   run the site locally.** That is the condition that makes previews necessary,
+   it is observable at handover, and it is more useful than waiting for an editor
+   to report a feeling.
+
 2. **No response headers.** `public/_headers` is a Cloudflare and Netlify
    feature; GitHub Pages does not read it. The content security policy and the
    other protections in that file **are not applied to the live site.** See
@@ -442,13 +586,32 @@ links — and rewriting them back once the custom domain arrives. Naming the
 repository `<organisation>.github.io` instead gives a root address for free.
 `docs/DEPLOYMENT.md` has the details.
 
-**Portability:** the build still produces plain static files with no
-host-specific APIs. Moving back to Cloudflare — on **Workers**, which is what
-Cloudflare now tells new projects to use rather than Pages — or on to Netlify,
-remains a configuration change rather than a rewrite — and would restore the response
-headers immediately, since `public/_headers` is kept in place for exactly that
-reason. Lock-in is close to zero, which is what makes a decision like this one
-safe to revisit.
+**Portability, stated accurately.** The build produces plain static files with no
+host-specific APIs, so nothing in the code ties the site to a host, and
+`public/_headers` is kept so that response headers resume the moment the site
+sits on something that reads it. But "portable" is not the same as "every host is
+available", and one correction matters enough to spell out:
+
+**Moving to Cloudflare Workers is not an option while the domain belongs to the
+University.** An earlier version of this document described it as a configuration
+change. It is not — Workers cannot attach a custom domain outside a Cloudflare
+zone you own, as quoted above, and this is confirmed a second time by
+Cloudflare's own Pages-to-Workers migration guide, which lists "supports custom
+domains outside Cloudflare zones via CNAME records" as a capability Pages has and
+Workers lacks. It is a deliberate product difference, not a documentation gap.
+
+So the practical list of hosts this site can actually move to, today, is short:
+
+| Host                 | Available?                                                                                                                               |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub Pages**     | **Current.** Public repository required                                                                                                  |
+| **Cloudflare Pages** | Yes — the only Cloudflare product that accepts a CNAME from a zone you do not own. Also the one Cloudflare steers new projects away from |
+| Cloudflare Workers   | **No.** Requires the zone                                                                                                                |
+| Netlify              | Technically yes; rejected on the credit model above                                                                                      |
+| Vercel               | Technically yes; rejected on the non-commercial terms above                                                                              |
+
+Lock-in is still close to zero — a move is an afternoon's configuration. The
+constraint is which destinations exist, not how hard it is to leave.
 
 ---
 
@@ -620,15 +783,32 @@ committee decision, not on more work.
   SU was not accepting new society finance accounts as of September 2026, so an
   external account may be necessary; check with them first. See
   `docs/TICKETING.md` and `docs/HANDOVER.md`.
-- **Domain name.** Not yet registered. Affects `site` in `astro.config.mjs`, and
-  therefore canonical URLs, the sitemap and social previews. It no longer blocks
-  anything else: the plan to gate `/admin` was withdrawn with the move to GitHub
-  Pages, not deferred (ADR-005).
+- **The domain — decided in approach, not yet requested.** It will be a
+  subdomain of `societies.cam.ac.uk`, asked of University IT rather than bought
+  from a registrar, so there is nothing to register and no annual fee. What
+  remains is filing the request; `docs/DEPLOYMENT.md` has the wording, the
+  address to send it to and the sequence. Until then `site` in
+  `astro.config.mjs` points at the `github.io` address, which affects canonical
+  URLs, the sitemap and social previews. It blocks nothing else.
 - **Whether to set up the CMS at all.** Try editing on GitHub first; add the CMS
   only if editors find that uncomfortable. Do not build infrastructure nobody has
-  asked for.
+  asked for. **If it is set up, the route is decided** — OAuth with the Sveltia
+  auth worker, not a personal access token, and not an external CMS (ADR-005).
+  Note that creating whole pages needs code changes first, also in ADR-005.
 - **Whether to turn on analytics.** Off by default (ADR-011). A deliberate
   choice to leave to the committee, not an oversight.
+
+**Unverified, and worth checking before acting on it:**
+
+- **Whether a GitHub personal access token can be scoped narrowly enough to be
+  safe in a non-technical editor's browser.** This is the one thing that could
+  make the CMS work with **no extra account at all** — no Cloudflare, no
+  Netlify, no third-party OAuth client (ADR-005). It was flagged for
+  verification when the CMS options were first compared and has never been
+  checked. If a fine-grained token can be limited to this one repository, with
+  contents write and nothing else, the token route becomes considerably more
+  attractive than its current assessment allows. Until somebody checks, the
+  OAuth recommendation stands on an assumption rather than a finding.
 
 **Deliberately deferred, with the trigger written down:**
 

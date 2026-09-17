@@ -9,6 +9,15 @@
 
 export const site = {
   name: 'Cambridge University Indian Classical Music Society',
+
+  /**
+   * Shown in the header and appended to every page title.
+   *
+   * **CUICM, not CUICMS — this is deliberate.** The expansion above ends in
+   * "Society", so the trailing S looks missing and gets "corrected". It is what
+   * the society calls itself. The npm package name in package.json
+   * (`cuicms-website`) is an unrelated identifier that never reaches a reader.
+   */
   shortName: 'CUICM',
 
   /** Used as the fallback page description and in social previews. */

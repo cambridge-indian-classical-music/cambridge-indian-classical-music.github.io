@@ -116,10 +116,39 @@ own file, which is the safer way round.
 
 ### 5. Custom domain
 
-The society's address is expected to be a **subdomain of the University's own
-domain**, requested from University IT rather than bought from a registrar. That
-makes the DNS record something a third party controls and will not want to change
-often, so it is worth getting right first time.
+The society's address is a **subdomain of the University's own domain**,
+requested from University IT rather than bought from a registrar. That makes the
+DNS record something a third party controls and will not want to change often, so
+it is worth getting right first time. **It also means the domain costs nothing.**
+
+**Everything below was verified against UIS's own documentation in September
+2026**, so it need not be re-derived:
+<https://www.dns.cam.ac.uk/ipreg/offsite.html>
+
+- **It is a CNAME, not a redirect.** UIS: _"Where possible, we prefer external
+  references to be CNAME records, i.e. to hostnames, though we can set up
+  A/AAAA address records when an external hostname is not available."_ So the
+  society's address stays in the browser's address bar, and GitHub issues the
+  certificate for that hostname. Visitors never see a `github.io` address.
+- **The society is eligible.** UIS's domain policy lists `societies.cam.ac.uk`
+  for _"an established University society"_.
+- **The slow process may not apply.** The Service Request form and naming panel
+  are described for _"new top-level names under `cam.ac.uk`"_. For a subdomain of
+  a containing domain somebody else already controls, the guidance is to
+  _"contact your institutional IT staff, who control the containing domain"_ —
+  potentially a much lighter route. **Ask which applies rather than assuming the
+  slow one.**
+- **Where to send it:** `ip-register@uis.cam.ac.uk`. Have a one-sentence
+  description of the purpose ready; UIS asks for one.
+- **Conditions that apply:** the external host must serve only Cambridge-related
+  material under the `cam.ac.uk` name (satisfied — a custom domain binds to this
+  one project), and CUDN and JANET acceptable use policies apply. The
+  reverse-DNS requirement applies to A/AAAA records, not CNAMEs, so it is moot
+  here.
+- **Choosing wrong is recoverable.** The slow, expensive part is _allocating_ the
+  name. Re-pointing an existing name later is an email asking them to change one
+  CNAME target, not a fresh application. So this is a reversible decision — not
+  free, and not to be done repeatedly, but not one-shot either.
 
 **The record to ask for:**
 
@@ -148,6 +177,20 @@ Then, on GitHub:
 3. **Update `site` in `astro.config.mjs` to the new address**, and merge that
    change.
 
+> **The one real trap: HTTPS is automatic, but not zero-touch.** A host cannot
+> obtain a certificate for a name it does not know it is serving. The sequence is
+> always: UIS adds the record → **you enter the domain in Settings → Pages** →
+> GitHub runs its DNS check and requests a certificate. **If you ask UIS for the
+> record and do nothing else, visitors get a certificate error, not HTTPS.**
+> Nothing else stands in the way: certificate authority authorisation (CAA)
+> records were checked on `societies.cam.ac.uk`, `cam.ac.uk`, `ac.uk` and `uk` in
+> September 2026 and there are none, so issuance is unblocked.
+
+> **Tick Enforce HTTPS now, before any of this.** On the current `github.io`
+> address, `http://` does **not** redirect to `https://` — verified September
+> 2026, it returns 200 over plain HTTP. **Settings → Pages → Enforce HTTPS**
+> fixes it, and is worth doing today rather than waiting for the custom domain.
+
 Step 3 is easy to forget. Until it is done, canonical links, the sitemap and
 social previews all point at the old address.
 
@@ -163,17 +206,20 @@ social previews all point at the old address.
 > **Checked September 2026.** Provider free tiers change; re-check before relying
 > on these figures for a decision.
 
-**The domain is the only guaranteed recurring cost.** Everything else in this
-project sits inside a free tier with room to spare.
+**This project has no guaranteed recurring cost at all.** That changed in
+September 2026, when the domain question was settled: the address is a subdomain
+of `societies.cam.ac.uk`, allocated by University IT, so there is no registrar
+and no annual renewal. Everything else sits inside a free tier with room to
+spare.
 
-| Service              | What we use it for                | Cost                                                                                    |
-| -------------------- | --------------------------------- | --------------------------------------------------------------------------------------- |
-| **Domain registrar** | The web address                   | **~£10–15/year — the only certain cost**                                                |
-| GitHub Pages         | Hosting, TLS, custom domain       | Free on public repositories                                                             |
-| GitHub Actions       | Running the checks and the deploy | Free on public repositories — no minute limit at all                                    |
-| Dependabot           | Monthly dependency updates        | Free — GitHub lists Dependabot as free on standard runners, like public repos and Pages |
-| unpkg                | Serving the CMS code              | Free CDN, no account needed                                                             |
-| Ticketing provider   | Selling tickets                   | Per-ticket fee only, and only when selling. See [TICKETING.md](TICKETING.md)            |
+| Service               | What we use it for                | Cost                                                                                    |
+| --------------------- | --------------------------------- | --------------------------------------------------------------------------------------- |
+| **University domain** | The web address                   | **Free** — allocated by UIS, no registrar, nothing to renew or let lapse                |
+| GitHub Pages          | Hosting, TLS, custom domain       | Free on public repositories                                                             |
+| GitHub Actions        | Running the checks and the deploy | Free on public repositories — no minute limit at all                                    |
+| Dependabot            | Monthly dependency updates        | Free — GitHub lists Dependabot as free on standard runners, like public repos and Pages |
+| unpkg                 | Serving the CMS code              | Free CDN, no account needed                                                             |
+| Ticketing provider    | Selling tickets                   | Per-ticket fee only, and only when selling. See [TICKETING.md](TICKETING.md)            |
 
 **Because the repository is public (and it must be — see step 1), GitHub Actions
 has no billing surface at all.** Minutes are unlimited on public repositories, so
@@ -263,8 +309,12 @@ moment the site moves to a host that reads it.
 
 **The options, if a committee decides this matters:**
 
-- **Move hosting to Cloudflare Pages or Netlify**, both of which read the file as
-  written. ADR-007 sets out what else that trade buys and costs.
+- **Move hosting to Cloudflare Pages**, which reads the file as written. See
+  "Moving to a different host" below for why that is the only viable
+  destination, and ADR-007 for what else the trade buys and costs. (Cloudflare
+  Workers and Netlify also read `_headers`, but neither is available to this
+  project — Workers cannot take a University subdomain, and Netlify is rejected
+  on its credit model.)
 - **Add a `<meta http-equiv="Content-Security-Policy">` tag** in
   `src/layouts/BaseLayout.astro`. This recovers the content security policy — the
   most valuable part — on any host. It cannot express `frame-ancestors`, so
@@ -290,6 +340,15 @@ authentication service; a static site cannot do it alone.
 > year. That is a fair cost if editors genuinely want forms instead of text
 > files, and a poor one otherwise. Try editing on GitHub first.
 >
+> **But be clear what that account is for.** The authenticator is a Cloudflare
+> **Worker**, running on a `*.workers.dev` address. It needs no custom domain, no
+> DNS record and no Cloudflare zone, and Workers is the product Cloudflare is
+> actively investing in — so this carries none of the product risk attached to
+> Cloudflare _Pages_ in ADR-007. **Setting up the CMS is not a reason to move
+> hosting.** It is one dashboard login to hand over, not a server to maintain:
+> there is no operating system to patch, nothing running between sign-ins, and
+> nothing that accrues cost while idle.
+>
 > **There is a second route that needs no server at all.** Sveltia also supports
 > signing in with a GitHub personal access token — its documentation calls this
 > the quickest start, with _"no server setup required"_: the editor pastes a
@@ -297,8 +356,11 @@ authentication service; a static site cannot do it alone.
 > and the Cloudflare account entirely. The catch is that generating a correctly
 > scoped token is arguably harder to explain to a non-technical editor than the
 > sign-in button it replaces, and it puts a long-lived credential in each
-> editor's browser rather than a short-lived session. Worth knowing it exists;
-> not obviously the easier path.
+> editor's browser rather than a short-lived session — revoking access then means
+> chasing tokens rather than removing someone from the repository.
+>
+> **If the CMS is set up, use the OAuth route (ADR-005).** The token route is
+> documented because it exists, not because it is the easier path.
 
 ### 1. Create a GitHub OAuth application
 
@@ -344,19 +406,22 @@ repository on GitHub; to remove them, remove them there.
 ### 5. `/admin` is a public page — and stays one
 
 The plan agreed in September 2026 was to put Cloudflare Access in front of
-`/admin`, once the custom domain existed. **That plan is withdrawn.** GitHub
-Pages serves every file publicly and offers no way to put a login in front of one
-path, and adding a second host back just for this would undo the reason the site
-moved (ADR-007). See ADR-005 for the full reasoning.
+`/admin`, once the custom domain existed. **That plan is withdrawn, and moving
+hosting would not bring it back.** Two independent reasons: GitHub Pages serves
+every file publicly and offers no way to put a login in front of one path; and
+Cloudflare Access requires the domain to be an active zone on your own Cloudflare
+account, which a University subdomain will never be — the partial (CNAME) setup
+that would avoid delegating nameservers is Business or Enterprise plan only. See
+ADR-005 for the full reasoning.
 
 In practice this changes nothing about who can edit: **`/admin` is a sign-in
 screen, not a lock.** GitHub's repository permissions decide whose edits are
 accepted, and loading the page gains a stranger nothing. What is lost is a layer
 of obscurity, which was always the smaller half of the argument.
 
-If a future committee wants the gate back, the honest options are to move hosting
-back to Cloudflare Pages, or to stop publishing `/admin` altogether and edit on
-GitHub — which works today and needs none of this setup.
+If a future committee wants the gate back, there is one honest option: stop
+publishing `/admin` altogether and edit on GitHub — which works today and needs
+none of this setup.
 
 ### If you would rather use Decap CMS
 
@@ -397,51 +462,84 @@ bigger commitment than it first appears.
 
 ## Moving to a different host
 
-The site is plain static files with nothing host-specific, so this is a
-configuration change rather than a rewrite.
+Nothing in the build is host-specific, so a move is configuration rather than a
+rewrite. The real constraint is not difficulty — it is **which destinations
+actually exist**, and that list is shorter than it looks. All checked September
+2026; re-check before relying on any of it.
 
-**Cloudflare** — where this project originally went, and where to go back to if
-any of what GitHub Pages lacks starts to hurt. It restores response headers from
-`public/_headers`, preview deployments on every pull request, unlimited
-bandwidth, and the option of Cloudflare Access on `/admin`.
+### Cloudflare Pages — the only viable move, and it comes with a caveat
 
-**It would also let the repository go private again.** Cloudflare builds from
-private repositories on its free plan, so the public-repository requirement in
-step 1 of the setup is a GitHub Pages constraint, not a constraint of this
-project. If unannounced events becoming visible in the repository ever turns out
-to matter more than the committee expected, this is the way to undo it — bearing
-in mind that GitHub Actions minutes become metered on a private repository (2,000
-a month on a Free organisation, against roughly 40 used by twenty content pull
-requests). The cheaper answer is usually to keep an event out of the repository
-until you are ready to announce it.
+It restores response headers from `public/_headers`, preview deployments on every
+pull request, and unlimited bandwidth. **It would also let the repository go
+private again** — Cloudflare builds from private repositories on its free plan,
+so the public-repository requirement in step 1 is a GitHub Pages constraint, not
+a constraint of this project. Bear in mind that GitHub Actions minutes become
+metered on a private repository (2,000 a month on a Free organisation, against
+roughly 40 used by twenty content pull requests). The cheaper answer is usually
+to keep an event out of the repository until you are ready to announce it.
 
-> **Use Workers, not Pages.** Cloudflare's documentation now says: _"Workers
-> supports most Pages use cases and offers a broader feature set. It is
-> Cloudflare's primary platform for building applications. Start new projects
-> with Workers."_ Pages still works and existing projects are still supported,
-> but all new development goes into Workers, so a site set up on Pages today is
-> starting on the path Cloudflare is moving away from. **Checked September
-> 2026** — if this is more than a year old, re-check before following it.
+> **It does not buy Cloudflare Access on `/admin`.** An earlier version of this
+> document listed that as one of the gains. It is not available: Access requires
+> the domain to be an active zone on your own Cloudflare account, and the partial
+> (CNAME) setup that would avoid delegating nameservers is Business or Enterprise
+> plan only.
 
-1. In the Cloudflare dashboard, create a **Worker** and connect it to this
-   repository, serving **static assets** from `dist`.
-2. Build settings: build command `npm run build`, output directory `dist`, and
-   Node 22 or newer.
-3. `public/_headers` starts working again as written — Workers static assets read
-   the same file format Pages did, which is why the file is kept.
-4. Delete `.github/workflows/deploy.yml` — Cloudflare builds from GitHub itself,
-   so keeping a second publisher would mean two sites drifting apart.
-5. Move the custom domain over, and update `site` in `astro.config.mjs`.
-6. Update ADR-007, ADR-005 and this document, or the next committee will be
+> **It must be Pages, and Pages is the product Cloudflare steers away from.**
+> Their documentation says: _"Workers supports most Pages use cases and offers a
+> broader feature set. It is Cloudflare's primary platform for building
+> applications. Start new projects with Workers."_ There is no deprecation notice
+> and no end-of-life date, but there is also no stated commitment to existing
+> Pages projects.
+>
+> **Workers cannot be used here, so this is not a choice.** Attaching a custom
+> domain to a Worker requires _"an active Cloudflare zone"_, and: _"You cannot
+> create a Custom Domain on a hostname with an existing CNAME DNS record or on a
+> zone you do not own."_ A University subdomain is neither. Cloudflare's own
+> Pages-to-Workers migration guide confirms it from the other direction, listing
+> "supports custom domains outside Cloudflare zones via CNAME records" as
+> something Pages has and Workers lacks. **Moving to Cloudflare means adopting
+> the legacy product knowingly.**
+
+Steps, in this order — going private unpublishes the GitHub Pages site
+immediately, so it is last:
+
+1. Connect **Cloudflare Pages** to this repository, still public, and confirm it
+   serves. Build command `npm run build`, output directory `dist`, Node 22 or
+   newer.
+2. `public/_headers` starts working again exactly as written, which is why the
+   file is kept.
+3. Add the custom domain in the Cloudflare dashboard **before** the DNS record is
+   re-pointed, or the name will fail to resolve. Ask UIS to change the CNAME
+   target to `<project>.pages.dev.`, then update `site` in `astro.config.mjs`.
+4. Delete `.github/workflows/deploy.yml`, so there are not two publishers.
+5. **Then**, if privacy was the reason for moving, make the repository private.
+6. Update ADR-005, ADR-007 and this document, or the next committee will be
    working from a description of a system that no longer exists.
 
 The cost is a second account to hand over, which is exactly what ADR-007 weighed.
 
-**Netlify** reads `public/_headers` too, so headers keep working. Watch the
-metered bandwidth on the free tier.
+### Netlify — rejected
 
-Either way, note the reverse of step 2 of the setup above: on a host that serves
-the site from the root of a domain, the repository name stops mattering.
+Its free tier is 300 credits a month, a hard limit with no auto-recharge on the
+free plan. **A production deploy costs 15 credits**; previews and branch deploys
+are free. That is roughly 17–20 publishes a month once traffic is accounted for,
+and this project's entire publishing model is "merge to `main` is the deploy" —
+so Netlify prices precisely the thing the architecture does, and gets worse the
+more the CMS is used. At zero credits, in Netlify's own words, _"all of your web
+projects (sites/apps) are paused and visitors to your web projects will find a
+`Site not available` page"_. An outage, not an invoice, discovered by a committee
+nobody told about credits.
+
+### Vercel — rejected
+
+The free Hobby plan's documentation states it _"restricts users to
+non-commercial, personal use only"_. A society selling tickets and memberships is
+at best a grey area, enforced by account suspension.
+
+### Either way
+
+On any host that serves the site from the root of a domain, the repository name
+stops mattering — the reverse of step 2 of the setup above.
 
 ---
 

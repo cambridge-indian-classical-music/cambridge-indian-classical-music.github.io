@@ -4,8 +4,8 @@
 
 The code is the easy part. The thing that actually kills a society website is
 **losing access to the accounts that control it** — someone graduates, their
-personal email stops being read, and nobody can renew the domain or change the
-hosting. This document exists to stop that happening.
+personal email stops being read, and nobody can reach the repository or the
+ticketing account any more. This document exists to stop that happening.
 
 ---
 
@@ -39,7 +39,7 @@ repository.
 | ------------------------ | ------------------------------------- | ---------------- | -------------- | ------------------------------------------------------------------------------------ |
 | **Society email**        | Recovery address for everything below | —                |                | The master key. Set it up first                                                      |
 | **GitHub organisation**  | Holds the repository, hosts the site  | Free             |                | Must be an organisation, not a personal account. The repository must be **public**   |
-| **Domain registrar**     | The web address                       | ~£10–15/year     |                | **Renews annually — see below**                                                      |
+| **University subdomain** | The web address                       | Free             | UIS            | Not an account. Allocated by University IT — nothing to renew, nobody to hand over   |
 | **Ticketing provider**   | Selling tickets                       | Per-ticket fee   |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
 | **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free             |                | Optional. Omit if not using the CMS                                                  |
 | **Cloudflare**           | CMS sign-in or analytics, _if_ set up | Free             |                | Optional, and not needed for hosting. Omit unless one of those is actually set up    |
@@ -50,17 +50,26 @@ repository.
 partly so this table is one line shorter: whoever has the GitHub organisation has
 the website. The trade-offs are in [DEPLOYMENT.md](DEPLOYMENT.md).
 
-### The domain is the one that bites
+### The domain used to be the one that bit — it no longer is
 
-Everything else is free and fails visibly. The domain renews once a year, costs
-money, and when it lapses the website simply disappears — often weeks before
-anyone notices, and by then someone else may have registered it.
+**Settled September 2026.** The address is a subdomain of `societies.cam.ac.uk`,
+allocated by University IT rather than bought from a registrar. That removes the
+single most dangerous item this checklist used to carry: there is no annual
+renewal, no payment card that graduates with its owner, and no lapse that takes
+the website down before anyone notices. **The domain is not an account and cannot
+be lost at handover.**
 
-- Turn on **auto-renew**, and make sure the payment card on file is the
-  society's, not a graduating student's.
-- Point renewal notices at the **society email**.
-- Put the renewal date in the committee calendar as well. Do not rely solely on
-  the registrar's email.
+Two things still worth knowing:
+
+- **It is not yours to re-point casually.** Changing where the name points means
+  emailing `ip-register@uis.cam.ac.uk` and waiting on their timescale. That is
+  the reason hosting was chosen to be stable rather than clever — see ADR-007.
+- **Eligibility depends on the society remaining established.** The allocation is
+  for _"an established University society"_. If the society lapses and is later
+  revived, expect to ask for the name again.
+
+**This project now has no guaranteed recurring cost at all.** Every remaining
+line in the table above is free, or charged per ticket sold.
 
 ### The ticketing account has roles — use them
 
@@ -104,7 +113,6 @@ Work through this with the outgoing committee, ideally in one sitting together.
 
 - [ ] New committee members added to the **GitHub organisation**, with at least
       two as **Owners**
-- [ ] New members added to the **domain registrar** account
 - [ ] New members added to the **ticketing provider** account
 - [ ] New members added to the **Cloudflare** account, _only if_ the CMS sign-in
       worker or analytics are set up — most committees will have neither
@@ -115,12 +123,13 @@ Work through this with the outgoing committee, ideally in one sitting together.
 - [ ] Someone new has **made a change to the website and published it**, start to
       finish, with the outgoing committee watching. This is the real test — do
       not skip it
-- [ ] Domain renewal date and payment method confirmed
+- [ ] Confirmed the **University subdomain** still resolves and its certificate
+      is valid — there is nothing to renew, but it is worth looking
 
 ### After they have left
 
-- [ ] Departing members **removed** from GitHub, the registrar, the ticketing
-      provider, and Cloudflare if it is in use
+- [ ] Departing members **removed** from GitHub, the ticketing provider, and
+      Cloudflare if it is in use
 - [ ] Removing someone from the **GitHub organisation** is what actually stops
       them editing the website — the `/admin` page is public and always was, so
       there is no separate list to prune
@@ -141,19 +150,19 @@ Work through this with the outgoing committee, ideally in one sitting together.
 
 ## What to do when something is wrong
 
-| Symptom                                          | Where to look                                                                                                  |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| The site is completely offline                   | Domain expired (check the registrar), then <https://www.githubstatus.com> — see [DEPLOYMENT.md](DEPLOYMENT.md) |
-| A change was merged but the site has not updated | The **Deploy** workflow on GitHub's Actions tab                                                                |
-| A pull request shows a red cross                 | A content mistake — [CONTENT_GUIDE.md](CONTENT_GUIDE.md) lists the common messages                             |
-| A page shows the wrong thing                     | Edit the content file; or revert the change on GitHub                                                          |
-| Nobody can log in to something                   | Recovery codes in the password manager. If those are gone, the society email can usually reset it              |
+| Symptom                                          | Where to look                                                                                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| The site is completely offline                   | <https://www.githubstatus.com> first — the domain cannot expire, so this is almost always GitHub. See [DEPLOYMENT.md](DEPLOYMENT.md) |
+| A change was merged but the site has not updated | The **Deploy** workflow on GitHub's Actions tab                                                                                      |
+| A pull request shows a red cross                 | A content mistake — [CONTENT_GUIDE.md](CONTENT_GUIDE.md) lists the common messages                                                   |
+| A page shows the wrong thing                     | Edit the content file; or revert the change on GitHub                                                                                |
+| Nobody can log in to something                   | Recovery codes in the password manager. If those are gone, the society email can usually reset it                                    |
 
 ### If access to an account is genuinely lost
 
 1. Try a password reset to the **society email**.
 2. If the second factor is the problem, use the **recovery codes**.
-3. If both are gone, contact the provider's support. GitHub and most registrars have
+3. If both are gone, contact the provider's support. GitHub and most providers have
    account-recovery processes for organisations, but they take time and proof.
 4. Worst case, most of it is recoverable: **the entire website is in this
    repository**, and any committee member with a copy can publish it elsewhere.
