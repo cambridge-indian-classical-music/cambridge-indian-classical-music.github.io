@@ -6,9 +6,9 @@
  * docs/TICKETING.md): it runs for over a year, has no venue, and would sit at
  * the top of the events list until it expired.
  *
- * Joining happens entirely on the payment provider's own page. This site never
- * takes a payment — it shows the terms and a link, exactly as it does for
- * concert tickets (ADR-006).
+ * This page sells the membership; /membership/join collects the application.
+ * Neither takes a payment. The joining form hands over to the payment
+ * provider's own page, exactly as concert tickets do (ADR-006, ADR-012).
  */
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -32,7 +32,7 @@ if (!current) {
   throw new Error('No membership found. Add a file to src/content/membership/ — see docs/CONTENT_GUIDE.md.');
 }
 
-const { title, summary, price, opens, closes, joinUrl, benefits } = current.data;
+const { title, summary, rates, opens, closes, formEndpoint, benefits } = current.data;
 const { Content } = await render(current);
 ---
 
@@ -44,10 +44,6 @@ const { Content } = await render(current);
     </header>
 
     <dl class="facts">
-      <div>
-        <dt>Price</dt>
-        <dd>{price}</dd>
-      </div>
       <div>
         <dt>Valid from</dt>
         <dd>
@@ -66,6 +62,20 @@ const { Content } = await render(current);
       </div>
     </dl>
 
+    <section class="rates">
+      <h2>Which rate you pay</h2>
+      <dl>
+        <div>
+          <dt>{rates.student.price} — Student</dt>
+          <dd>{rates.student.note}</dd>
+        </div>
+        <div>
+          <dt>{rates.general.price} — General</dt>
+          <dd>{rates.general.note}</dd>
+        </div>
+      </dl>
+    </section>
+
     <section class="includes">
       <h2>What membership includes</h2>
       <ul role="list">
@@ -75,19 +85,19 @@ const { Content } = await render(current);
 
     <section class="join">
       {
-        joinUrl ? (
+        formEndpoint ? (
           <>
-            <a class="button" href={joinUrl} rel="noopener noreferrer">
-              Join the Society — {price}
+            <a class="button" href="/membership/join">
+              Join the Society
             </a>
             <p class="join__note">
-              Payment is taken on our payment provider's own secure page. This website never sees your card
-              details.
+              We ask a few questions first, then send you to our payment provider's own secure page. This
+              website never sees your card details.
             </p>
           </>
         ) : (
           <p class="join__note">
-            <strong>Joining opens shortly.</strong> The link will appear here once it is ready — in the
+            <strong>Joining opens shortly.</strong> The form will appear here once it is ready — in the
             meantime, email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
           </p>
         )
@@ -131,6 +141,33 @@ const { Content } = await render(current);
     margin-block-start: var(--space-1);
     font-family: var(--font-display);
     font-size: var(--text-lg);
+  }
+
+  .rates {
+    margin-block-start: var(--space-10);
+  }
+
+  .rates h2 {
+    margin-block-end: var(--space-4);
+  }
+
+  .rates dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+  }
+
+  .rates dt {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .rates dd {
+    margin: 0;
+    margin-block-start: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
   }
 
   .includes {

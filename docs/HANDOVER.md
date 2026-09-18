@@ -35,16 +35,18 @@ everything else. Guard it accordingly.
 Fill this in and keep it current. It is the single most valuable page in this
 repository.
 
-| Service                  | What it does                          | Cost             | Who has access | Notes                                                                                |
-| ------------------------ | ------------------------------------- | ---------------- | -------------- | ------------------------------------------------------------------------------------ |
-| **Society email**        | Recovery address for everything below | —                |                | The master key. Set it up first                                                      |
-| **GitHub organisation**  | Holds the repository, hosts the site  | Free             |                | Must be an organisation, not a personal account. The repository must be **public**   |
-| **University subdomain** | The web address                       | Free             | UIS            | Not an account. Allocated by University IT — nothing to renew, nobody to hand over   |
-| **Ticketing provider**   | Selling tickets                       | Per-ticket fee   |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md) |
-| **GitHub OAuth app**     | Sign-in for `/admin`, _if_ set up     | Free             |                | Optional. Omit if not using the CMS                                                  |
-| **Cloudflare**           | CMS sign-in or analytics, _if_ set up | Free             |                | Optional, and not needed for hosting. Omit unless one of those is actually set up    |
-| **Society bank account** | Receiving ticket income               | Free–£8.50/month |                | Two signatories, held by the society. See [TICKETING.md](TICKETING.md)               |
-| **Password manager**     | Holds the above credentials           | Free–£           |                | Or the Students' Union's arrangements                                                |
+| Service                    | What it does                                                  | Cost             | Who has access | Notes                                                                                                         |
+| -------------------------- | ------------------------------------------------------------- | ---------------- | -------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Society email**          | Recovery address for everything below                         | —                |                | The master key. Set it up first                                                                               |
+| **GitHub organisation**    | Holds the repository, hosts the site                          | Free             |                | Must be an organisation, not a personal account. The repository must be **public**                            |
+| **University subdomain**   | The web address                                               | Free             | UIS            | Not an account. Allocated by University IT — nothing to renew, nobody to hand over                            |
+| **Ticketing provider**     | Selling tickets                                               | Per-ticket fee   |                | Must be a **society** account, not a personal one — see [TICKETING.md](TICKETING.md)                          |
+| **GitHub OAuth app**       | Sign-in for `/admin`, _if_ set up                             | Free             |                | Optional. Omit if not using the CMS                                                                           |
+| **Cloudflare**             | CMS sign-in or analytics, _if_ set up                         | Free             |                | Optional, and not needed for hosting. Omit unless one of those is actually set up                             |
+| **Society Google account** | Drive, the membership spreadsheet, and the form that fills it | Free             |                | Owns the Apps Script **deployment**, which runs as this account. See [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md) |
+| **Stripe**                 | Membership payments                                           | Per payment      |                | Society account, society bank account. See [TICKETING.md](TICKETING.md)                                       |
+| **Society bank account**   | Receiving ticket income                                       | Free–£8.50/month |                | Two signatories, held by the society. See [TICKETING.md](TICKETING.md)                                        |
+| **Password manager**       | Holds the above credentials                                   | Free–£           |                | Or the Students' Union's arrangements                                                                         |
 
 **Hosting is on GitHub**, not on a separate account (ADR-007). That was chosen
 partly so this table is one line shorter: whoever has the GitHub organisation has
@@ -114,6 +116,14 @@ Work through this with the outgoing committee, ideally in one sitting together.
 - [ ] New committee members added to the **GitHub organisation**, with at least
       two as **Owners**
 - [ ] New members added to the **ticketing provider** account
+- [ ] New members able to sign in to the **society Google account**, and the
+      Apps Script behind the membership form confirmed as owned by **that
+      account and not a person** — Apps Script → Project Settings names the
+      owner. This one is worth doing carefully: the form runs as whoever
+      deployed it, so if that was a student, it stops working when they graduate
+      and it stops **silently**, with the website still showing a form that
+      quietly fails. See [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md)
+- [ ] A test membership application submitted end to end, and the row checked
 - [ ] New members added to the **Cloudflare** account, _only if_ the CMS sign-in
       worker or analytics are set up — most committees will have neither
 - [ ] Credentials and **two-factor recovery codes** transferred to the society
@@ -144,6 +154,9 @@ Work through this with the outgoing committee, ideally in one sitting together.
       recent runs are green
 - [ ] Any Dependabot pull requests merged (see [MAINTAINING.md](MAINTAINING.md))
 - [ ] Old events still read sensibly
+- [ ] The membership spreadsheet is **not** shared as "anyone with the link"
+- [ ] Last year's unpaid membership applications deleted — the retention rule in
+      [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md); nothing enforces it by itself
 - [ ] Committee list and About page current
 
 ---
@@ -157,6 +170,7 @@ Work through this with the outgoing committee, ideally in one sitting together.
 | A pull request shows a red cross                 | A content mistake — [CONTENT_GUIDE.md](CONTENT_GUIDE.md) lists the common messages                                                   |
 | A page shows the wrong thing                     | Edit the content file; or revert the change on GitHub                                                                                |
 | Nobody can log in to something                   | Recovery codes in the password manager. If those are gone, the society email can usually reset it                                    |
+| Membership applications have stopped arriving    | [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md), "When it goes wrong" — usually a replaced deployment URL, or a closed Google account       |
 
 ### If access to an account is genuinely lost
 

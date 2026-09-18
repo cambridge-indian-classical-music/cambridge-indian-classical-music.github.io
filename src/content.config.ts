@@ -261,21 +261,57 @@ const membership = defineCollection({
         .max(200, 'Keep the summary under 200 characters — it is used as the page description.'),
 
       /**
-       * Free text, exactly as the member will be charged — e.g. "£15".
-       * Write what they pay, not what the society receives after fees.
+       * The two rates, exactly as the member will be charged. Write what they
+       * pay, not what the society receives after fees.
+       *
+       * There are deliberately EXACTLY TWO, named rather than listed, because
+       * the joining form branches on them: a current student pays the student
+       * rate, everybody else — alumni included — pays the general rate. A list
+       * could be reordered or misspelled; this cannot.
+       *
+       * These prices are what the website DISPLAYS. What the member is actually
+       * charged is set on the Stripe payment link, which lives outside this
+       * repository. The two can drift, so changing a price here means changing
+       * it in Stripe as well — docs/MEMBERSHIP_FORM.md says where.
        */
-      price: z.string().min(1).describe('e.g. "£15" or "£15 / £10 concessions".'),
+      rates: z.object({
+        student: z.object({
+          price: z.string().min(1).describe('e.g. "£12".'),
+          note: z
+            .string()
+            .min(1)
+            .describe('Who qualifies, e.g. "Current students of the University of Cambridge".'),
+        }),
+        general: z.object({
+          price: z.string().min(1).describe('e.g. "£15".'),
+          note: z.string().min(1).describe('e.g. "Alumni and everyone else".'),
+        }),
+      }),
 
       /** When membership becomes valid, and when it runs out. */
       opens: wallClock,
       closes: wallClock,
 
       /**
-       * Where to join — a hosted payment page on the provider's own domain.
-       * Leave it out until one exists: the page then says joining opens soon,
-       * rather than showing a button that goes nowhere. See ADR-006.
+       * Where the joining form sends what somebody types into it — the Google
+       * Apps Script web app described in docs/MEMBERSHIP_FORM.md.
+       *
+       * Leave it out until one is deployed: /membership/join then says joining
+       * opens soon, rather than showing a form that silently loses answers.
+       *
+       * This is not where payment happens. The script writes the application to
+       * the society's spreadsheet and then sends the applicant on to the right
+       * Stripe payment link, which it holds itself — so no payment link appears
+       * in this repository, and the site still never takes a payment (ADR-006,
+       * ADR-012).
        */
-      joinUrl: z.url('Must be a full web address starting with https://').optional(),
+      formEndpoint: z
+        .url('Must be a full web address starting with https://')
+        .refine((value) => value.startsWith('https://script.google.com/macros/s/'), {
+          message:
+            'Must be the Apps Script web app URL, which starts https://script.google.com/macros/s/ and ends /exec. See docs/MEMBERSHIP_FORM.md.',
+        })
+        .optional(),
 
       /** What a member actually gets. At least one, or there is nothing to sell. */
       benefits: z
