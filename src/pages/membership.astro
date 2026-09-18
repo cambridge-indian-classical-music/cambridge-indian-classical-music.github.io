@@ -33,6 +33,16 @@ if (!current) {
 }
 
 const { title, summary, rates, opens, closes, formEndpoint, benefits } = current.data;
+
+/**
+ * The joining form previews locally before it can actually work, so that the
+ * committee can read the questions over — see the note in membership/join.astro.
+ * This page has to agree with it, or `npm run dev` shows a form nobody can
+ * navigate to. `import.meta.env.DEV` is false in every build, so the published
+ * page still says "joining opens shortly" until `formEndpoint` is set.
+ */
+const isPreview = !formEndpoint && import.meta.env.DEV;
+const canJoin = Boolean(formEndpoint) || isPreview;
 const { Content } = await render(current);
 ---
 
@@ -85,14 +95,20 @@ const { Content } = await render(current);
 
     <section class="join">
       {
-        formEndpoint ? (
+        canJoin ? (
           <>
             <a class="button" href="/membership/join">
               Join the Society
             </a>
             <p class="join__note">
-              We ask a few questions first, then send you to our payment provider's own secure page. This
-              website never sees your card details.
+              {isPreview ? (
+                <strong>Preview only — this link works locally, not on the published site.</strong>
+              ) : (
+                <>
+                  We ask a few questions first, then send you to our payment provider's own secure page. This
+                  website never sees your card details.
+                </>
+              )}
             </p>
           </>
         ) : (
