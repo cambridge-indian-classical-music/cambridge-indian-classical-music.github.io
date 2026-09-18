@@ -129,13 +129,40 @@ is the step that matters most.
 ### 1. The spreadsheet
 
 1. Signed in as the society account, create a spreadsheet in the society's
-   Drive. Call it something like `Membership applications 2026-27`.
-2. Leave it empty. The script writes its own heading row the first time somebody
-   applies.
+   Drive, named **`CUICM Membership Applications`** — with **no year in the
+   name**. One workbook holds every year, one tab per year. Why, below.
+2. Leave it completely empty. Do not add a tab and do not type any headings: the
+   script creates the tab it is told to use and writes its own heading row the
+   first time somebody applies.
 3. From the address bar, note the **spreadsheet ID** — the long string between
    `/d/` and `/edit`.
 4. **Check the sharing.** It should be visible to the committee and to nobody
    else. Never "anyone with the link".
+
+#### One workbook, a tab per year — not a workbook per year
+
+Worth setting out, because the other arrangement looks tidier and is worse:
+
+- **Rolling over becomes typing a date instead of pasting an ID.** In September
+  2027 you change `SHEET_NAME` to `2027-28`, and the tab appears by itself on the
+  first application. The alternative is creating a workbook, copying a 44-
+  character ID out of a URL and pasting it into `SPREADSHEET_ID` — the one step
+  in this whole setup where a silent typo sends applications nowhere.
+- **One sharing setting to get right, not one per year.** The likeliest breach
+  here is somebody setting sharing to "anyone with the link" to make something
+  easier. A workbook a year is a fresh chance to do that, annually, forever.
+- **"Did they renew?" stays answerable.** Last year's members are a tab away
+  rather than a file away.
+- **One thing to hand over**, which is the test everything else in this
+  repository is judged by.
+
+The retention rule is unaffected: deleting unpaid applications is row-level work
+either way. The one real argument for separate workbooks — binning a whole year
+at once — is not something you ever want to do, because the paid rows are the
+membership record.
+
+Size is not a consideration. Sixteen columns by a hundred rows is 1,600 cells a
+year, against a limit of ten million.
 
 ### 2. The two Stripe payment links
 
@@ -166,7 +193,7 @@ society account, tied to the society bank account):
    | Property              | Value                                                 |
    | --------------------- | ----------------------------------------------------- |
    | `SPREADSHEET_ID`      | The long string from step 1                           |
-   | `SHEET_NAME`          | `Applications`                                        |
+   | `SHEET_NAME`          | `2026-27` — the tab; the script creates it for you    |
    | `STRIPE_LINK_STUDENT` | The £12 payment link                                  |
    | `STRIPE_LINK_GENERAL` | The £15 payment link                                  |
    | `MEMBERSHIP_YEAR`     | `2627` — it goes into the reference, so keep it short |
@@ -262,7 +289,31 @@ is a deliberate choice: verifying it properly would mean Raven, and Raven for a
 self-certified, and if it is ever abused, notice it at reconciliation.
 
 **At the end of the membership year**, delete the applications that never became
-payments. That is the retention rule, and nothing does it for you.
+payments. That is the retention rule, and nothing does it for you. Delete the
+rows, not the tab — the paid rows are the membership record.
+
+---
+
+## Rolling over to a new membership year
+
+Four changes, and **two of them are Script Properties that must change
+together**. Changing only one is the failure mode here, because nothing errors:
+
+| Change                          | Where                                                   |
+| ------------------------------- | ------------------------------------------------------- |
+| `SHEET_NAME` → `2027-28`        | Apps Script → Project Settings → Script Properties      |
+| `MEMBERSHIP_YEAR` → `2728`      | The same screen. It is the middle of every reference    |
+| `STRIPE_LINK_*` → the new links | The same screen, if the prices or products changed      |
+| A new content file              | `src/content/membership/2027-28.md` — see CONTENT_GUIDE |
+
+**What happens if you change `SHEET_NAME` and forget `MEMBERSHIP_YEAR`:**
+applications land correctly on the new tab, carrying references that say `2627`.
+Nothing breaks and nothing complains — you find out when you reconcile against
+Stripe and two years of references look alike. Change both at the same time.
+
+You do **not** need to create the new tab, copy a spreadsheet ID, or touch
+sharing. The script creates the tab and its heading row on the first application
+of the new year.
 
 ---
 
