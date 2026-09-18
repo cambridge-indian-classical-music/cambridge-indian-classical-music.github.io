@@ -704,6 +704,86 @@ or comply with.
 
 ---
 
+### ADR-012 — The membership form posts to a Google Apps Script, and the society holds the list
+
+**Decision:** `/membership/join` is an ordinary HTML form on the static site. It
+posts to a Google Apps Script web app owned by the society's Google account,
+which writes the application to a Google Sheet and redirects the applicant to one
+of two Stripe payment links — £12 for current students, £15 for everyone else.
+Setup, reasoning and failure modes are in `docs/MEMBERSHIP_FORM.md`.
+
+**Why this exists at all.** `docs/TICKETING.md` settled membership in September
+2026 on a single Stripe Payment Link, with the Stripe dashboard itself as the
+membership registry — "no database, no admin page and no code to maintain". That
+remains the better arrangement, and it was outgrown by a specific requirement
+rather than by preference: the committee needs conditional questions (University
+affiliation, then status, then a matching email domain and CRSid) and two price
+tiers. **Payment Links collect a fixed set of fields and cannot branch**, so no
+configuration of the previous design produces this form.
+
+**What is deliberately unchanged:**
+
+- **The site is still static** (ADR-001). A form with an `action` pointing
+  elsewhere needs no server of our own. GitHub Pages is untouched.
+- **The site still never takes a payment** (ADR-006). It collects answers and
+  hands over to Stripe's hosted page. No card details, no PCI scope, no keys.
+- **No secret exists anywhere in this repository.** The spreadsheet ID and both
+  payment links live in Apps Script's Script Properties, editable from a settings
+  screen, so changing a price at the start of a year is not a code change.
+
+**What genuinely changes, and it is the part worth arguing about.** The society
+stops being a customer of a processor that carried the data-protection
+obligations, and becomes the **data controller** of a list holding names, dates
+of birth, CRSids, email addresses and phone numbers. That is hard part 3 of
+`docs/SELF_BUILT_TICKETING.md` arriving by an unexpected route — not through
+building a ticketing backend, but through a form. The obligations it brings are
+annual and inherited: a retention period that something actually enforces, an
+answer to a subject access request, and a 72-hour breach duty.
+
+`docs/MEMBERSHIP_FORM.md` also records that **date of birth and gender are
+collected without a stated purpose**. Nothing in the membership benefits (clause
+2.2 of `docs/TERMS.md`) depends on either. They are the most sensitive fields on
+the form; if no reason is written down, deleting them is the cheapest
+data-protection improvement available.
+
+**Why a spreadsheet rather than a database.** Google Drive offers no free
+database product — Sheets _is_ the answer, and Apps Script is the glue. It is
+also the right answer independently: roughly a hundred rows a year, no new
+account on the `docs/HANDOVER.md` checklist, readable and fixable by a
+non-engineer, and exportable as CSV if this is ever unwound. A real database
+would be more capable and strictly worse to hand over, which is the tie-breaker
+section 1 asks for. The full comparison, including why AppSheet and Firebase were
+rejected, is in `docs/MEMBERSHIP_FORM.md`.
+
+**The new failure mode, stated plainly because it is invisible.** An Apps Script
+web app runs _as the Google account that deployed it_. Deployed from a personal
+account, the form dies when that person graduates — and it dies silently, with
+the website still showing a perfectly good form while submissions fail. This is
+the first thing on the site that can be lost at handover in the way
+`docs/HANDOVER.md` exists to prevent. It must be deployed from the society
+account.
+
+**Rejected:**
+
+- **A third-party form service** (Formspree, Netlify Forms, Tally). Each works,
+  and each adds an account to the handover checklist plus a free tier that can
+  change. The society already has a Google account; this adds none.
+- **Google Forms.** Free, robust, and it cannot do the two payment links or send
+  people to different prices. Worth revisiting if the tiers are ever dropped —
+  it would remove all the code above.
+- **A Cloudflare Worker with D1.** More capable and the natural home if this ever
+  grows, but it reintroduces the Cloudflare account that ADR-007 removed, for a
+  form that runs a hundred times a year.
+- **Verifying student status with Raven.** The correct way to stop the £12 rate
+  being claimed by anybody who wants it, and wholly disproportionate to a £3
+  difference. The rate is self-certified and reconciled by eye.
+
+**Reversibility:** High, and worth knowing. Deleting the page, the script and the
+sheet, then pointing `/membership` straight at the payment links, returns the
+society to the `docs/TICKETING.md` arrangement exactly. The data leaves as a CSV.
+
+---
+
 ## 3. Security model
 
 There is no server, no database and no authentication of our own, so the
@@ -737,14 +817,28 @@ attack surface is small and mostly organisational rather than technical.
 - **Payment data never touches this site or this repository** (ADR-006). Card
   details are entered on the provider's domain. We could not leak them if we
   tried, which is the point.
+- **The joining form is the one place the site accepts input** (ADR-012), and it
+  keeps none of it: the form posts straight to Google, and nothing is stored on
+  this side. The personal data it collects lives in the society's Google Sheet,
+  which is the one asset in this architecture whose loss or wrongful sharing
+  would be a data breach. It must never be shared as "anyone with the link", and
+  never copied into this repository, which is public.
+- **Anything a browser checks, the Apps Script checks again.** The validation in
+  `join.astro` is a courtesy to whoever is filling the form in, not a control —
+  anyone can post directly to the endpoint. In particular **which rate somebody
+  pays is decided server-side**, from their answers, and never read from the
+  submission. There is a test pinning that down; do not relax it.
 - **External links** carry `rel="noopener noreferrer"`.
 - **Response headers are currently NOT applied.** `public/_headers` defines a
   content security policy and the usual hardening headers, but GitHub Pages does
   not read that file (ADR-007). The file is kept as the record of the intended
   policy, and starts working again on any host that reads it. The practical
-  exposure is small — the site ships almost no JavaScript of its own, accepts no
-  input and holds no session — but it is a real reduction in defence in depth,
-  and `docs/DEPLOYMENT.md` gives the partial mitigation available on Pages.
+  exposure is small — the site ships almost no JavaScript of its own and holds no
+  session — but it is a real reduction in defence in depth, and
+  `docs/DEPLOYMENT.md` gives the partial mitigation available on Pages. It is now
+  slightly less small than it was: since ADR-012 the site has one form, so
+  `form-action` and `connect-src` in that file have real work to do on any host
+  that applies them.
 
 ---
 
@@ -753,14 +847,15 @@ attack surface is small and mostly organisational rather than technical.
 The architecture is shaped so that a new committee member can do the common jobs
 without understanding the codebase:
 
-| Task                  | What it actually involves                         |
-| --------------------- | ------------------------------------------------- |
-| Add or edit a concert | Edit one Markdown file — via GitHub or the CMS    |
-| Add an artist         | Add one Markdown file and one photograph          |
-| Upload a brochure     | Drop a PDF into a folder, reference its name      |
-| Change a ticket link  | Change one line                                   |
-| Update the committee  | Edit one data file                                |
-| Deploy                | Nothing — merging to `main` deploys automatically |
+| Task                      | What it actually involves                         |
+| ------------------------- | ------------------------------------------------- |
+| Add or edit a concert     | Edit one Markdown file — via GitHub or the CMS    |
+| Add an artist             | Add one Markdown file and one photograph          |
+| Upload a brochure         | Drop a PDF into a folder, reference its name      |
+| Change a ticket link      | Change one line                                   |
+| Change a membership price | One content file — and Stripe, to match           |
+| Update the committee      | Edit one data file                                |
+| Deploy                    | Nothing — merging to `main` deploys automatically |
 
 The corresponding risk is **losing access to the accounts**, not losing the code.
 `docs/HANDOVER.md` lists every account the society must own, who should hold it,
@@ -826,4 +921,15 @@ committee decision, not on more work.
   Revisit only if the society outgrows what a ticketing platform will do, and
   only once the saving is worth more than a payment backend maintained by
   volunteers. At current volumes it is worth about one ticket per concert.
-  `docs/TICKETING.md` has the numbers and the non-negotiables if it ever happens.
+  **`docs/SELF_BUILT_TICKETING.md` is the full scope** — what the work actually
+  is, the four hard parts, and the non-negotiables if a future committee decides
+  otherwise. Read it before re-opening this; it exists so the case is argued from
+  the real shape of the work rather than from the happy path.
+
+  Note that it revises the saving upward, to roughly **£106 a year** against the
+  cheapest credible platform, because ADR-006 and `docs/TICKETING.md` costed 40
+  tickets a concert and the figure is now taken at 120. **The conclusion is
+  unchanged** — a larger number that still buys about one extra ticket per
+  concert, against a payment backend inherited annually by non-engineers. The
+  £60 in ADR-006 is left as written rather than quietly restated, because the
+  two figures answer different questions and the difference is the point.

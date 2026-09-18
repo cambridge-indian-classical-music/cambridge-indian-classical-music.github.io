@@ -21,6 +21,33 @@ personal defaults to confirm with anyone.
 | Branch name   | `<username>/<short-description>_<issue-number>`                                                                                         |
 | Test command  | `npm test` (`node --test tests/*.test.js`); `npm run verify` runs format-check + typecheck + build + test together, and is what CI runs |
 
+## Never commit a secret
+
+**This repository is public and stays public** — GitHub Pages serves the site
+from it. Anything committed is readable by anyone, and remains readable in the
+Git history after it is deleted.
+
+Never stage or commit an API key, a private key, a service account JSON file, an
+OAuth client secret, a personal access token, a password, or a `.env` file.
+Secrets belong in the environment of whatever needs them — Apps Script Script
+Properties, or the CMS worker's environment — never in a file here.
+
+**Check what you are staging.** `git add .` and `git commit -a` are how this
+rule gets broken; stage named files instead. `.gitignore` covers `.env` and the
+usual credential filenames, and `tests/no-secrets.test.js` fails the build on
+thirteen credential shapes, but both are safety nets that have already failed by
+the time they catch anything.
+
+**If you find a secret already committed, stop and say so.** Rotate the
+credential first, then clean the history — in that order. A secret in a public
+repository is compromised from the moment it is pushed, however fast it is
+removed.
+
+Note what is _not_ a secret, so the rule stays credible: Stripe **payment
+links**, the site URL, the society's email address, and a Google spreadsheet ID
+are public or semi-public identifiers and belong in the repo or in content as
+normal. Rule 1 of [CLAUDE.md](../../../CLAUDE.md) has the full statement.
+
 ## Choosing labels and issue type
 
 Existing labels: `bug`, `documentation`, `enhancement`, `accessibility`,
@@ -89,6 +116,9 @@ Make the change.
 Run `npm run format` (Prettier) before committing. CI's `format:check` job
 fails the build on unformatted files, including Markdown — this has already
 tripped up a PR that added an unformatted `.claude/skills/**/SKILL.md` file.
+
+Before staging, re-read "Never commit a secret" above and check the file list.
+Stage named files, never `git add .`.
 
 ```
 git add <files>

@@ -236,10 +236,16 @@ existing file, rename it (`2027-28.md`) and change the details:
 ```yaml
 title: Membership 2027–28
 summary: Join the Society for the 2027–28 year.
-price: £15
+rates:
+  student:
+    price: £12
+    note: Current students of the University of Cambridge
+  general:
+    price: £15
+    note: Alumni, and everyone else
 opens: '2027-09-14T08:00'
 closes: '2028-10-28T16:00'
-joinUrl: https://buy.stripe.com/xxxxxxxxxxxx
+formEndpoint: https://script.google.com/macros/s/XXXXXXXXXXXX/exec
 benefits:
   - Perform in Society concerts
   - Vote at the Annual General Meeting
@@ -249,15 +255,26 @@ benefits:
 **Do not delete the old file.** It is the record of what last year's members were
 told they were buying. The page always shows the newest one.
 
-Three things worth knowing:
+Four things worth knowing:
 
-- **Write the price exactly as the member will be charged**, not what the society
-  receives after fees. If the page says £15, the checkout must say £15.
-- **Leave `joinUrl` out until the payment link exists.** The page then says
-  joining opens shortly, instead of showing a button that goes nowhere.
+- **Write each price exactly as the member will be charged**, not what the
+  society receives after fees. If the page says £12, the checkout must say £12.
+- **Changing a price here does not change what anybody pays.** The amount is set
+  on the Stripe payment link, which is not in this repository. Change both, or
+  the website advertises one price and charges another — the most embarrassing
+  mistake available on this page. [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md) says
+  where to change it, and the prices in [TERMS.md](TERMS.md) need it too.
+- **Leave `formEndpoint` out until the joining form is set up.** The page then
+  says joining opens shortly, instead of showing a form that quietly loses what
+  people type into it.
 - **If you prepare next year's membership early, set `draft: true`** until it
   opens. Otherwise it replaces the current one on the page as soon as it is
   merged.
+
+There are always exactly two rates, `student` and `general`, because the joining
+form sends people to a different payment link depending on which they qualify
+for. If the society ever wants only one price, set both to the same amount
+rather than deleting one — the build will fail if either is missing.
 
 The dates are written the same way as concert times — plain Cambridge clock time,
 no timezone. See "Times: write what is on the poster" above.

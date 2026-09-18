@@ -5,7 +5,15 @@ so that they survive handover and have an edit history.
 
 **The live copy is in TryBooking**, not on this website. It lives in
 **Dashboard → Global event settings → Event terms and conditions**, and applies
-account-wide to every event, not just membership.
+account-wide to every event.
+
+> **Membership no longer passes through TryBooking** (ADR-012), so a member
+> joining online never sees the TryBooking copy. The Stripe payment links have a
+> terms-of-service checkbox that needs a public web address to point at, and
+> **this repository is not one** — a file on GitHub is not published terms.
+> Until these are published somewhere a member can read them, the checkbox has
+> nothing honest to link to. This is a pre-launch blocker, recorded in
+> [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md).
 
 > **This is not legal advice.** It is a reasonable, proportionate starting point
 > written for a student society. Read it before using it, and if the society ever
@@ -42,6 +50,9 @@ Questions: indianclassicalmusic@cambridgesu.co.uk.
 2. MEMBERSHIP
 2.1 Society membership 2026–27 is valid from 08:00 on Tuesday 15 September 2026
     until 16:00 on Saturday 30 October 2027 (UK time).
+2.1a Membership costs £12 for current students of the University of Cambridge
+    and £15 for everyone else, including alumni. We take the rate you choose in
+    good faith and do not ask for proof.
 2.2 Membership entitles the holder to:
     (a) take part as a performer in Society concerts, subject to the programme
         for each event and to the Committee's decisions about who performs;
@@ -79,12 +90,19 @@ Programmes, performers and venues are occasionally subject to change. Where a
 change is significant we will email ticket holders.
 
 6. YOUR INFORMATION
-6.1 Bookings are processed by TryBooking, who take your payment and hold your
-    booking details. We receive your name, email address and booking details.
-6.2 We use these only to administer your booking and membership and to contact
-    you about what you booked. We do not sell your details or pass them to
-    anyone else.
-6.3 To ask what we hold about you, or to have it deleted, email
+6.1 Concert bookings are processed by TryBooking, who take your payment and
+    hold your booking details. We receive your name, email address and booking
+    details.
+6.2 When you apply for membership, you give your details to us directly and we
+    keep them in our own records. Your payment is taken by Stripe, who hold the
+    payment details; we never see your card details.
+6.3 We use all of this only to administer your booking or membership and to
+    contact you about it. We do not sell your details or pass them to anyone
+    else.
+6.4 We keep membership records for as long as you are a member and for one year
+    afterwards. Applications that are never paid for are deleted at the end of
+    the membership year they were made in.
+6.5 To ask what we hold about you, to correct it, or to have it deleted, email
     indianclassicalmusic@cambridgesu.co.uk.
 
 7. LIABILITY
@@ -148,6 +166,9 @@ simply offers the 14 days. It costs almost nothing and removes the question.
 Each year, or whenever the membership changes:
 
 - [ ] **Dates in 2.1** — they are specific to 2026–27 and will be wrong next year
+- [ ] **Prices in 2.1a** — they must match `src/content/membership/`, the Stripe
+      products AND the Stripe payment links. Four places; see
+      [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md)
 - [ ] **Check 2.2 against the constitution**, particularly whether standing for
       committee is restricted to current University members
 - [ ] **Contact address** still correct and still society-held, not personal
