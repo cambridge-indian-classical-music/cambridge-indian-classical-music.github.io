@@ -921,4 +921,15 @@ committee decision, not on more work.
   Revisit only if the society outgrows what a ticketing platform will do, and
   only once the saving is worth more than a payment backend maintained by
   volunteers. At current volumes it is worth about one ticket per concert.
-  `docs/TICKETING.md` has the numbers and the non-negotiables if it ever happens.
+  **`docs/SELF_BUILT_TICKETING.md` is the full scope** — what the work actually
+  is, the four hard parts, and the non-negotiables if a future committee decides
+  otherwise. Read it before re-opening this; it exists so the case is argued from
+  the real shape of the work rather than from the happy path.
+
+  Note that it revises the saving upward, to roughly **£106 a year** against the
+  cheapest credible platform, because ADR-006 and `docs/TICKETING.md` costed 40
+  tickets a concert and the figure is now taken at 120. **The conclusion is
+  unchanged** — a larger number that still buys about one extra ticket per
+  concert, against a payment backend inherited annually by non-engineers. The
+  £60 in ADR-006 is left as written rather than quietly restated, because the
+  two figures answer different questions and the difference is the point.
