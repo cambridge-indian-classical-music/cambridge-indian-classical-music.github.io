@@ -45,6 +45,23 @@ if (!current) {
 const { title, rates, formEndpoint } = current.data;
 
 /**
+ * Let the committee see and review the questions before the form can work.
+ *
+ * Without an endpoint the published page says "joining opens shortly", because
+ * a form posting nowhere loses what somebody types with no sign that anything
+ * went wrong. But that leaves nobody able to read the questions over until the
+ * Apps Script exists — and the wording of the questions is the part a committee
+ * most needs to check, and the part that has nothing to do with the plumbing.
+ *
+ * So in `npm run dev` the form is shown anyway, clearly marked, with submission
+ * disabled. `import.meta.env.DEV` is false in every build, so this cannot reach
+ * the published site. The same trick is used in membership.astro to preview
+ * drafts.
+ */
+const isPreview = !formEndpoint && import.meta.env.DEV;
+const showForm = Boolean(formEndpoint) || isPreview;
+
+/**
  * The gender options, and the order they appear in.
  *
  * "Undisclosed" is listed as a real choice rather than left as an empty default,
@@ -89,7 +106,18 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
     </header>
 
     {
-      !formEndpoint ? (
+      isPreview && (
+        <p class="preview-banner">
+          <strong>Preview only.</strong> This is how the form will look. It cannot be submitted, because{' '}
+          <code>formEndpoint</code> is not set in <code>src/content/membership/</code> yet — see{' '}
+          <code>docs/MEMBERSHIP_FORM.md</code>. You are seeing this because the site is running locally; it
+          never appears on the published site.
+        </p>
+      )
+    }
+
+    {
+      !showForm ? (
         <p class="notice">
           <strong>Joining opens shortly.</strong> The form will appear here once it is ready — in the
           meantime, email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
@@ -101,6 +129,7 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
           method="post"
           action={formEndpoint}
           autocomplete="on"
+          data-preview={isPreview ? 'true' : undefined}
           data-student-price={rates.student.price}
           data-general-price={rates.general.price}
         >
@@ -343,8 +372,8 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
             <a href={`mailto:${site.email}`}>{site.email}</a>.
           </p>
 
-          <button type="submit" class="button">
-            Continue to payment
+          <button type="submit" class="button" disabled={isPreview}>
+            {isPreview ? 'Continue to payment (disabled in preview)' : 'Continue to payment'}
           </button>
 
           <p class="hint">
@@ -562,6 +591,16 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
     font-size: var(--text-lg);
     color: var(--ink-muted);
     max-width: 48ch;
+  }
+
+  .preview-banner {
+    max-width: var(--measure);
+    margin-block-end: var(--space-8);
+    padding: var(--space-4) var(--space-6);
+    border-inline-start: 3px solid var(--focus);
+    background: var(--surface);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
   }
 
   .notice {
