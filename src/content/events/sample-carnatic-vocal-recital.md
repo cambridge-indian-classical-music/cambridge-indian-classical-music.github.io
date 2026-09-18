@@ -7,7 +7,7 @@
 # ---------------------------------------------------------------------------
 title: An Evening of Carnatic Vocal Music
 type: concert
-summary: A full-length kutcheri of Carnatic vocal music, with violin and mridangam accompaniment.
+summary: A full-length kacheri of Carnatic vocal music, with violin and mridangam accompaniment.
 start: '2026-11-14T19:30'
 end: '2026-11-14T21:30'
 venue:
@@ -34,7 +34,7 @@ featured: true
 **Sample content.** This is an example event showing how a concert page is put
 together. Delete it before launch.
 
-A full-length Carnatic recital in the traditional kutcheri format, opening with a
+A full-length Carnatic recital in the traditional kacheri format, opening with a
 varnam and building towards an extended raga alapana and tani avartanam. The
 programme moves between well-known kritis and less frequently heard compositions.
 
