@@ -296,8 +296,11 @@ const membership = defineCollection({
        * Where the joining form sends what somebody types into it — the Google
        * Apps Script web app described in docs/MEMBERSHIP_FORM.md.
        *
-       * Leave it out until one is deployed: /membership/join then says joining
-       * opens soon, rather than showing a form that silently loses answers.
+       * **The form renders whether or not this is set** (issue #12). Left out,
+       * the fields still appear and submitting them fails — which is fine while
+       * the site is in development and nobody is being asked to join, and is
+       * not fine the day it is. SET THIS BEFORE ROLLOUT: nothing in the code
+       * checks any more, because the check was deliberately removed.
        *
        * This is not where payment happens. The script writes the application to
        * the society's spreadsheet and then sends the applicant on to the right

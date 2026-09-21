@@ -45,23 +45,6 @@ if (!current) {
 const { title, rates, formEndpoint } = current.data;
 
 /**
- * Let the committee see and review the questions before the form can work.
- *
- * Without an endpoint the published page says "joining opens shortly", because
- * a form posting nowhere loses what somebody types with no sign that anything
- * went wrong. But that leaves nobody able to read the questions over until the
- * Apps Script exists — and the wording of the questions is the part a committee
- * most needs to check, and the part that has nothing to do with the plumbing.
- *
- * So in `npm run dev` the form is shown anyway, clearly marked, with submission
- * disabled. `import.meta.env.DEV` is false in every build, so this cannot reach
- * the published site. The same trick is used in membership.astro to preview
- * drafts.
- */
-const isPreview = !formEndpoint && import.meta.env.DEV;
-const showForm = Boolean(formEndpoint) || isPreview;
-
-/**
  * The gender options, and the order they appear in.
  *
  * "Undisclosed" is listed as a real choice rather than left as an empty default,
@@ -105,38 +88,22 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
       </p>
     </header>
 
-    {isPreview && (
-      <p class="preview-banner">
-        <strong>Preview only.</strong> This is how the form will look. It cannot be submitted, because{' '}
-        <code>formEndpoint</code> is not set in <code>src/content/membership/</code> yet — see{' '}
-        <code>docs/MEMBERSHIP_FORM.md</code>. You are seeing this because the site is running locally; it
-        never appears on the published site.
-      </p>
-    )}
-
-    {!showForm ? (
-      <p class="notice">
-        <strong>Joining opens shortly.</strong> The form will appear here once it is ready — in the meantime,
-        email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
-      </p>
-    ) : (
-      <form
-        id="join-form"
-        class="form"
-        method="post"
-        action={formEndpoint}
-        autocomplete="on"
-        data-preview={isPreview ? 'true' : undefined}
-        data-student-price={rates.student.price}
-        data-general-price={rates.general.price}
-      >
-        {/*
+    <form
+      id="join-form"
+      class="form"
+      method="post"
+      action={formEndpoint}
+      autocomplete="on"
+      data-student-price={rates.student.price}
+      data-general-price={rates.general.price}
+    >
+      {/*
             Tells the script to reply with JSON rather than a web page. Only
             JavaScript sets it, so a no-JavaScript submission gets the page.
           */}
-        <input type="hidden" name="render" value="" />
+      <input type="hidden" name="render" value="" />
 
-        {/*
+      {/*
             Two quiet spam defences, in place of a CAPTCHA — which would mean a
             third party watching everyone who fills this in, for a form that
             gets a hundred genuine submissions a year.
@@ -146,214 +113,215 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
             reject anything submitted implausibly fast. Neither is security; both
             are enough for an unadvertised form.
           */}
-        <div class="honeypot" aria-hidden="true">
-          <label for="website">Website</label>
-          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+      <div class="honeypot" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+      <input type="hidden" name="startedAt" value="" />
+
+      <div class="alert" id="form-error" role="alert" hidden></div>
+
+      <fieldset>
+        <legend>Your name</legend>
+
+        <div class="field">
+          <label for="firstName">First name</label>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            required
+            maxlength="80"
+            autocomplete="given-name"
+          />
         </div>
-        <input type="hidden" name="startedAt" value="" />
 
-        <div class="alert" id="form-error" role="alert" hidden />
+        <div class="field">
+          <label for="lastName">Last name</label>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            required
+            maxlength="80"
+            autocomplete="family-name"
+          />
+        </div>
+      </fieldset>
 
-        <fieldset>
-          <legend>Your name</legend>
+      <fieldset>
+        <legend>About you</legend>
 
-          <div class="field">
-            <label for="firstName">First name</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              required
-              maxlength="80"
-              autocomplete="given-name"
-            />
-          </div>
+        <div class="field">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="">Choose one</option>
+            {GENDERS.map((option) => (
+              <option value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
 
-          <div class="field">
-            <label for="lastName">Last name</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              required
-              maxlength="80"
-              autocomplete="family-name"
-            />
-          </div>
-        </fieldset>
+        <div class="field">
+          <label for="dateOfBirth">Date of birth</label>
+          <input
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            required
+            autocomplete="bday"
+            aria-describedby="dateOfBirth-hint"
+          />
+          <p class="hint" id="dateOfBirth-hint">
+            Day, month and year.
+          </p>
+        </div>
+      </fieldset>
 
-        <fieldset>
-          <legend>About you</legend>
+      <fieldset>
+        <legend>Your connection to the University</legend>
 
-          <div class="field">
-            <label for="gender">Gender</label>
-            <select id="gender" name="gender" required>
-              <option value="">Choose one</option>
-              {GENDERS.map((option) => (
-                <option value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
+        <div class="field">
+          <fieldset class="choices">
+            <legend>Are you a current student or an alumnus of the University of Cambridge?</legend>
+            <label class="choice">
+              <input type="radio" name="cambridge" value="yes" required />
+              <span>Yes</span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="cambridge" value="no" required />
+              <span>No</span>
+            </label>
+          </fieldset>
+        </div>
 
-          <div class="field">
-            <label for="dateOfBirth">Date of birth</label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              required
-              autocomplete="bday"
-              aria-describedby="dateOfBirth-hint"
-            />
-            <p class="hint" id="dateOfBirth-hint">
-              Day, month and year.
-            </p>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Your connection to the University</legend>
-
-          <div class="field">
-            <fieldset class="choices">
-              <legend>Are you a current student or an alumnus of the University of Cambridge?</legend>
-              <label class="choice">
-                <input type="radio" name="cambridge" value="yes" required />
-                <span>Yes</span>
-              </label>
-              <label class="choice">
-                <input type="radio" name="cambridge" value="no" required />
-                <span>No</span>
-              </label>
-            </fieldset>
-          </div>
-
-          {/*
+        {/*
               Everything below is shown only when the answer above is "Yes".
               It is `hidden` in the markup and revealed by JavaScript — with the
               <noscript> rule below the form putting it back for anyone without.
             */}
-          <div class="conditional" data-show-when="cambridge=yes" hidden>
+        <div class="conditional" data-show-when="cambridge=yes" hidden>
+          <div class="field">
+            <fieldset class="choices">
+              <legend>Which are you?</legend>
+              <label class="choice">
+                <input type="radio" name="cambridgeStatus" value="student" />
+                <span>A current student</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="cambridgeStatus" value="alumnus" />
+                <span>An alumnus</span>
+              </label>
+            </fieldset>
+          </div>
+
+          <div class="conditional" data-show-when="cambridgeStatus=student" hidden>
             <div class="field">
-              <fieldset class="choices">
-                <legend>Which are you?</legend>
-                <label class="choice">
-                  <input type="radio" name="cambridgeStatus" value="student" />
-                  <span>A current student</span>
-                </label>
-                <label class="choice">
-                  <input type="radio" name="cambridgeStatus" value="alumnus" />
-                  <span>An alumnus</span>
-                </label>
-              </fieldset>
-            </div>
-
-            <div class="conditional" data-show-when="cambridgeStatus=student" hidden>
-              <div class="field">
-                <label for="universityEmail">Your University email address</label>
-                <input
-                  type="email"
-                  id="universityEmail"
-                  name="universityEmail"
-                  maxlength="120"
-                  pattern={UNIVERSITY_EMAIL_PATTERN}
-                  autocomplete="email"
-                  aria-describedby="universityEmail-hint"
-                />
-                <p class="hint" id="universityEmail-hint">
-                  Must end in <code>cam.ac.uk</code> — a college or department address such as
-                  <code>@trin.cam.ac.uk</code> is fine.
-                </p>
-              </div>
-            </div>
-
-            <div class="conditional" data-show-when="cambridgeStatus=alumnus" hidden>
-              <div class="field">
-                <label for="alumniEmail">Your alumni email address</label>
-                <input
-                  type="email"
-                  id="alumniEmail"
-                  name="alumniEmail"
-                  maxlength="120"
-                  pattern={ALUMNI_EMAIL_PATTERN}
-                  autocomplete="email"
-                  aria-describedby="alumniEmail-hint"
-                />
-                <p class="hint" id="alumniEmail-hint">
-                  Must end in <code>cantab.net</code> or <code>cantab.ac.uk</code>.
-                </p>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="crsid">CRSid</label>
+              <label for="universityEmail">Your University email address</label>
               <input
-                type="text"
-                id="crsid"
-                name="crsid"
-                maxlength="12"
-                pattern={CRSID_PATTERN}
-                autocapitalize="none"
-                spellcheck="false"
-                aria-describedby="crsid-hint"
+                type="email"
+                id="universityEmail"
+                name="universityEmail"
+                maxlength="120"
+                pattern={UNIVERSITY_EMAIL_PATTERN}
+                autocomplete="email"
+                aria-describedby="universityEmail-hint"
               />
-              <p class="hint" id="crsid-hint">
-                The letters and numbers at the start of your University email address — for example
-                <code>abc12</code>.
+              <p class="hint" id="universityEmail-hint">
+                Must end in <code>cam.ac.uk</code> — a college or department address such as
+                <code>@trin.cam.ac.uk</code> is fine.
               </p>
             </div>
           </div>
-        </fieldset>
 
-        <fieldset>
-          <legend>How we should contact you</legend>
-
-          <div class="field">
-            <label for="preferredEmail">
-              Preferred email address{' '}
-              <span class="optional" data-optional-marker>
-                (optional)
-              </span>
-            </label>
-            <input
-              type="email"
-              id="preferredEmail"
-              name="preferredEmail"
-              maxlength="120"
-              autocomplete="email"
-              aria-describedby="preferredEmail-hint"
-            />
-            <p class="hint" id="preferredEmail-hint" data-preferred-hint>
-              Only if you would rather hear from us somewhere other than the address above.
-            </p>
+          <div class="conditional" data-show-when="cambridgeStatus=alumnus" hidden>
+            <div class="field">
+              <label for="alumniEmail">Your alumni email address</label>
+              <input
+                type="email"
+                id="alumniEmail"
+                name="alumniEmail"
+                maxlength="120"
+                pattern={ALUMNI_EMAIL_PATTERN}
+                autocomplete="email"
+                aria-describedby="alumniEmail-hint"
+              />
+              <p class="hint" id="alumniEmail-hint">
+                Must end in <code>cantab.net</code> or <code>cantab.ac.uk</code>.
+              </p>
+            </div>
           </div>
 
           <div class="field">
-            <label for="mobile">
-              Mobile number <span class="optional">(optional)</span>
-            </label>
+            <label for="crsid">CRSid</label>
             <input
-              type="tel"
-              id="mobile"
-              name="mobile"
-              maxlength="24"
-              autocomplete="tel"
-              aria-describedby="mobile-hint"
+              type="text"
+              id="crsid"
+              name="crsid"
+              maxlength="12"
+              pattern={CRSID_PATTERN}
+              autocapitalize="none"
+              spellcheck="false"
+              aria-describedby="crsid-hint"
             />
-            <p class="hint" id="mobile-hint">
-              Used only for last-minute changes to an event you have signed up for.
+            <p class="hint" id="crsid-hint">
+              The letters and numbers at the start of your University email address — for example
+              <code>abc12</code>.
             </p>
           </div>
-        </fieldset>
+        </div>
+      </fieldset>
 
-        <div class="summary" data-rate-summary aria-live="polite">
-          <p>
-            <strong>{rates.general.price}</strong> — General membership.
-            <span class="summary__note">Answer the questions above and this will update.</span>
+      <fieldset>
+        <legend>How we should contact you</legend>
+
+        <div class="field">
+          <label for="preferredEmail">
+            Preferred email address{' '}
+            <span class="optional" data-optional-marker>
+              {' '}
+              (optional){' '}
+            </span>
+          </label>
+          <input
+            type="email"
+            id="preferredEmail"
+            name="preferredEmail"
+            maxlength="120"
+            autocomplete="email"
+            aria-describedby="preferredEmail-hint"
+          />
+          <p class="hint" id="preferredEmail-hint" data-preferred-hint>
+            Only if you would rather hear from us somewhere other than the address above.
           </p>
         </div>
 
-        {/*
+        <div class="field">
+          <label for="mobile">
+            Mobile number <span class="optional">(optional)</span>
+          </label>
+          <input
+            type="tel"
+            id="mobile"
+            name="mobile"
+            maxlength="24"
+            autocomplete="tel"
+            aria-describedby="mobile-hint"
+          />
+          <p class="hint" id="mobile-hint">
+            Used only for last-minute changes to an event you have signed up for.
+          </p>
+        </div>
+      </fieldset>
+
+      <div class="summary" data-rate-summary aria-live="polite">
+        <p>
+          <strong>{rates.general.price}</strong> — General membership.
+          <span class="summary__note">Answer the questions above and this will update.</span>
+        </p>
+      </div>
+
+      {/*
             This says what happens to what somebody types in, in the words they
             would use. It is the only notice they get before handing it over, so
             it should stay short, specific and true.
@@ -363,21 +331,18 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
             published at a public address there is nothing honest to link to
             anyway. See the note at the top of docs/TERMS.md.
           */}
-        <p class="consent">
-          We keep your answers to administer your membership, and use them for nothing else. We do not pass
-          them to anyone. To see what we hold about you, or to have it deleted, email{' '}
-          <a href={`mailto:${site.email}`}>{site.email}</a>.
-        </p>
+      <p class="consent">
+        We keep your answers to administer your membership, and use them for nothing else. We do not pass them
+        to anyone. To see what we hold about you, or to have it deleted, email{' '}
+        <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
 
-        <button type="submit" class="button" disabled={isPreview}>
-          {isPreview ? 'Continue to payment (disabled in preview)' : 'Continue to payment'}
-        </button>
+      <button type="submit" class="button">
+        Continue to payment
+      </button>
 
-        <p class="hint">
-          The next page is our payment provider's. Your membership starts when you have paid.
-        </p>
-      </form>
-    )}
+      <p class="hint">The next page is our payment provider's. Your membership starts when you have paid.</p>
+    </form>
   </div>
 
   {/*
@@ -585,23 +550,6 @@ const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
     font-size: var(--text-lg);
     color: var(--ink-muted);
     max-width: 48ch;
-  }
-
-  .preview-banner {
-    max-width: var(--measure);
-    margin-block-end: var(--space-8);
-    padding: var(--space-4) var(--space-6);
-    border-inline-start: 3px solid var(--focus);
-    background: var(--surface);
-    border-radius: var(--radius);
-    font-size: var(--text-sm);
-  }
-
-  .notice {
-    padding: var(--space-6);
-    background: var(--surface);
-    border-radius: var(--radius);
-    max-width: var(--measure);
   }
 
   .form {

@@ -264,9 +264,10 @@ Four things worth knowing:
   the website advertises one price and charges another — the most embarrassing
   mistake available on this page. [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md) says
   where to change it, and the prices in [TERMS.md](TERMS.md) need it too.
-- **Leave `formEndpoint` out until the joining form is set up.** The page then
-  says joining opens shortly, instead of showing a form that quietly loses what
-  people type into it.
+- **Set `formEndpoint` before anybody is invited to join.** The form is shown
+  with or without it, so while it is missing somebody can fill the whole thing in
+  and have the submission fail. Nothing warns you — the check that used to hide
+  the form was removed deliberately while the site was in development.
 - **If you prepare next year's membership early, set `draft: true`** until it
   opens. Otherwise it replaces the current one on the page as soon as it is
   merged.
