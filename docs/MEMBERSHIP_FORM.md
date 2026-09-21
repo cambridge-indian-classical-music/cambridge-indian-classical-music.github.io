@@ -221,9 +221,13 @@ society account, tied to the society bank account):
 ### 4. Switch it on
 
 In `src/content/membership/2026-27.md`, uncomment `formEndpoint` and paste the
-URL in. Commit it. Until that line exists, `/membership/join` says joining opens
-shortly — deliberately, so that a half-finished setup never shows a form that
-loses what people type into it.
+URL in. Commit it.
+
+**The form is shown whether or not that line exists**, so until it does, somebody
+can fill it in and the submission will fail. That was a deliberate decision while
+the site was in development and nobody was being asked to join (issue #12) — the
+guard that used to hide the form was removed. **Nothing will remind you**, so
+setting this is now part of rollout rather than something the code enforces.
 
 ### 5. Publish the terms — this is a blocker, not a nicety
 
