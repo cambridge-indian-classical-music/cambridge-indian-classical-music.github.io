@@ -71,8 +71,7 @@ const jsonLd = {
 ---
 
 <BaseLayout title={title} description={summary} ogType="article">
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
-
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline></script>
   <article class="container event">
     <header class="event__head">
       <p class="eyebrow">{EVENT_TYPE_LABELS[type]}</p>
@@ -91,19 +90,17 @@ const jsonLd = {
       <p class="event__summary">{summary}</p>
     </header>
 
-    {
-      image && (
-        <Image
-          class="event__image"
-          src={image.src}
-          alt={image.alt}
-          width={1200}
-          height={675}
-          widths={[480, 800, 1200]}
-          sizes="(min-width: 68rem) 68rem, 100vw"
-        />
-      )
-    }
+    {image && (
+      <Image
+        class="event__image"
+        src={image.src}
+        alt={image.alt}
+        width={1200}
+        height={675}
+        widths={[480, 800, 1200]}
+        sizes="(min-width: 68rem) 68rem, 100vw"
+      />
+    )}
 
     <div class="event__layout">
       <div class="prose event__body">
@@ -111,73 +108,66 @@ const jsonLd = {
       </div>
 
       <aside class="event__aside" aria-labelledby="details-heading">
-        <h2 id="details-heading" class="event__aside-title">Details</h2>
+        <h2 id="details-heading" class="event__aside-title">
+          Details
+        </h2>
 
         <dl class="details">
           <dt>When</dt>
           <dd>
-            <time datetime={toMachineDateTime(start)}>{formatDate(start)}</time><br />
+            <time datetime={toMachineDateTime(start)}>{formatDate(start)}</time>
+            <br />
             {formatTimeRange(start, end)}
           </dd>
 
           <dt>Where</dt>
           <dd>
             {venue.name}
-            {
-              venue.address && (
-                <>
-                  <br />
-                  {venue.address}
-                </>
-              )
-            }
-            {
-              venue.mapUrl && (
-                <>
-                  <br />
-                  <a href={venue.mapUrl} rel="noopener noreferrer">
-                    View on a map
-                  </a>
-                </>
-              )
-            }
+            {venue.address && (
+              <>
+                <br />
+                {venue.address}
+              </>
+            )}
+            {venue.mapUrl && (
+              <>
+                <br />
+                <a href={venue.mapUrl} rel="noopener noreferrer">
+                  View on a map
+                </a>
+              </>
+            )}
           </dd>
 
-          {
-            venue.accessNotes && (
-              <>
-                <dt>Access</dt>
-                <dd>{venue.accessNotes}</dd>
-              </>
-            )
-          }
+          {venue.accessNotes && (
+            <>
+              <dt>Access</dt>
+              <dd>{venue.accessNotes}</dd>
+            </>
+          )}
 
-          {
-            performers.length > 0 && (
-              <>
-                <dt>{type === 'workshop' ? 'Led by' : 'Performers'}</dt>
-                <dd>
-                  <ul class="details__people" role="list">
-                    {performers.map(({ artist, role }) => (
-                      <li>
-                        <a href={`/artists/${artist.id}`}>{artist.data.name}</a>
-                        <span class="details__role">{role}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </dd>
-              </>
-            )
-          }
+          {performers.length > 0 && (
+            <>
+              <dt>{type === 'workshop' ? 'Led by' : 'Performers'}</dt>
+              <dd>
+                <ul class="details__people" role="list">
+                  {performers.map(({ artist, role }) => (
+                    <li>
+                      <a href={`/artists/${artist.id}`}>{artist.data.name}</a>
+                      <span class="details__role">{role}</span>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </>
+          )}
 
-          {
-            priceInfo && (
-              <>
-                <dt>Tickets</dt>
-                <dd>{priceInfo}</dd>
-              </>
-            )
-          }
+          {priceInfo && (
+            <>
+              <dt>Tickets</dt>
+              <dd>{priceInfo}</dd>
+            </>
+          )}
         </dl>
 
         {
@@ -192,25 +182,23 @@ const jsonLd = {
           )
         }
 
-        {
-          !ticketUrl && status === 'scheduled' && (
-            <p class="details__note">No booking needed — just come along.</p>
-          )
-        }
+        {!ticketUrl && status === 'scheduled' && (
+          <p class="details__note">No booking needed — just come along.</p>
+        )}
 
-        {
-          brochure && (
-            <p>
-              <a class="button button--quiet" href={brochure} download>
-                Download the programme (PDF)
-              </a>
-            </p>
-          )
-        }
+        {brochure && (
+          <p>
+            <a class="button button--quiet" href={brochure} download>
+              Download the programme (PDF)
+            </a>
+          </p>
+        )}
       </aside>
     </div>
 
-    <p class="event__back"><a href="/events">← All events</a></p>
+    <p class="event__back">
+      <a href="/events">← All events</a>
+    </p>
   </article>
 </BaseLayout>
 
