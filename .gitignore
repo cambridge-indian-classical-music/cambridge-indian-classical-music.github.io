@@ -10,6 +10,22 @@ node_modules/
 .env.*
 !.env.example
 
+# Google credentials, if anybody ever downloads any.
+#
+# THIS REPOSITORY IS PUBLIC (ADR-007). A service account key is a private key in
+# a plainly-named JSON file that Google drops straight into your downloads, and
+# the natural next move is to put it "somewhere the project can see it". These
+# patterns mean doing that does not publish it to the internet.
+#
+# Note that the membership form needs NO credentials at all — Apps Script runs as
+# the society's own account (ADR-012). If one of these files exists, ask what it
+# is for; the answer may be that it should not.
+*-service-account*.json
+client_secret*.json
+credentials.json
+token.json
+gcp-*.json
+
 # Editors and operating systems
 .DS_Store
 .vscode/

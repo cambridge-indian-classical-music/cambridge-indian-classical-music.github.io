@@ -658,9 +658,11 @@ collect, with no code at all —
   matters because membership carries AGM voting rights (see [TERMS.md](TERMS.md)).
 
 Everything collected appears against the payment in the Stripe dashboard, which is
-searchable and exportable. **That is the membership registry** — the list this
-document says the membership actually needs. It arrives free, with no database, no
-admin page and no code to maintain. SumUp's link product is thinner and much less
+searchable and exportable. **That was the membership registry** — the list this
+document says the membership actually needs. It arrived free, with no database, no
+admin page and no code to maintain. ADR-012 gave that up deliberately, for
+questions Stripe cannot ask; Stripe remains the record of who actually **paid**,
+which is the half that matters most. SumUp's link product is thinner and much less
 clear about what it captures; for a membership where the record _is_ the point,
 Stripe's data collection is worth the 5p.
 
@@ -669,10 +671,18 @@ identity checks on a named individual and ties to a bank account, so it carries
 the same discipline as everything else — society email, society bank account,
 never personal. See "Who owns the payment account" above.
 
-**What the website does about it.** `/membership` shows the price, the validity
-dates and what membership includes, then links out to the payment link. It never
-takes a payment and holds no member data, exactly as with concert tickets
-(ADR-006). Content lives in `src/content/membership/`, one file per year, so the
+> **Partly superseded — see ADR-012.** The conclusion below still holds: a
+> payment link, not a ticketing platform. What changed is everything after it.
+> The society now asks for more than a payment link can collect (conditional
+> questions, a CRSid, two price tiers), so there is a form at
+> `/membership/join`, a Google Sheet behind it, and **two** payment links rather
+> than one. The sentence below about holding no member data is **no longer
+> true** — the society holds the list now, with the obligations that brings.
+> [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md) is the current description.
+
+**What the website does about it.** `/membership` shows the prices, the validity
+dates and what membership includes, then sends people to the joining form. It
+never takes a payment, exactly as with concert tickets (ADR-006). Content lives in `src/content/membership/`, one file per year, so the
 price, dates and joining link can be changed without touching code. Leave
 `joinUrl` out until a real link exists and the page says joining opens shortly
 rather than showing a button that goes nowhere.

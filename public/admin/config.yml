@@ -17,8 +17,7 @@
 
 backend:
   name: github
-  # TODO: change to the society's own repository.
-  repo: cambridge-indian-classical-music/website
+  repo: cambridge-indian-classical-music/cambridge-indian-classical-music.github.io
   branch: main
   # The address of the small authentication service that lets the CMS talk to
   # GitHub on your behalf. See docs/DEPLOYMENT.md. No secret goes in this file.

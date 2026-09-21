@@ -1,14 +1,17 @@
 # ---------------------------------------------------------------------------
 # NOT IN EFFECT. Read this before trusting anything below.
 #
-# This file sets response headers on hosts that read it — Cloudflare Pages and
-# Netlify do; GITHUB PAGES DOES NOT. The site is currently on GitHub Pages
-# (ADR-007), so NONE of the protections below are being applied to the live
-# site. Nothing breaks visibly, which is exactly why it is written here.
+# This file sets response headers on hosts that read it — Cloudflare Pages,
+# Cloudflare Workers and Netlify do; GITHUB PAGES DOES NOT. The site is on
+# GitHub Pages and staying there (ADR-007, settled September 2026), so NONE of
+# the protections below are being applied to the live site, and none of them
+# will be unless hosting moves. Nothing breaks visibly, which is exactly why it
+# is written here.
 #
 # The file is kept rather than deleted for two reasons: it is the record of what
 # the policy should be, and it starts working again the moment the site moves to
-# a host that reads it — no re-derivation needed.
+# a host that reads it — no re-derivation needed. Do not read its presence as a
+# plan to move; there is none.
 #
 # What this costs today, and what to do about it, is in docs/DEPLOYMENT.md
 # ("Security headers on GitHub Pages"). If you add a script or an embedded video
@@ -30,7 +33,13 @@
   # Content security policy. It can be this strict because the site ships almost
   # no JavaScript of its own (ADR-001). If you ever add a script, an embedded
   # video or a web font, it must be allowed here or the browser will block it.
-  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  #
+  # `form-action` and `connect-src` both name script.google.com because of the
+  # membership joining form (ADR-012): it posts there with JavaScript, and falls
+  # back to submitting there natively without it. Both are needed — drop either
+  # and the form breaks on a host that applies this file, in a way that will not
+  # show up on GitHub Pages, which ignores it.
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://script.google.com
 
 # The CMS is an exception: it loads its code from a CDN and talks to GitHub.
 /admin/*

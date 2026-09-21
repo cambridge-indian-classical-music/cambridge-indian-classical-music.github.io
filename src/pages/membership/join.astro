@@ -1,0 +1,752 @@
+---
+/**
+ * The membership application form.
+ *
+ * WHAT THIS PAGE IS, AND WHAT IT IS NOT
+ *
+ * It collects an application and then hands the applicant to Stripe. It does
+ * not take a payment, and it does not decide whether somebody is a member —
+ * paying does that, and Stripe records it. Read ADR-012 in ARCHITECTURE.md
+ * before changing anything here; the joining-up between this form and the
+ * payment is the part that is easy to break without noticing.
+ *
+ * The form posts to a Google Apps Script web app (`formEndpoint` in the
+ * membership content file), which writes a row to the society's spreadsheet and
+ * replies with the Stripe link matching the rate the applicant qualifies for.
+ * Setting that up is docs/MEMBERSHIP_FORM.md.
+ *
+ * WHY THE FORM STILL WORKS WITH JAVASCRIPT TURNED OFF
+ *
+ * The <form> has a real `action` and `method`, so a browser with no JavaScript
+ * submits it the ordinary way and lands on the script's own page, which shows
+ * the payment link. JavaScript only improves that — it hides the questions that
+ * do not apply, and keeps the applicant on this page while submitting. Nothing
+ * essential depends on it. Keep it that way: this form is the only place on the
+ * site where losing JavaScript could lose somebody's answers.
+ *
+ * EVERY RULE HERE IS ALSO ENFORCED IN THE SCRIPT. The browser checks below are
+ * a courtesy to the person filling the form in, not a control. Anything that
+ * matters — which rate applies, above all — is decided server-side, because
+ * anyone can edit this page in their own browser.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../site.config';
+
+const published = (await getCollection('membership')).filter(
+  (entry) => import.meta.env.DEV || !entry.data.draft,
+);
+const current = published.sort((a, b) => b.data.opens.localeCompare(a.data.opens))[0];
+
+if (!current) {
+  throw new Error('No membership found. Add a file to src/content/membership/ — see docs/CONTENT_GUIDE.md.');
+}
+
+const { title, rates, formEndpoint } = current.data;
+
+/**
+ * Let the committee see and review the questions before the form can work.
+ *
+ * Without an endpoint the published page says "joining opens shortly", because
+ * a form posting nowhere loses what somebody types with no sign that anything
+ * went wrong. But that leaves nobody able to read the questions over until the
+ * Apps Script exists — and the wording of the questions is the part a committee
+ * most needs to check, and the part that has nothing to do with the plumbing.
+ *
+ * So in `npm run dev` the form is shown anyway, clearly marked, with submission
+ * disabled. `import.meta.env.DEV` is false in every build, so this cannot reach
+ * the published site. The same trick is used in membership.astro to preview
+ * drafts.
+ */
+const isPreview = !formEndpoint && import.meta.env.DEV;
+const showForm = Boolean(formEndpoint) || isPreview;
+
+/**
+ * The gender options, and the order they appear in.
+ *
+ * "Undisclosed" is listed as a real choice rather than left as an empty default,
+ * so that declining to say is something somebody actively chooses instead of
+ * something they get by skipping the question. That distinction matters if the
+ * answers are ever counted.
+ */
+const GENDERS = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'other', label: 'Other' },
+  { value: 'undisclosed', label: 'Prefer not to say' },
+] as const;
+
+/**
+ * Cambridge email addresses are very often on a college or department
+ * subdomain — @trin.cam.ac.uk, @maths.cam.ac.uk — so the pattern allows any
+ * number of subdomains before cam.ac.uk rather than only the bare domain.
+ * Getting this wrong rejects a large share of genuine students.
+ *
+ * These strings are used as HTML `pattern` attributes, which are implicitly
+ * anchored at both ends. The script applies the same two rules again.
+ */
+const UNIVERSITY_EMAIL_PATTERN = '[^@\\s]+@([A-Za-z0-9-]+\\.)*cam\\.ac\\.uk';
+const ALUMNI_EMAIL_PATTERN = '[^@\\s]+@(cantab\\.net|cantab\\.ac\\.uk)';
+
+/** e.g. "abc12", "jb1234". Letters then digits, which is the shape of a CRSid. */
+const CRSID_PATTERN = '[A-Za-z]{2,4}[0-9]{1,6}';
+---
+
+<BaseLayout
+  title={`Join — ${title}`}
+  description="Apply for membership of the Cambridge University Indian Classical Music Society."
+>
+  <div class="container">
+    <header class="page-head">
+      <h1>Join the Society</h1>
+      <p class="lede">
+        A few questions, then we will send you to our payment provider to pay. Your card details never touch
+        this website.
+      </p>
+    </header>
+
+    {
+      isPreview && (
+        <p class="preview-banner">
+          <strong>Preview only.</strong> This is how the form will look. It cannot be submitted, because{' '}
+          <code>formEndpoint</code> is not set in <code>src/content/membership/</code> yet — see{' '}
+          <code>docs/MEMBERSHIP_FORM.md</code>. You are seeing this because the site is running locally; it
+          never appears on the published site.
+        </p>
+      )
+    }
+
+    {
+      !showForm ? (
+        <p class="notice">
+          <strong>Joining opens shortly.</strong> The form will appear here once it is ready — in the
+          meantime, email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
+        </p>
+      ) : (
+        <form
+          id="join-form"
+          class="form"
+          method="post"
+          action={formEndpoint}
+          autocomplete="on"
+          data-preview={isPreview ? 'true' : undefined}
+          data-student-price={rates.student.price}
+          data-general-price={rates.general.price}
+        >
+          {/*
+            Tells the script to reply with JSON rather than a web page. Only
+            JavaScript sets it, so a no-JavaScript submission gets the page.
+          */}
+          <input type="hidden" name="render" value="" />
+
+          {/*
+            Two quiet spam defences, in place of a CAPTCHA — which would mean a
+            third party watching everyone who fills this in, for a form that
+            gets a hundred genuine submissions a year.
+
+            `website` is a honeypot: it is invisible and unfocusable, so a person
+            never fills it in and a bot usually does. `startedAt` lets the script
+            reject anything submitted implausibly fast. Neither is security; both
+            are enough for an unadvertised form.
+          */}
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <input type="hidden" name="startedAt" value="" />
+
+          <div class="alert" id="form-error" role="alert" hidden />
+
+          <fieldset>
+            <legend>Your name</legend>
+
+            <div class="field">
+              <label for="firstName">First name</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                required
+                maxlength="80"
+                autocomplete="given-name"
+              />
+            </div>
+
+            <div class="field">
+              <label for="lastName">Last name</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                required
+                maxlength="80"
+                autocomplete="family-name"
+              />
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>About you</legend>
+
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender" required>
+                <option value="">Choose one</option>
+                {GENDERS.map((option) => (
+                  <option value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="dateOfBirth">Date of birth</label>
+              <input
+                type="date"
+                id="dateOfBirth"
+                name="dateOfBirth"
+                required
+                autocomplete="bday"
+                aria-describedby="dateOfBirth-hint"
+              />
+              <p class="hint" id="dateOfBirth-hint">
+                Day, month and year.
+              </p>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Your connection to the University</legend>
+
+            <div class="field">
+              <fieldset class="choices">
+                <legend>Are you a current student or an alumnus of the University of Cambridge?</legend>
+                <label class="choice">
+                  <input type="radio" name="cambridge" value="yes" required />
+                  <span>Yes</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="cambridge" value="no" required />
+                  <span>No</span>
+                </label>
+              </fieldset>
+            </div>
+
+            {/*
+              Everything below is shown only when the answer above is "Yes".
+              It is `hidden` in the markup and revealed by JavaScript — with the
+              <noscript> rule below the form putting it back for anyone without.
+            */}
+            <div class="conditional" data-show-when="cambridge=yes" hidden>
+              <div class="field">
+                <fieldset class="choices">
+                  <legend>Which are you?</legend>
+                  <label class="choice">
+                    <input type="radio" name="cambridgeStatus" value="student" />
+                    <span>A current student</span>
+                  </label>
+                  <label class="choice">
+                    <input type="radio" name="cambridgeStatus" value="alumnus" />
+                    <span>An alumnus</span>
+                  </label>
+                </fieldset>
+              </div>
+
+              <div class="conditional" data-show-when="cambridgeStatus=student" hidden>
+                <div class="field">
+                  <label for="universityEmail">Your University email address</label>
+                  <input
+                    type="email"
+                    id="universityEmail"
+                    name="universityEmail"
+                    maxlength="120"
+                    pattern={UNIVERSITY_EMAIL_PATTERN}
+                    autocomplete="email"
+                    aria-describedby="universityEmail-hint"
+                  />
+                  <p class="hint" id="universityEmail-hint">
+                    Must end in <code>cam.ac.uk</code> — a college or department address such as
+                    <code>@trin.cam.ac.uk</code> is fine.
+                  </p>
+                </div>
+              </div>
+
+              <div class="conditional" data-show-when="cambridgeStatus=alumnus" hidden>
+                <div class="field">
+                  <label for="alumniEmail">Your alumni email address</label>
+                  <input
+                    type="email"
+                    id="alumniEmail"
+                    name="alumniEmail"
+                    maxlength="120"
+                    pattern={ALUMNI_EMAIL_PATTERN}
+                    autocomplete="email"
+                    aria-describedby="alumniEmail-hint"
+                  />
+                  <p class="hint" id="alumniEmail-hint">
+                    Must end in <code>cantab.net</code> or <code>cantab.ac.uk</code>.
+                  </p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="crsid">CRSid</label>
+                <input
+                  type="text"
+                  id="crsid"
+                  name="crsid"
+                  maxlength="12"
+                  pattern={CRSID_PATTERN}
+                  autocapitalize="none"
+                  spellcheck="false"
+                  aria-describedby="crsid-hint"
+                />
+                <p class="hint" id="crsid-hint">
+                  The letters and numbers at the start of your University email address — for example
+                  <code>abc12</code>.
+                </p>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>How we should contact you</legend>
+
+            <div class="field">
+              <label for="preferredEmail">
+                Preferred email address{' '}
+                <span class="optional" data-optional-marker>
+                  (optional)
+                </span>
+              </label>
+              <input
+                type="email"
+                id="preferredEmail"
+                name="preferredEmail"
+                maxlength="120"
+                autocomplete="email"
+                aria-describedby="preferredEmail-hint"
+              />
+              <p class="hint" id="preferredEmail-hint" data-preferred-hint>
+                Only if you would rather hear from us somewhere other than the address above.
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="mobile">
+                Mobile number <span class="optional">(optional)</span>
+              </label>
+              <input
+                type="tel"
+                id="mobile"
+                name="mobile"
+                maxlength="24"
+                autocomplete="tel"
+                aria-describedby="mobile-hint"
+              />
+              <p class="hint" id="mobile-hint">
+                Used only for last-minute changes to an event you have signed up for.
+              </p>
+            </div>
+          </fieldset>
+
+          <div class="summary" data-rate-summary aria-live="polite">
+            <p>
+              <strong>{rates.general.price}</strong> — General membership.
+              <span class="summary__note">Answer the questions above and this will update.</span>
+            </p>
+          </div>
+
+          {/*
+            This says what happens to what somebody types in, in the words they
+            would use. It is the only notice they get before handing it over, so
+            it should stay short, specific and true.
+
+            It deliberately does NOT claim they are agreeing to terms here. The
+            terms are agreed at the Stripe checkbox — and until they are
+            published at a public address there is nothing honest to link to
+            anyway. See the note at the top of docs/TERMS.md.
+          */}
+          <p class="consent">
+            We keep your answers to administer your membership, and use them for nothing else. We do not pass
+            them to anyone. To see what we hold about you, or to have it deleted, email{' '}
+            <a href={`mailto:${site.email}`}>{site.email}</a>.
+          </p>
+
+          <button type="submit" class="button" disabled={isPreview}>
+            {isPreview ? 'Continue to payment (disabled in preview)' : 'Continue to payment'}
+          </button>
+
+          <p class="hint">
+            The next page is our payment provider's. Your membership starts when you have paid.
+          </p>
+        </form>
+      )
+    }
+  </div>
+
+  {
+    /*
+    With no JavaScript, nothing can hide the questions that do not apply — so
+    show all of them. The script re-checks every rule anyway, so an applicant
+    who answers "No" and leaves the University questions blank is fine.
+  */
+  }
+  <noscript>
+    <style>
+      .conditional[hidden] {
+        display: block !important;
+      }
+    </style>
+  </noscript>
+</BaseLayout>
+
+<script>
+  /**
+   * Progressive enhancement for the joining form.
+   *
+   * Three jobs, in order of importance:
+   *   1. show only the questions that apply;
+   *   2. tell the applicant which rate they are about to pay;
+   *   3. submit without leaving the page, and show the reply.
+   *
+   * If any of it breaks, the form still submits the ordinary way — so prefer
+   * failing quietly and letting the browser take over to catching errors and
+   * carrying on in a half-working state.
+   */
+  const form = document.querySelector<HTMLFormElement>('#join-form');
+
+  if (form) {
+    const errorBox = form.querySelector<HTMLElement>('#form-error');
+    const rateSummary = form.querySelector<HTMLElement>('[data-rate-summary]');
+    const optionalMarker = form.querySelector<HTMLElement>('[data-optional-marker]');
+    const preferredHint = form.querySelector<HTMLElement>('[data-preferred-hint]');
+    const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const startedAt = form.querySelector<HTMLInputElement>('input[name="startedAt"]');
+    const renderField = form.querySelector<HTMLInputElement>('input[name="render"]');
+
+    /* The prices the page was built with, so the summary cannot drift from it. */
+    const STUDENT_PRICE = form.dataset.studentPrice ?? '';
+    const GENERAL_PRICE = form.dataset.generalPrice ?? '';
+
+    if (startedAt) startedAt.value = String(Date.now());
+    if (renderField) renderField.value = 'json';
+
+    /** The answer to a radio group, or '' if nothing is chosen yet. */
+    const answer = (name: string): string =>
+      form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? '';
+
+    /**
+     * Show or hide each conditional block, and — this is the part that is easy
+     * to get wrong — keep `required` and `disabled` in step with it.
+     *
+     * A hidden field that is still `required` makes the browser refuse to
+     * submit while reporting the problem on a control nobody can see, which
+     * looks to the applicant like a button that does nothing. Disabling a
+     * hidden field also keeps it out of the submission, so an answer somebody
+     * typed and then changed their mind about is never recorded.
+     */
+    const sync = (): void => {
+      /*
+       * Document order matters: a block is processed after the block it sits
+       * inside, so by the time we reach a nested one its parent's `hidden` is
+       * already correct and can be trusted.
+       */
+      for (const block of form.querySelectorAll<HTMLElement>('.conditional')) {
+        const [name, wanted] = (block.dataset.showWhen ?? '').split('=');
+
+        /*
+         * A block is visible only if its own question was answered that way AND
+         * every block it sits inside is visible too. Checking only its own
+         * question is the obvious version and it is wrong: somebody who picks
+         * "Yes" then "Current student", then changes their mind to "No", leaves
+         * the University email field hidden but still marked required — and the
+         * browser then refuses to submit while complaining about a control
+         * nobody can see. The symptom is a submit button that does nothing.
+         */
+        const parent = block.parentElement?.closest<HTMLElement>('.conditional');
+        const visible = answer(name) === wanted && !parent?.hidden;
+
+        block.hidden = !visible;
+
+        for (const field of block.querySelectorAll<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >('input, select, textarea')) {
+          /* Only this block's own fields — a nested block looks after its own. */
+          if (field.closest('.conditional') !== block) continue;
+
+          field.disabled = !visible;
+          /* Everything revealed is required; nothing hidden is. */
+          field.required = visible;
+        }
+      }
+
+      /*
+       * With no Cambridge address to reach them on, the preferred address stops
+       * being a preference and becomes the only way to contact them at all.
+       */
+      const needsOwnEmail = answer('cambridge') === 'no';
+      const preferred = form.querySelector<HTMLInputElement>('#preferredEmail');
+      if (preferred) preferred.required = needsOwnEmail;
+      if (optionalMarker) optionalMarker.hidden = needsOwnEmail;
+      if (preferredHint) {
+        preferredHint.textContent = needsOwnEmail
+          ? 'Where we should write to you about your membership.'
+          : 'Only if you would rather hear from us somewhere other than the address above.';
+      }
+
+      /*
+       * Show the rate. This is a courtesy, not the decision — the script works
+       * the rate out again from the same answers, and its answer is the one
+       * that reaches Stripe.
+       */
+      if (rateSummary) {
+        const isStudent = answer('cambridge') === 'yes' && answer('cambridgeStatus') === 'student';
+        const price = isStudent ? STUDENT_PRICE : GENERAL_PRICE;
+        const label = isStudent ? 'Student membership' : 'General membership';
+        const decided =
+          answer('cambridge') !== '' && (answer('cambridge') === 'no' || answer('cambridgeStatus') !== '');
+
+        rateSummary.innerHTML = '';
+        const line = document.createElement('p');
+        const amount = document.createElement('strong');
+        amount.textContent = price;
+        line.append(amount, ` — ${label}.`);
+        if (!decided) {
+          const note = document.createElement('span');
+          note.className = 'summary__note';
+          note.textContent = ' Answer the questions above and this will update.';
+          line.append(note);
+        }
+        rateSummary.append(line);
+      }
+    };
+
+    form.addEventListener('change', sync);
+    sync();
+
+    form.addEventListener('submit', (event) => {
+      /* Let the browser report anything obviously wrong before we send it. */
+      if (!form.reportValidity()) {
+        event.preventDefault();
+        return;
+      }
+
+      event.preventDefault();
+      if (errorBox) errorBox.hidden = true;
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Sending…';
+      }
+
+      const restore = (message: string): void => {
+        if (errorBox) {
+          errorBox.textContent = message;
+          errorBox.hidden = false;
+          errorBox.scrollIntoView({ block: 'center' });
+        }
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Continue to payment';
+        }
+      };
+
+      /*
+       * Sent as form-encoded rather than JSON on purpose. It keeps this a
+       * "simple" cross-origin request, so the browser does not send a preflight
+       * — and Apps Script cannot answer a preflight, because a web app handles
+       * only GET and POST. Change the content type here and submissions start
+       * failing in the browser while working perfectly in every test that does
+       * not use one. See docs/MEMBERSHIP_FORM.md.
+       */
+      const body = new URLSearchParams();
+      for (const [key, value] of new FormData(form)) {
+        if (typeof value === 'string') body.append(key, value);
+      }
+
+      fetch(form.action, { method: 'POST', body })
+        .then((response) => response.json())
+        .then((result: { ok?: boolean; redirectUrl?: string; message?: string }) => {
+          if (result.ok && result.redirectUrl) {
+            window.location.assign(result.redirectUrl);
+            return;
+          }
+          restore(result.message ?? 'Something went wrong. Please check your answers and try again.');
+        })
+        .catch(() => {
+          restore(
+            'We could not send your application — check your connection and try again. If it keeps happening, email us and we will sign you up by hand.',
+          );
+        });
+    });
+  }
+</script>
+
+<style>
+  .page-head {
+    padding-block: var(--space-12) var(--space-8);
+  }
+
+  .lede {
+    margin-block-start: var(--space-3);
+    font-size: var(--text-lg);
+    color: var(--ink-muted);
+    max-width: 48ch;
+  }
+
+  .preview-banner {
+    max-width: var(--measure);
+    margin-block-end: var(--space-8);
+    padding: var(--space-4) var(--space-6);
+    border-inline-start: 3px solid var(--focus);
+    background: var(--surface);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+  }
+
+  .notice {
+    padding: var(--space-6);
+    background: var(--surface);
+    border-radius: var(--radius);
+    max-width: var(--measure);
+  }
+
+  .form {
+    max-width: 34rem;
+    padding-block-end: var(--space-16);
+  }
+
+  .form fieldset {
+    margin: 0;
+    margin-block-start: var(--space-8);
+    padding: 0;
+    border: 0;
+    border-block-start: 1px solid var(--rule);
+    padding-block-start: var(--space-6);
+  }
+
+  .form > fieldset > legend {
+    padding: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .field {
+    margin-block-start: var(--space-6);
+  }
+
+  .field label,
+  .choices legend {
+    display: block;
+    font-weight: 600;
+    margin-block-end: var(--space-2);
+  }
+
+  .optional {
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  input[type='text'],
+  input[type='email'],
+  input[type='tel'],
+  input[type='date'],
+  select {
+    width: 100%;
+    padding: var(--space-3);
+    font: inherit;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+
+  /* A field the browser has judged wrong, but only once it has been left. */
+  input:user-invalid,
+  select:user-invalid {
+    border-color: var(--accent);
+  }
+
+  .choices {
+    /* This nested fieldset groups radios; it carries no rule of its own. */
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    /* Undo the block label styling — this label sits beside its control. */
+    font-weight: 400;
+    margin-block-end: var(--space-2);
+  }
+
+  .choice input {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+    accent-color: var(--accent);
+  }
+
+  .hint {
+    margin-block-start: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .hint code {
+    font-size: 0.95em;
+  }
+
+  .summary {
+    margin-block-start: var(--space-8);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface);
+    border-radius: var(--radius);
+    font-size: var(--text-lg);
+  }
+
+  .summary__note {
+    display: block;
+    margin-block-start: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .consent {
+    margin-block-start: var(--space-6);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .alert {
+    margin-block-start: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    border-inline-start: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: var(--radius);
+  }
+
+  .form button[type='submit'] {
+    margin-block-start: var(--space-6);
+    /* A button, not a link, so it needs the .button look explicitly. */
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .form button[type='submit']:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  /* Off-screen rather than display:none, so a bot's form filler still finds it. */
+  .honeypot {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
