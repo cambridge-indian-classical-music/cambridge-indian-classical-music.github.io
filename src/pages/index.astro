@@ -31,7 +31,9 @@ const recent = past.slice(0, 3);
       all, and a community for anyone who wants to listen, learn or play.
     </p>
     <p class="hero__actions">
-      <a class="button" href="/events">See what's on</a>
+      <a class="button" href="/events">
+        See what's on
+      </a>
     </p>
   </section>
 
@@ -41,28 +43,24 @@ const recent = past.slice(0, 3);
       <a href="/events">All events</a>
     </div>
 
-    {
-      highlights.length > 0 ? (
-        <EventGrid events={highlights} headingLevel="h3" />
-      ) : (
-        <p class="empty">
-          Nothing is scheduled at the moment. Follow us on social media to hear about the next concert.
-        </p>
-      )
-    }
+    {highlights.length > 0 ? (
+      <EventGrid events={highlights} headingLevel="h3" />
+    ) : (
+      <p class="empty">
+        Nothing is scheduled at the moment. Follow us on social media to hear about the next concert.
+      </p>
+    )}
   </section>
 
-  {
-    recent.length > 0 && (
-      <section class="container section">
-        <div class="section__head">
-          <h2>Recently</h2>
-          <a href="/events#past">Past events</a>
-        </div>
-        <EventGrid events={recent} headingLevel="h3" />
-      </section>
-    )
-  }
+  {recent.length > 0 && (
+    <section class="container section">
+      <div class="section__head">
+        <h2>Recently</h2>
+        <a href="/events#past">Past events</a>
+      </div>
+      <EventGrid events={recent} headingLevel="h3" />
+    </section>
+  )}
 </BaseLayout>
 
 <style>

@@ -29,26 +29,24 @@ const committee = await getCollection('committee');
       <Content />
     </div>
 
-    {
-      committee.length > 0 && (
-        <section class="committee">
-          <h2>The committee</h2>
-          <ul class="committee__list" role="list">
-            {committee.map((member) => (
-              <li>
-                <p class="committee__name">{member.data.name}</p>
-                <p class="committee__role">{member.data.role}</p>
-                {member.data.email && (
-                  <p class="committee__email">
-                    <a href={`mailto:${member.data.email}`}>{member.data.email}</a>
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
+    {committee.length > 0 && (
+      <section class="committee">
+        <h2>The committee</h2>
+        <ul class="committee__list" role="list">
+          {committee.map((member) => (
+            <li>
+              <p class="committee__name">{member.data.name}</p>
+              <p class="committee__role">{member.data.role}</p>
+              {member.data.email && (
+                <p class="committee__email">
+                  <a href={`mailto:${member.data.email}`}>{member.data.email}</a>
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
     <section class="contact">
       <h2>Get in touch</h2>

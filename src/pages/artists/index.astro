@@ -29,38 +29,36 @@ const TRADITION_LABELS = {
       </p>
     </header>
 
-    {
-      artists.length > 0 ? (
-        <ul class="artists" role="list">
-          {artists.map((artist) => (
-            <li class="artist">
-              {artist.data.image && (
-                <Image
-                  class="artist__photo"
-                  src={artist.data.image.src}
-                  alt=""
-                  width={200}
-                  height={200}
-                  loading="lazy"
-                />
-              )}
-              <div>
-                <h2 class="artist__name">
-                  <a href={`/artists/${artist.id}`}>{artist.data.name}</a>
-                </h2>
-                <p class="artist__meta">
-                  {artist.data.discipline}
-                  {TRADITION_LABELS[artist.data.tradition] && ` · ${TRADITION_LABELS[artist.data.tradition]}`}
-                </p>
-                <p class="artist__summary">{artist.data.summary}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="empty">No artists have been added yet.</p>
-      )
-    }
+    {artists.length > 0 ? (
+      <ul class="artists" role="list">
+        {artists.map((artist) => (
+          <li class="artist">
+            {artist.data.image && (
+              <Image
+                class="artist__photo"
+                src={artist.data.image.src}
+                alt=""
+                width={200}
+                height={200}
+                loading="lazy"
+              />
+            )}
+            <div>
+              <h2 class="artist__name">
+                <a href={`/artists/${artist.id}`}>{artist.data.name}</a>
+              </h2>
+              <p class="artist__meta">
+                {artist.data.discipline}
+                {TRADITION_LABELS[artist.data.tradition] && ` · ${TRADITION_LABELS[artist.data.tradition]}`}
+              </p>
+              <p class="artist__summary">{artist.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">No artists have been added yet.</p>
+    )}
   </div>
 </BaseLayout>
 

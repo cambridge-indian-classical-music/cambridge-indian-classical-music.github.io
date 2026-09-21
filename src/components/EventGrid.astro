@@ -17,13 +17,11 @@ const { events, headingLevel = 'h3' } = Astro.props;
 ---
 
 <ul class="grid" role="list">
-  {
-    events.map((event) => (
-      <li>
-        <EventCard event={event} headingLevel={headingLevel} />
-      </li>
-    ))
-  }
+  {events.map((event) => (
+    <li>
+      <EventCard event={event} headingLevel={headingLevel} />
+    </li>
+  ))}
 </ul>
 
 <style>

@@ -25,19 +25,17 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
 
     <nav aria-label="Main">
       <ul class="header__nav">
-        {
-          site.nav.map((item) => (
-            <li>
-              <a
-                href={item.href}
-                class:list={['header__link', { 'header__link--current': isCurrent(item.href) }]}
-                aria-current={isCurrent(item.href) ? 'page' : undefined}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
+        {site.nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class:list={['header__link', { 'header__link--current': isCurrent(item.href) }]}
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
   </div>

@@ -69,29 +69,29 @@ const { Content } = await render(current);
     <section class="includes">
       <h2>What membership includes</h2>
       <ul role="list">
-        {benefits.map((benefit) => <li>{benefit}</li>)}
+        {benefits.map((benefit) => (
+          <li>{benefit}</li>
+        ))}
       </ul>
     </section>
 
     <section class="join">
-      {
-        joinUrl ? (
-          <>
-            <a class="button" href={joinUrl} rel="noopener noreferrer">
-              Join the Society — {price}
-            </a>
-            <p class="join__note">
-              Payment is taken on our payment provider's own secure page. This website never sees your card
-              details.
-            </p>
-          </>
-        ) : (
+      {joinUrl ? (
+        <>
+          <a class="button" href={joinUrl} rel="noopener noreferrer">
+            Join the Society — {price}
+          </a>
           <p class="join__note">
-            <strong>Joining opens shortly.</strong> The link will appear here once it is ready — in the
-            meantime, email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
+            Payment is taken on our payment provider's own secure page. This website never sees your card
+            details.
           </p>
-        )
-      }
+        </>
+      ) : (
+        <p class="join__note">
+          <strong>Joining opens shortly.</strong> The link will appear here once it is ready — in the
+          meantime, email <a href={`mailto:${site.email}`}>{site.email}</a> and we will let you know.
+        </p>
+      )}
     </section>
 
     <div class="prose">

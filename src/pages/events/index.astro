@@ -33,23 +33,19 @@ const { upcoming, past } = await getEventsByTime();
 
     <section class="section" aria-labelledby="upcoming-heading">
       <h2 id="upcoming-heading">Upcoming</h2>
-      {
-        upcoming.length > 0 ? (
-          <EventGrid events={upcoming} headingLevel="h3" />
-        ) : (
-          <p class="empty">No upcoming events to show. Do check back — we programme each term.</p>
-        )
-      }
+      {upcoming.length > 0 ? (
+        <EventGrid events={upcoming} headingLevel="h3" />
+      ) : (
+        <p class="empty">No upcoming events to show. Do check back — we programme each term.</p>
+      )}
     </section>
 
-    {
-      past.length > 0 && (
-        <section class="section" id="past" aria-labelledby="past-heading">
-          <h2 id="past-heading">Past</h2>
-          <EventGrid events={past} headingLevel="h3" />
-        </section>
-      )
-    }
+    {past.length > 0 && (
+      <section class="section" id="past" aria-labelledby="past-heading">
+        <h2 id="past-heading">Past</h2>
+        <EventGrid events={past} headingLevel="h3" />
+      </section>
+    )}
   </div>
 </BaseLayout>
 

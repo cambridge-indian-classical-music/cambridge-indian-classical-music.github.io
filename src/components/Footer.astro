@@ -18,22 +18,20 @@ const copyright = `© ${new Date().getFullYear()} ${site.name}.`;
       </p>
     </div>
 
-    {
-      site.social.length > 0 && (
-        <nav aria-label="Social media">
-          <ul class="footer__social">
-            {site.social.map((item) => (
-              <li>
-                {/* rel="noopener noreferrer" on every outbound link — see ARCHITECTURE.md */}
-                <a href={item.href} rel="noopener noreferrer">
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )
-    }
+    {site.social.length > 0 && (
+      <nav aria-label="Social media">
+        <ul class="footer__social">
+          {site.social.map((item) => (
+            <li>
+              {/* rel="noopener noreferrer" on every outbound link — see ARCHITECTURE.md */}
+              <a href={item.href} rel="noopener noreferrer">
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
   </div>
 
   <div class="container">

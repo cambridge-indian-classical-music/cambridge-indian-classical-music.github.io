@@ -18,13 +18,11 @@ const { title, type, start, venue, summary, image, status } = event.data;
 ---
 
 <article class="card">
-  {
-    image && (
-      <a href={`/events/${event.id}`} tabindex="-1" aria-hidden="true" class="card__media">
-        <Image src={image.src} alt="" width={480} height={320} widths={[320, 480, 720]} loading="lazy" />
-      </a>
-    )
-  }
+  {image && (
+    <a href={`/events/${event.id}`} tabindex="-1" aria-hidden="true" class="card__media">
+      <Image src={image.src} alt="" width={480} height={320} widths={[320, 480, 720]} loading="lazy" />
+    </a>
+  )}
 
   <div class="card__body">
     <p class="eyebrow">
@@ -33,15 +31,15 @@ const { title, type, start, venue, summary, image, status } = event.data;
     </p>
 
     <Heading class="card__title">
-      {
-        /* The whole card is not a link: a single clear link is easier to use with
-          a screen reader and keeps the summary text selectable. */
-      }
+      {/* The whole card is not a link: a single clear link is easier to use with
+          a screen reader and keeps the summary text selectable. */}
       <a href={`/events/${event.id}`}>{title}</a>
     </Heading>
 
     <p class="card__meta">
-      <time datetime={toMachineDateTime(start)}>{formatDateShort(start)}, {formatTime(start)}</time>
+      <time datetime={toMachineDateTime(start)}>
+        {formatDateShort(start)}, {formatTime(start)}
+      </time>
       <span class="card__venue">{venue.name}</span>
     </p>
 

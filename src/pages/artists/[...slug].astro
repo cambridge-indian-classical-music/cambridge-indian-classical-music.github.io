@@ -46,19 +46,17 @@ const TRADITION_LABELS = {
         <p class="artist__summary">{summary}</p>
         {TRADITION_LABELS[tradition] && <p class="artist__tradition">{TRADITION_LABELS[tradition]}</p>}
 
-        {
-          links.length > 0 && (
-            <ul class="artist__links" role="list">
-              {links.map((link) => (
-                <li>
-                  <a href={link.url} rel="noopener noreferrer">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )
-        }
+        {links.length > 0 && (
+          <ul class="artist__links" role="list">
+            {links.map((link) => (
+              <li>
+                <a href={link.url} rel="noopener noreferrer">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </header>
 
@@ -66,16 +64,16 @@ const TRADITION_LABELS = {
       <Content />
     </div>
 
-    {
-      appearances.length > 0 && (
-        <section class="artist__events">
-          <h2>With the society</h2>
-          <EventGrid events={appearances} headingLevel="h3" />
-        </section>
-      )
-    }
+    {appearances.length > 0 && (
+      <section class="artist__events">
+        <h2>With the society</h2>
+        <EventGrid events={appearances} headingLevel="h3" />
+      </section>
+    )}
 
-    <p class="artist__back"><a href="/artists">← All artists</a></p>
+    <p class="artist__back">
+      <a href="/artists">← All artists</a>
+    </p>
   </article>
 </BaseLayout>
 
