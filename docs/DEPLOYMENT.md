@@ -102,17 +102,53 @@ published site.
 
 ### 4. Protect `main`
 
+These settings live in GitHub, not in any file here, so a pull request cannot
+change them and nothing in this repository will notice if they are switched off.
+This list is the record of what they should be. **Check them at each handover.**
+
 **Settings → Branches → Add branch protection rule** for `main`:
 
-- Require a pull request before merging
-- Require status checks to pass — select the **Checks** workflow
+- **Require a pull request before merging**, with **1 approval**. A second
+  committee member looks at every change before the public sees it.
+- **Require status checks to pass** — search for and select
+  **`Format, types, build and tests`**. That is the job inside the Checks
+  workflow; the workflow's own name, "Checks", does not appear in the list.
+- Leave **Allow force pushes** and **Allow deletions** off.
+- Leave **Do not allow bypassing the above settings** off. Repository admins
+  can then merge without an approval when nobody else is around to give one —
+  everyone else still needs one. Keep the number of admins small for that
+  reason, and give new committee members **Write** access rather than Admin.
 
 This matters more than it did before. The Deploy workflow can publish, so the
 protection on `main` is what stands between a bad change and the live site.
 
+**Settings → General → Pull Requests:**
+
+- **Allow squash merging** only, with the default commit message set to
+  **pull request title**. Turn off merge commits and rebase merging. Each pull
+  request then becomes one commit on `main`, named after the pull request, so the
+  history reads as a list of changes rather than a list of attempts.
+- **Allow auto-merge.** A pull request can be approved and left to merge itself
+  when its checks pass — useful for Dependabot's.
+- **Always suggest updating pull request branches.**
+- **Automatically delete head branches.** This deletes the branch on GitHub
+  after merging, not anyone's local copy; a merged pull request still has a
+  **Restore branch** button.
+
+**Settings → Advanced Security** (free for public repositories):
+
+- **Dependabot security updates** — on. Without this, Dependabot only _warns_
+  about a vulnerable dependency; with it, a pull request fixing it arrives
+  straight away.
+- **Secret scanning** and **Push protection** — on. GitHub then refuses a push
+  that contains a recognisable credential, before it becomes public. This backs
+  up rule 1 of CLAUDE.md and `tests/no-secrets.test.js`, which can only catch a
+  secret after it has been committed.
+
 Under **Settings → Actions → General**, leave workflow permissions as
-**read-only**. The Deploy workflow asks for the extra permissions it needs in its
-own file, which is the safer way round.
+**read-only**, and leave **Allow GitHub Actions to create and approve pull
+requests** off. The Deploy workflow asks for the extra permissions it needs in
+its own file, which is the safer way round.
 
 ### 5. Custom domain
 

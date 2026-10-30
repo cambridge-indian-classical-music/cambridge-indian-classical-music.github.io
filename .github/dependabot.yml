@@ -10,10 +10,12 @@
 #
 # Updates are grouped into a single monthly pull request rather than arriving one
 # at a time, because a committee that gets twelve notifications a month will
-# start ignoring all of them. Security fixes still arrive immediately.
+# start ignoring all of them. Security fixes arrive immediately and separately —
+# but only while "Dependabot security updates" is switched on under Settings →
+# Advanced Security. See docs/DEPLOYMENT.md, "Protect main".
 #
-# When one of these appears: check that the "Checks" workflow passed, look at the
-# preview deployment, and merge. See docs/MAINTAINING.md.
+# When one of these appears: check that the "Checks" workflow passed, approve
+# it, and merge. See docs/MAINTAINING.md.
 
 version: 2
 updates:
