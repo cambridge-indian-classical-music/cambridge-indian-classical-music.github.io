@@ -134,7 +134,10 @@ Work through this with the outgoing committee, ideally in one sitting together.
       finish, with the outgoing committee watching. This is the real test — do
       not skip it
 - [ ] Confirmed the **University subdomain** still resolves and its certificate
-      is valid — there is nothing to renew, but it is worth looking
+      is valid — there is nothing to renew, but it is worth looking. Open
+      <https://indianclassicalmusic.societies.cam.ac.uk/> and check the padlock;
+      if it is missing, [DEPLOYMENT.md](DEPLOYMENT.md) step 5 explains what to
+      check
 
 ### After they have left
 

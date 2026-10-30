@@ -197,15 +197,16 @@ society account, tied to the society bank account):
    | `STRIPE_LINK_STUDENT` | The £12 payment link                                  |
    | `STRIPE_LINK_GENERAL` | The £15 payment link                                  |
    | `MEMBERSHIP_YEAR`     | `2627` — it goes into the reference, so keep it short |
-   | `SITE_URL`            | `https://cambridge-indian-classical-music.github.io`  |
+   | `SITE_URL`            | `https://indianclassicalmusic.societies.cam.ac.uk`    |
    | `CONTACT_EMAIL`       | `indianclassicalmusic@cambridgesu.co.uk`              |
 
    None of these are secrets, which is why they can be pasted into a settings
    screen rather than managed as credentials. They are here rather than in the
    code so that changing a price does not mean editing JavaScript.
 
-   `SITE_URL` changes when the societies.cam.ac.uk subdomain is allocated — see
-   ARCHITECTURE.md section 5.
+   `SITE_URL` must match `site` in `astro.config.mjs`. If the website's address
+   ever changes, change both — the script's links still work while pointing at
+   the old address, so nothing will warn you.
 
 4. **Deploy → New deployment → Web app**, with:
    - **Execute as:** Me _(the society account)_

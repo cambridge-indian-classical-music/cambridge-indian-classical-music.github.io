@@ -34,11 +34,11 @@ var REQUIRED_PROPERTIES = [
   'STRIPE_LINK_GENERAL',
   'MEMBERSHIP_YEAR',
   /*
-   * SITE_URL is a property rather than a constant because the website is moving
-   * from its github.io address to a societies.cam.ac.uk subdomain — a decision
-   * recorded as open in ARCHITECTURE.md section 5. A hardcoded address here
-   * would keep working while pointing at the old site, which is the worst kind
-   * of wrong: nothing errors, the links just go somewhere stale.
+   * SITE_URL is a property rather than a constant because the website's address
+   * has changed before (from github.io to its societies.cam.ac.uk subdomain)
+   * and may again. A hardcoded address here would keep working while pointing
+   * at the old site, which is the worst kind of wrong: nothing errors, the
+   * links just go somewhere stale. It must match `site` in astro.config.mjs.
    */
   'SITE_URL',
   'CONTACT_EMAIL',
