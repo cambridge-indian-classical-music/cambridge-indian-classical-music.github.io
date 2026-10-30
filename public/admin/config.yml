@@ -30,10 +30,15 @@ backend:
 publish_mode: editorial_workflow
 
 # Where uploaded pictures go. `public_folder` is the path written into the
-# content file, and it must stay relative — that is how Astro finds an image in
-# order to resize and optimise it.
-media_folder: src/assets/images
-public_folder: ../../assets/images
+# content file. Pictures live in src/assets, not public/, because that is where
+# Astro resizes and optimises them.
+#
+# `public_folder` looks like a web address but is not one: Astro reads
+# `/src/assets/images/x.jpg` as a path from the project folder. Do not change it
+# to `/images`, which builds a broken link, or to `../../assets/images` (the form
+# CONTENT_GUIDE.md uses when editing by hand), which Sveltia refuses to load.
+media_folder: /src/assets/images
+public_folder: /src/assets/images
 
 collections:
   # -------------------------------------------------------------------------
