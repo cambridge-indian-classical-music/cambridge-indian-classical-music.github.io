@@ -62,7 +62,8 @@ Only needed for changing how the site _looks or works_. Content changes do not
 require any of this.
 
 You need [Node.js](https://nodejs.org/) version 22.18 or newer (`.nvmrc` pins the
-version this was tested with; `nvm use` picks it up).
+version this was tested with; `nvm use` picks it up). Don't have it? See
+[Installing Node](docs/MAINTAINING.md#installing-node) — including a note for Docker.
 
 ```bash
 npm install      # once, to fetch the tools
