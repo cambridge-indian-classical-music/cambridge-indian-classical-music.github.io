@@ -5,11 +5,21 @@
  * The job of this page is to answer "what is on next?" above the fold. Everything
  * else is secondary — someone arriving from a poster or an Instagram link wants
  * the next concert, not an essay.
+ *
+ * The words at the top come from src/content/home.md, so they can be changed in
+ * the CMS without touching this file.
  */
+import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EventGrid from '../components/EventGrid.astro';
 import { getEventsByTime } from '../lib/events';
 import { site } from '../site.config';
+
+const home = await getEntry('home', 'home');
+if (!home) {
+  // A clear failure at build time beats a mysteriously empty page in production.
+  throw new Error('Missing src/content/home.md — the homepage needs it.');
+}
 
 const { upcoming, past } = await getEventsByTime();
 
@@ -24,15 +34,12 @@ const recent = past.slice(0, 3);
 
 <BaseLayout title={site.name} description={site.description}>
   <section class="hero container">
-    <p class="eyebrow">Cambridge University</p>
-    <h1>Indian Classical Music Society</h1>
-    <p class="hero__lede">
-      We bring Carnatic and Hindustani music to Cambridge — concerts by visiting artists, workshops open to
-      all, and a community for anyone who wants to listen, learn or play.
-    </p>
+    <p class="eyebrow">{home.data.eyebrow}</p>
+    <h1>{home.data.heading}</h1>
+    <p class="hero__lede">{home.data.introduction}</p>
     <p class="hero__actions">
       <a class="button" href="/events">
-        See what's on
+        {home.data.buttonLabel}
       </a>
     </p>
   </section>

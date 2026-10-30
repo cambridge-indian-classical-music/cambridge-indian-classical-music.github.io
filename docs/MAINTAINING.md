@@ -96,7 +96,8 @@ That runs exactly what CI runs. If it passes locally it will pass on GitHub.
 | Colours, fonts, spacing                         | `src/styles/global.css` — the tokens at the top    |
 | Society name, contact, navigation, social links | `src/site.config.ts`                               |
 | What fields an event or artist has              | `src/content.config.ts` — **read the notes first** |
-| The homepage                                    | `src/pages/index.astro`                            |
+| The homepage's introduction text                | `src/content/home.md`                              |
+| The homepage's layout                           | `src/pages/index.astro`                            |
 | An event page's layout                          | `src/pages/events/[...slug].astro`                 |
 | How events are sorted or filtered               | `src/lib/events.ts`                                |
 | Date formatting                                 | `src/lib/datetime.ts`                              |

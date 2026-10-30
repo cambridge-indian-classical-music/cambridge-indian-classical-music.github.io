@@ -326,6 +326,20 @@ subheading, and `[text](https://address)` makes a link.
 
 ---
 
+## Editing the homepage
+
+The words at the top of the homepage are in `src/content/home.md`, or under
+**Homepage** in the editing interface. There are four: the small line above the
+heading, the heading, one paragraph of introduction, and the button text. All
+four are required and have length limits, so the opening screen still fits on a
+phone.
+
+Nothing else on the homepage is typed in. "Coming up" and "Recently" fill
+themselves from the events; tick **Show on the homepage** (`featured`) on an
+event to move it to the front.
+
+---
+
 ## When a check fails
 
 A red cross is the system doing its job: it has stopped a broken page from being

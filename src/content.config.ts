@@ -347,6 +347,24 @@ const pages = defineCollection({
 });
 
 /**
+ * The text at the top of the homepage. Only the words are editable; the layout,
+ * the button's destination and the event lists stay in src/pages/index.astro,
+ * so editing this file cannot break the page's design.
+ *
+ * The length limits keep the opening screen from overflowing on a phone. They
+ * are generous — the original text is well inside them.
+ */
+const home = defineCollection({
+  loader: glob({ pattern: 'home.md', base: './src/content' }),
+  schema: z.strictObject({
+    eyebrow: z.string().min(1).max(60),
+    heading: z.string().min(1).max(80),
+    introduction: z.string().min(1).max(400),
+    buttonLabel: z.string().min(1).max(30),
+  }),
+});
+
+/**
  * The committee changes completely every year, so it lives in one small file
  * that can be replaced wholesale at handover rather than being scattered
  * through the templates.
@@ -361,4 +379,4 @@ const committee = defineCollection({
   }),
 });
 
-export const collections = { events, artists, membership, pages, committee };
+export const collections = { events, artists, membership, pages, home, committee };
