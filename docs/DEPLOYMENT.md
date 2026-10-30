@@ -485,13 +485,35 @@ Note the **Client ID**, and generate a **Client Secret**.
 
 ### 2. Deploy the authentication worker
 
-Sveltia CMS provides a ready-made Cloudflare Worker for this. Follow the
-instructions at <https://github.com/sveltia/sveltia-cms-auth>. In short: deploy
-the worker to a Cloudflare account, then set two **encrypted** environment
-variables on it:
+Sveltia CMS provides a ready-made Cloudflare Worker for this:
+<https://github.com/sveltia/sveltia-cms-auth>.
 
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
+**Do this step before step 1** — the OAuth app needs the worker's address.
+
+**Paste the code in by hand; do not use the "Deploy to Cloudflare" button.**
+The button copies the code into a new GitHub repository and asks to connect
+Cloudflare to a GitHub account, and GitHub will not let you grant that
+connection access to no repositories at all. The worker does not need any of it.
+Instead:
+
+1. In the Cloudflare dashboard, **Workers & Pages → Create → Start with Hello
+   World**, name it `sveltia-cms-auth`, and deploy.
+2. **Edit code**, replace everything with the contents of `src/index.js` from
+   the repository above, and deploy again.
+
+The cost is that the worker never updates itself. That is acceptable — the code
+is small and rarely changes — and it means nothing on Sveltia's side can change
+the society's sign-in without someone choosing to.
+
+Then, under **Settings → Variables and Secrets**, set:
+
+- `GITHUB_CLIENT_ID` — as text
+- `GITHUB_CLIENT_SECRET` — as a **secret** (encrypted)
+- `ALLOWED_DOMAINS` — `indianclassicalmusic.societies.cam.ac.uk`, so only this
+  site can use the worker
+
+The worker runs on Cloudflare's free plan, which takes no card. Sign-ins use a
+handful of requests against a daily allowance of 100,000.
 
 ### 3. Point the CMS at it
 
