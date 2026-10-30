@@ -137,21 +137,21 @@ rm public/brochures/sample-programme.pdf src/assets/images/placeholder-*.png
 | `src/content/committee.yml`  | The three `A. N. Example` entries                                          |
 | `src/content/pages/about.md` | Placeholder text — rewrite in the society's own words                      |
 | `src/content/membership/`    | `joinUrl` — add the payment link once it exists; check the price and dates |
-| `astro.config.mjs`           | `site:` → the University subdomain, once UIS has allocated it              |
 | `public/admin/config.yml`    | `base_url:` — only if the CMS is being set up                              |
 
 **3. Hosting is on and the site is live** at
-<https://cambridge-indian-classical-music.github.io/>, on GitHub Pages. That
-decision is settled (ADR-007), and the first-time setup in
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) is done apart from the custom domain.
+<https://indianclassicalmusic.societies.cam.ac.uk/>, on GitHub Pages, with
+HTTPS enforced. That decision is settled (ADR-007), and the first-time setup in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) is complete, including the custom
+domain.
 Two of its steps are requirements rather than preferences, and both are already
 satisfied: **the repository must be public**, and **it must be named
 `cambridge-indian-classical-music.github.io`** so the site is served from the
 root of an address rather than a sub-path. Do not rename it.
 
-What remains is **step 5 — the custom domain**: asking University IT for a
-subdomain of `societies.cam.ac.uk`. It costs nothing and there is no registrar.
-The document has the wording, the address to send it to, and the trap to avoid.
+The address is a subdomain of `societies.cam.ac.uk`, allocated by University IT.
+It costs nothing and there is no registrar. If the site ever stops loading over
+HTTPS, step 5 of the deployment document explains how to check the DNS records.
 
 **4. Decisions that are genuinely open** — section 5 of
 [ARCHITECTURE.md](ARCHITECTURE.md) gives the reasoning behind each:
@@ -159,8 +159,6 @@ The document has the wording, the address to send it to, and the trap to avoid.
 - [ ] Which **society** bank account receives ticket income — confirm the existing
       Lloyds account is held by the society with two signatories, not by an
       individual
-- [ ] Request the University subdomain from `ip-register@uis.cam.ac.uk` — the
-      approach is decided, the request is not yet filed
 - [ ] Whether to set up the CMS at all (if yes, the route is already decided —
       ADR-005)
 - [ ] Whether to turn on analytics

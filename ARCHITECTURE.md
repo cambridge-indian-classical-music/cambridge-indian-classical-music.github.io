@@ -463,7 +463,9 @@ together settle the question:
   force one. GitHub Pages' record points at `<organisation>.github.io`,
   **excluding the repository name**, which means it survives a repository rename
   or a rebuild in a different repository. It is the more stable target, on the
-  more stable product.
+  more stable product. (In the event, UIS set up GitHub's A/AAAA addresses
+  rather than the CNAME that was asked for. That still ties the name to GitHub
+  Pages, so the conclusion holds; `docs/DEPLOYMENT.md` step 5 has the details.)
 
 This reasoning did not exist when the original comparison below was written, and
 it outweighs it. Had it been known earlier, GitHub Pages would have been the
@@ -878,13 +880,6 @@ committee decision, not on more work.
   SU was not accepting new society finance accounts as of September 2026, so an
   external account may be necessary; check with them first. See
   `docs/TICKETING.md` and `docs/HANDOVER.md`.
-- **The domain — decided in approach, not yet requested.** It will be a
-  subdomain of `societies.cam.ac.uk`, asked of University IT rather than bought
-  from a registrar, so there is nothing to register and no annual fee. What
-  remains is filing the request; `docs/DEPLOYMENT.md` has the wording, the
-  address to send it to and the sequence. Until then `site` in
-  `astro.config.mjs` points at the `github.io` address, which affects canonical
-  URLs, the sitemap and social previews. It blocks nothing else.
 - **Whether to set up the CMS at all.** Try editing on GitHub first; add the CMS
   only if editors find that uncomfortable. Do not build infrastructure nobody has
   asked for. **If it is set up, the route is decided** — OAuth with the Sveltia

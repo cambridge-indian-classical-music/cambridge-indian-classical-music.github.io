@@ -116,88 +116,133 @@ own file, which is the safer way round.
 
 ### 5. Custom domain
 
-The society's address is a **subdomain of the University's own domain**,
-requested from University IT rather than bought from a registrar. That makes the
-DNS record something a third party controls and will not want to change often, so
-it is worth getting right first time. **It also means the domain costs nothing.**
+**Done, October 2026.** The site is at
+<https://indianclassicalmusic.societies.cam.ac.uk/>, with HTTPS enforced. This
+section records what was set up, how to check it, and what went wrong on the way,
+because the next person to touch it will be doing so because something broke.
 
-**Everything below was verified against UIS's own documentation in September
-2026**, so it need not be re-derived:
-<https://www.dns.cam.ac.uk/ipreg/offsite.html>
+The address is a **subdomain of the University's own domain**, allocated by
+University IT (UIS) rather than bought from a registrar. **It costs nothing and
+cannot expire**, but the DNS records belong to a third party: changing them means
+emailing `ip-register@uis.cam.ac.uk` and waiting on their timescale. UIS's rules
+for pointing a University name at an outside host are at
+<https://www.dns.cam.ac.uk/ipreg/offsite.html>. In short: the society is eligible
+for a `societies.cam.ac.uk` name as _"an established University society"_, and
+the host must serve only Cambridge-related material under it.
 
-- **It is a CNAME, not a redirect.** UIS: _"Where possible, we prefer external
-  references to be CNAME records, i.e. to hostnames, though we can set up
-  A/AAAA address records when an external hostname is not available."_ So the
-  society's address stays in the browser's address bar, and GitHub issues the
-  certificate for that hostname. Visitors never see a `github.io` address.
-- **The society is eligible.** UIS's domain policy lists `societies.cam.ac.uk`
-  for _"an established University society"_.
-- **The slow process may not apply.** The Service Request form and naming panel
-  are described for _"new top-level names under `cam.ac.uk`"_. For a subdomain of
-  a containing domain somebody else already controls, the guidance is to
-  _"contact your institutional IT staff, who control the containing domain"_ —
-  potentially a much lighter route. **Ask which applies rather than assuming the
-  slow one.**
-- **Where to send it:** `ip-register@uis.cam.ac.uk`. Have a one-sentence
-  description of the purpose ready; UIS asks for one.
-- **Conditions that apply:** the external host must serve only Cambridge-related
-  material under the `cam.ac.uk` name (satisfied — a custom domain binds to this
-  one project), and CUDN and JANET acceptable use policies apply. The
-  reverse-DNS requirement applies to A/AAAA records, not CNAMEs, so it is moot
-  here.
-- **Choosing wrong is recoverable.** The slow, expensive part is _allocating_ the
-  name. Re-pointing an existing name later is an email asking them to change one
-  CNAME target, not a fresh application. So this is a reversible decision — not
-  free, and not to be done repeatedly, but not one-shot either.
+#### What UIS actually set up
 
-**The record to ask for:**
+We asked for a single CNAME record. **UIS set up something different**: they
+made `indianclassicalmusic.societies.cam.ac.uk` its own small DNS zone, with
+these records.
+
+| Type  | Value                                                                                          |
+| ----- | ---------------------------------------------------------------------------------------------- |
+| A     | `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`                     |
+| AAAA  | `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`     |
+| CNAME | `www.indianclassicalmusic.societies.cam.ac.uk` → `cambridge-indian-classical-music.github.io.` |
+
+That works, and GitHub treats the address as an apex domain because of it. The
+cost is that **those eight addresses are copied by hand from GitHub's
+documentation**, so they are wrong if they were mistyped, and they go stale if
+GitHub ever changes them. A CNAME would have neither problem.
+
+**If the records ever need changing anyway, ask UIS to replace all eight with
+this one record:**
 
 ```
-<the-subdomain>    CNAME    cambridge-indian-classical-music.github.io.
+indianclassicalmusic.societies.cam.ac.uk.    CNAME    cambridge-indian-classical-music.github.io.
 ```
 
-**Point it at `cambridge-indian-classical-music.github.io`, not at the repository
-name.** GitHub's documentation is explicit: _"The `CNAME` record should always
+It points at the organisation's `github.io` name, **not** at the repository
+name. GitHub's documentation is explicit: _"The `CNAME` record should always
 point to `<user>.github.io` or `<organization>.github.io`, excluding the
-repository name."_ This is worth understanding rather than just copying, because
-it is what makes the record durable: it stays correct if the repository is
-renamed, or if the site is one day rebuilt in a different repository in the same
-organisation. **University IT should never need to change it again.**
+repository name."_ That is what makes it durable: it stays correct if the
+repository is renamed, or if the site is rebuilt in a different repository in the
+same organisation.
 
-If the address is ever an apex domain instead (`example.org`, no subdomain), a
-CNAME will not do — that needs the four **A** records and four **AAAA** records
-GitHub publishes. Take them from GitHub's documentation on the day, not from
-here, because they change.
+#### How to check the records
 
-Then, on GitHub:
+Compare them against GitHub's list, **taken from GitHub's documentation on the
+day, not from the table above**:
+<https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site>
 
-1. **Settings → Pages → Custom domain**, enter the domain, and save. GitHub
-   checks the DNS and issues a TLS certificate — this can take up to 24 hours.
-2. Tick **Enforce HTTPS** once it becomes available.
-3. **Update `site` in `astro.config.mjs` to the new address**, and merge that
-   change.
+Open these in a browser. Each returns a short piece of text; the addresses are
+the `"data"` values.
 
-> **The one real trap: HTTPS is automatic, but not zero-touch.** A host cannot
-> obtain a certificate for a name it does not know it is serving. The sequence is
-> always: UIS adds the record → **you enter the domain in Settings → Pages** →
-> GitHub runs its DNS check and requests a certificate. **If you ask UIS for the
-> record and do nothing else, visitors get a certificate error, not HTTPS.**
-> Nothing else stands in the way: certificate authority authorisation (CAA)
-> records were checked on `societies.cam.ac.uk`, `cam.ac.uk`, `ac.uk` and `uk` in
-> September 2026 and there are none, so issuance is unblocked.
+- A records: <https://dns.google/resolve?name=indianclassicalmusic.societies.cam.ac.uk&type=A>
+- AAAA records: <https://dns.google/resolve?name=indianclassicalmusic.societies.cam.ac.uk&type=AAAA>
 
-> **Tick Enforce HTTPS now, before any of this.** On the current `github.io`
-> address, `http://` does **not** redirect to `https://` — verified September
-> 2026, it returns 200 over plain HTTP. **Settings → Pages → Enforce HTTPS**
-> fixes it, and is worth doing today rather than waiting for the custom domain.
+Every address must be on GitHub's list. **One address that is not is enough to
+stop HTTPS**, even if the other seven are right.
 
-Step 3 is easy to forget. Until it is done, canonical links, the sitemap and
-social previews all point at the old address.
+GitHub's own verdict is in its health check, which needs admin access to the
+repository and the [GitHub CLI](https://cli.github.com/):
 
-> GitHub stores the custom domain in the repository settings, and it survives
-> deploys — with the Actions publishing source there is no `CNAME` file to
-> commit. If you later switch the publishing source to a branch, you will need
-> one.
+```bash
+gh api repos/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/pages/health
+```
+
+Look at `is_https_eligible`. If it is `false`, the fields beside it say why. An
+empty `{}` means GitHub is still running the check; try again in a minute.
+
+#### What went wrong the first time, and how it was found
+
+**A one-character typo blocked HTTPS for days.** UIS entered the fourth AAAA
+record as `2606:50c0:8004::153` instead of `2606:50c0:8003::153`. The site loaded
+over plain HTTP, so it looked fine, but the **Enforce HTTPS** checkbox said
+_"Unavailable for your site because your domain is not properly configured to
+support HTTPS"_ and no certificate was issued.
+
+The health check above said `is_non_github_pages_ip_present: true`: one of the
+addresses was not GitHub's. GitHub's checker is open source
+([github/pages-health-check](https://github.com/github/pages-health-check)),
+and it refuses HTTPS if **any** A or AAAA record is outside a fixed list. The
+reason is that the certificate authority (Let's Encrypt) checks the domain by
+connecting to it, possibly over IPv6, and a connection to the wrong address
+would fail.
+
+The mistake was missed at first because `8000`, `8001`, `8002`, `8004` reads like
+the right range at a glance. **Compare each address against GitHub's list
+character by character.** Once UIS corrected it, GitHub issued the certificate
+within minutes.
+
+Two things were red herrings, and are worth knowing so they are not chased
+again:
+
+- **Some DNS resolvers, including Cloudflare's 1.1.1.1, intermittently returned
+  a DNSSEC error** ("DNSKEY Missing") for the address while this was being
+  investigated. That turned out to be unrelated to HTTPS. If it is still
+  happening and causes trouble, the analysis at
+  <https://dnsviz.net/d/indianclassicalmusic.societies.cam.ac.uk/dnssec/> is the
+  thing to send UIS.
+- **The Pages settings screen re-runs its DNS check every time it is opened.**
+  That is normal, and is not a sign that anything is wrong.
+
+#### On GitHub, and in this repository
+
+1. **Settings → Pages → Custom domain** holds the address. GitHub stores it in
+   the repository settings, and it survives deploys. With the Actions publishing
+   source there is no `CNAME` file to commit; if you ever switch the publishing
+   source to a branch, you will need one.
+2. **Enforce HTTPS** is ticked, so `http://` redirects to `https://`.
+3. **`site` in `astro.config.mjs`** is the new address. It builds canonical links,
+   the sitemap and social previews.
+4. **The membership form's `SITE_URL` Script Property** must match `site`. It is
+   set in the Apps Script project, not in this repository; see
+   [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md).
+
+**If the address ever changes, all four change together.** The order matters:
+UIS changes the record first, then you enter the new domain in Settings → Pages,
+and only then does GitHub request a certificate. A host cannot get a certificate
+for a name it does not know it is serving, so **if you only ask UIS for the
+record, visitors get a certificate error, not HTTPS.** The certificate can take
+up to 24 hours. If it does not arrive, run the health check above. Removing and
+re-entering the domain in Settings → Pages makes GitHub check again.
+
+The certificate itself renews automatically. There are no certificate authority
+authorisation (CAA) records on `societies.cam.ac.uk`, `cam.ac.uk` or `ac.uk`
+(checked October 2026), so nothing blocks renewal.
 
 ---
 
