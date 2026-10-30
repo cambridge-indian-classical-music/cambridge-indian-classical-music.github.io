@@ -106,6 +106,38 @@ business seeing the bank details.
 Each person accepts an activation email and sets their own password, so nobody
 shares credentials and removing one person disturbs nobody else.
 
+### Stripe is tied to a named person — change it every year
+
+Stripe distinguishes two things, and only one of them is about logging in:
+
+- **Who can log in.** Like TryBooking, Stripe lets each person have their own
+  login with a role. The society email should **own** the account, so committee
+  members come and go around a fixed root.
+- **The account representative.** This is a **real person** whose identity
+  Stripe has checked with photo ID and a selfie, and who is legally answerable
+  for the account. It is not a login, and a society email address cannot hold
+  it. A person has to.
+
+**The trap is the representative.** It does not change when people log in or
+leave. If it is still a student who has graduated, the next time Stripe asks the
+representative to re-confirm their details, nobody can answer. Stripe can then
+**pause payments and payouts**. Everything running on the account stops with
+them: the membership payment links, and any ticketing built on Stripe.
+
+At every handover, while the outgoing committee is still around:
+
+1. An incoming committee member, ideally the treasurer, becomes the account
+   representative. In Stripe this is under **Settings → Business details**.
+   They then complete Stripe's identity check themselves. Nobody else can do the
+   selfie for them.
+2. **Check Stripe shows no outstanding tasks** on its home page. A pending
+   verification is easy to ignore, and it can quietly block payments. In October
+   2026 a test ticket on Checkout Page failed with only "An unexpected error
+   occurred" while one was outstanding.
+3. Do not remove the old representative until the new one is in place. Stripe
+   expects a replacement within about **seven days** of a removal, or it pauses
+   payouts.
+
 ---
 
 ## Annual handover checklist

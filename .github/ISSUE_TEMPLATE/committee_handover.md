@@ -31,6 +31,14 @@ Background on every item is in [HANDOVER.md](https://github.com/cambridge-indian
       [DEPLOYMENT.md](https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/blob/main/docs/DEPLOYMENT.md),
       "Protect main")
 - [ ] New members added to the **ticketing provider** account
+- [ ] **Stripe account representative** changed to an incoming committee member,
+      who has completed Stripe's identity check themselves. Stripe's home page
+      shows **no outstanding tasks**. This is separate from adding logins: the
+      representative is a named person Stripe has verified, and if it is left
+      as somebody who has graduated, Stripe can pause payments and payouts.
+      See
+      [HANDOVER.md](https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/blob/main/docs/HANDOVER.md),
+      "Stripe is tied to a named person"
 - [ ] New members able to sign in to the **society Google account**, and the
       Apps Script behind the membership form confirmed as owned by **that
       account and not a person** — Apps Script → Project Settings names the
