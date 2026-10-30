@@ -109,63 +109,27 @@ shares credentials and removing one person disturbs nobody else.
 
 ## Annual handover checklist
 
-Work through this with the outgoing committee, ideally in one sitting together.
+The checklist is an **issue template**, so each handover becomes one GitHub
+issue that the committee ticks off together — with a record of who did what and
+when, which next year's committee can look up.
 
-### Before the outgoing committee leaves
+**To start one:** on GitHub, go to **Issues → New issue → Committee handover**,
+or open
+<https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/issues/new?template=committee_handover.md>.
+Work through it with the outgoing committee, ideally in one sitting together.
 
-- [ ] New committee members added to the **GitHub organisation**, with at least
-      two as **Owners**
-- [ ] New members added to the **ticketing provider** account
-- [ ] New members able to sign in to the **society Google account**, and the
-      Apps Script behind the membership form confirmed as owned by **that
-      account and not a person** — Apps Script → Project Settings names the
-      owner. This one is worth doing carefully: the form runs as whoever
-      deployed it, so if that was a student, it stops working when they graduate
-      and it stops **silently**, with the website still showing a form that
-      quietly fails. See [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md)
-- [ ] A test membership application submitted end to end, and the row checked
-- [ ] New members added to the **Cloudflare** account, _only if_ the CMS sign-in
-      worker or analytics are set up — most committees will have neither
-- [ ] Credentials and **two-factor recovery codes** transferred to the society
-      password manager
-- [ ] Confirmed the **society email** is being read by someone continuing
-- [ ] Table above updated with who now has access
-- [ ] Someone new has **made a change to the website and published it**, start to
-      finish, with the outgoing committee watching. This is the real test — do
-      not skip it
-- [ ] Confirmed the **University subdomain** still resolves and its certificate
-      is valid — there is nothing to renew, but it is worth looking. Open
-      <https://indianclassicalmusic.societies.cam.ac.uk/> and check the padlock;
-      if it is missing, [DEPLOYMENT.md](DEPLOYMENT.md) step 5 explains what to
-      check
+The two items that matter most for the website itself:
 
-### After they have left
+- **Add new members to the `committee` team** (the organisation's **Teams**
+  tab). The organisation gives ordinary members read-only access, so without the
+  team a new committee member cannot open a pull request at all. The team is
+  also who GitHub asks to review each pull request — see `.github/CODEOWNERS`.
+- **Someone new makes a change and publishes it**, start to finish, with the
+  outgoing committee watching.
 
-- [ ] Departing members **removed** from GitHub, the ticketing provider, and
-      Cloudflare if it is in use
-- [ ] Removing someone from the **GitHub organisation** is what actually stops
-      them editing the website — the `/admin` page is public and always was, so
-      there is no separate list to prune
-- [ ] Passwords on shared accounts **changed**
-- [ ] `src/content/committee.yml` updated — see
-      [CONTENT_GUIDE.md](CONTENT_GUIDE.md)
-- [ ] Contact address in `src/site.config.ts` still correct
-
-### Once a year, worth checking
-
-- [ ] The site still builds — open the **Actions** tab on GitHub and check
-      recent runs are green
-- [ ] Any Dependabot pull requests merged (see [MAINTAINING.md](MAINTAINING.md))
-- [ ] Old events still read sensibly
-- [ ] The membership spreadsheet is **not** shared as "anyone with the link"
-- [ ] Last year's unpaid membership applications deleted — the retention rule in
-      [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md); nothing enforces it by itself
-- [ ] **The membership year rolled over**, when a new one opens: `SHEET_NAME`
-      and `MEMBERSHIP_YEAR` in the Apps Script changed **together**, plus a new
-      file in `src/content/membership/`. Changing only one of the two properties
-      fails silently — applications keep arriving, carrying last year's
-      reference. [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md) has the table
-- [ ] Committee list and About page current
+To change the checklist, edit
+[`.github/ISSUE_TEMPLATE/committee_handover.md`](../.github/ISSUE_TEMPLATE/committee_handover.md).
+It is the only copy, so there is nothing else to keep in step.
 
 ---
 
