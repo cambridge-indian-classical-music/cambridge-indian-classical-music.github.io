@@ -1,0 +1,14 @@
+# Who GitHub asks to review a pull request.
+#
+# Every pull request needs one approval before it can be merged (see
+# docs/DEPLOYMENT.md, "Protect main"). This file makes GitHub ask for that
+# review automatically, so nobody has to remember to.
+#
+# It names a team rather than people on purpose. People change every year; the
+# team stays, and handing over means changing who is in it — on GitHub, under
+# the organisation's Teams tab — not editing this file. See docs/HANDOVER.md.
+#
+# If the team is renamed or deleted, review requests silently stop. GitHub shows
+# an error at the top of this file when that happens.
+
+* @cambridge-indian-classical-music/committee

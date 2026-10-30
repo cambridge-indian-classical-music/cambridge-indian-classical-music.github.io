@@ -33,7 +33,7 @@ there with its reasoning and the alternatives that were rejected.
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Hosting, domain, deploys, setting up the CMS             |
 | [docs/TICKETING.md](docs/TICKETING.md)         | How ticketing works and how to change provider           |
 | [docs/TERMS.md](docs/TERMS.md)                 | Ticket and membership terms and conditions               |
-| [docs/HANDOVER.md](docs/HANDOVER.md)           | Accounts, access and the annual handover checklist       |
+| [docs/HANDOVER.md](docs/HANDOVER.md)           | Accounts, access and how to run the annual handover      |
 | [ARCHITECTURE.md](ARCHITECTURE.md)             | Why the site is built the way it is                      |
 
 ---

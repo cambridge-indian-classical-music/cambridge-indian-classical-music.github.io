@@ -122,6 +122,18 @@ This list is the record of what they should be. **Check them at each handover.**
 This matters more than it did before. The Deploy workflow can publish, so the
 protection on `main` is what stands between a bad change and the live site.
 
+**Organisation → Teams → New team**, named **`committee`**:
+
+- Add every current committee member to it.
+- In the team's **Repositories** tab, give it **Write** access to this
+  repository. The organisation's default for members is read-only, so without
+  this team a committee member who is not an Owner cannot push a branch or open a
+  pull request from it.
+- `.github/CODEOWNERS` names this team, so GitHub asks it to review every pull
+  request automatically. Leave **Require review from Code Owners** off in the
+  branch protection rule — any one approval will do; the file only decides who
+  is asked.
+
 **Settings → General → Pull Requests:**
 
 - **Allow squash merging** only, with the default commit message set to
