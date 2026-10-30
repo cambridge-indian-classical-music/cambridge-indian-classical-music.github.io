@@ -33,6 +33,24 @@ nvm use
 After that, `nvm use` in this directory always selects the right version — which
 matters as Astro's Node requirements move over the years.
 
+#### In Docker or a dev container
+
+nvm writes to `~/.nvm` and edits `~/.bashrc`, which is awkward in a container
+(and, if your home directory is mounted from the host, changes the host too).
+There, a system-wide install from NodeSource is simpler. It needs `sudo`, and the
+major version in the URL should match `.nvmrc`:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+This stays inside the container — nothing is installed on the host. But if the
+repository is bind-mounted from the host, `node_modules/` is written to the host
+too, containing Linux binaries that will not run on macOS or Windows. Run
+`npm install` only in one place, or keep the two checkouts separate. The install is
+also lost if the container is recreated, unless it is added to the Dockerfile.
+
 ```bash
 git clone https://github.com/<the-society-org>/website.git
 cd website
