@@ -57,6 +57,12 @@ It runs formatting, type checking, the build and the tests. All four must pass.
 is what the public sees. Work on a branch, open a pull request, and let the
 Actions run finish.
 
+**Claude Code: use the `cuicms-codebase-edit` skill for every change**, however
+small — code, content, config or docs. It is the issue → branch → pull request
+workflow for this repository. A hook in `.claude/settings.json` refuses edits
+while `main` is checked out, so skipping the skill fails rather than slipping
+through.
+
 ## 5. Write for the next committee, not for other developers
 
 Most people who edit this are not engineers, and they change every year.
