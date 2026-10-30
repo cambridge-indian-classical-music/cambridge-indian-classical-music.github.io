@@ -69,8 +69,10 @@ Now wait a minute. Two things happen:
 - **A preview appears.** A link is added to the pull request showing the site
   exactly as it will look. Click it and check your work.
 
-When the tick is green and the preview looks right, click **Merge pull request**.
-The live site updates within a couple of minutes.
+When the tick is green and the preview looks right, ask another committee member
+to approve the pull request — every change needs one approval before it can go
+live. Then click **Squash and merge**. The live site updates within a couple of
+minutes.
 
 ### The fields
 

@@ -169,8 +169,10 @@ committee that did not write the code would have to diagnose it.
 
 Dependabot opens one grouped pull request a month.
 
-**To handle one:** check the Checks tick is green, then merge. If the tick is
-red, the release notes linked in the pull request usually say what changed.
+**To handle one:** check the Checks tick is green, approve it, then merge — or
+click **Enable auto-merge** and it merges itself once the checks pass. If the
+tick is red, the release notes linked in the pull request usually say what
+changed.
 
 There are no preview deployments on GitHub Pages (ADR-007), so for a dependency
 bump that touches how the site is built — an Astro major version, say — it is
