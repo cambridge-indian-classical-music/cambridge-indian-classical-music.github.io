@@ -10,8 +10,8 @@
 # you add a field to one, add it to the other, or the CMS will happily save
 # content that then fails to build.
 #
-# The CMS does nothing until someone completes the authentication setup in
-# docs/DEPLOYMENT.md. Until then, edit content on GitHub instead — see
+# The authentication setup in docs/DEPLOYMENT.md was completed in October 2026.
+# If the CMS ever stops signing people in, edit content on GitHub instead — see
 # docs/CONTENT_GUIDE.md. Everything works perfectly well without this.
 # ---------------------------------------------------------------------------
 
@@ -21,7 +21,9 @@ backend:
   branch: main
   # The address of the small authentication service that lets the CMS talk to
   # GitHub on your behalf. See docs/DEPLOYMENT.md. No secret goes in this file.
-  base_url: https://REPLACE-ME.workers.dev
+  # It is a Cloudflare Worker whose code was pasted in by hand, with no Git
+  # connection, so it never updates itself.
+  base_url: https://sveltia-cms-auth.indianclassicalmusic-aed.workers.dev
 
 # Changes are saved as pull requests rather than straight to the live site, so
 # somebody can look before anything is published, and a mistake is easy to undo.
