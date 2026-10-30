@@ -45,6 +45,7 @@ repository.
 | **Cloudflare**             | CMS sign-in or analytics, _if_ set up                         | Free             |                | Optional, and not needed for hosting. Omit unless one of those is actually set up                             |
 | **Society Google account** | Drive, the membership spreadsheet, and the form that fills it | Free             |                | Owns the Apps Script **deployment**, which runs as this account. See [MEMBERSHIP_FORM.md](MEMBERSHIP_FORM.md) |
 | **Stripe**                 | Membership payments                                           | Per payment      |                | Society account, society bank account. See [TICKETING.md](TICKETING.md)                                       |
+| **Checkout Page**          | Ticketing, **on trial** from October 2026                     | Free plan        |                | Society email, runs on the society Stripe account. Trial status in [TICKETING.md](TICKETING.md)               |
 | **Society bank account**   | Receiving ticket income                                       | Free–£8.50/month |                | Two signatories, held by the society. See [TICKETING.md](TICKETING.md)                                        |
 | **Password manager**       | Holds the above credentials                                   | Free–£           |                | Or the Students' Union's arrangements                                                                         |
 

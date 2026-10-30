@@ -167,6 +167,116 @@ it can do a 13-month membership, a searchable per-ticket attendee name, and wall
 passes. That was never established. Whoever revisits this should check those
 before assuming a switch is warranted.
 
+### Under trial: Checkout Page (from October 2026)
+
+> **Status: being tested, not adopted.** TryBooking above is still the
+> recommendation until this section says otherwise. Whoever finishes the trial
+> should either rewrite "Recommendation" above or delete this section, not leave
+> both standing.
+
+[Checkout Page](https://checkoutpage.com/) is a ticketing layer that runs on the
+society's **own Stripe account**. Stripe takes the payment; Checkout Page adds
+what a bare Stripe payment link cannot do: a seat limit, tickets, and check-in at
+the door. That answers the objection in "Do not build a payment interface" below,
+which was about Stripe on its own.
+
+**Why it is worth a look.** On the Free plan Checkout Page charges no fee of its
+own, so the only cost is Stripe's processing: about **£0.32 on an £8 ticket**,
+against £0.55 for TryBooking and £0.97 for FIXR. It would also put ticket income
+in the same Stripe account as membership payments.
+
+**Why it is only a trial.** It is a small company with almost no public reviews
+(two on G2 and one on Capterra, as of October 2026). The money is safe either way,
+because it sits in the society's Stripe account. The risk is to the ticketing
+itself: if Checkout Page changes its prices, drops the Free plan or closes, the
+attendee lists and check-in go with it.
+
+**What exists so far:**
+
+- An account registered to the society email, connected to the society Stripe
+  account, created 30 October 2026.
+- A test event at `https://cuicms.checkoutpage.com/test-event`, linked from
+  `src/content/events/sample-checkout-page-test-event.md`. **Delete that file
+  when the trial ends**, whatever the outcome.
+
+**Things to know about the Free plan** (from Checkout Page's pricing page, October
+2026):
+
+- New accounts start on a **7-day trial of a paid plan**. When it ends, choose
+  the Free plan and make sure nothing converts to a paid subscription. Anything
+  that worked during the trial, staff scanning especially, may stop working on
+  Free, so run the important tests **after** the switch.
+- The Free plan allows **one team member**. Inviting door staff to scan is listed
+  under the paid Launch plan ($29 a month).
+- The Free plan **pauses every page** once sales pass **$3K (about £2,300) in a
+  30-day period**. One concert will not reach that, but two well-attended
+  concerts close together could, and the pages would stop selling partway
+  through.
+
+#### Questions for Checkout Page support
+
+Ask these before relying on Checkout Page for a real concert. **When you get an
+answer, write it here** and delete the question.
+
+1. **Does an event's capacity count tickets or orders?** _(ask this first)_
+   Stripe Payment Links count orders, so one order for ten tickets uses up one
+   place, and a cap of 40 can sell 400 seats. If Checkout Page works the same way
+   it cannot be used for concerts with a fixed number of seats.
+2. **Can one login scan tickets on several phones at once?** Or can the Free plan
+   invite door staff? Concerts need more than one person checking tickets at the
+   door.
+3. **Do buyers get an email with a QR-code ticket?** Are Apple or Google Wallet
+   passes offered, and on which plan?
+4. **Can the attendee list be exported** as a CSV? A printed list is the fallback
+   if phones fail at the door.
+5. **Can account ownership be transferred** to a new committee? TryBooking won
+   partly because it documents this. See "Who owns the payment account" below.
+6. **Is GBP fully supported?** Is there a test mode?
+7. **Is the $3K 30-day limit a rolling window** or a fixed period, and does a
+   refund count against it?
+
+#### Testing it
+
+Most of this can be done with **£0 tickets**. A free order never reaches Stripe,
+so it costs nothing:
+
+- [ ] Set the test event's capacity to **2**, with every ticket type drawing on
+      that one limit. Buy **2 tickets in one order**. The event must then show
+      as sold out. This test settles question 1.
+- [ ] Check the confirmation email: is there a QR code, and does it look like it
+      comes from the society?
+- [ ] Scan the ticket on a phone, then **scan it again**. The second scan must be
+      rejected.
+- [ ] Log in on two phones at once and scan from both.
+- [ ] Export the attendee list.
+
+Then **one paid test at £1**, which is the only way to check the Stripe side.
+Stripe's minimum is 30p, and it will probably keep its fee of about 22p when the
+payment is refunded:
+
+- [ ] Buy one £1 ticket on a real card. Check the payment appears in the society
+      Stripe account, and that the society's name appears on the bank statement.
+- [ ] Refund it in Stripe, and check Checkout Page shows the refund.
+
+#### If it is adopted
+
+1. Rewrite "Recommendation" above to explain why, using the answers and test
+   results here.
+2. Add a `checkoutpage` value to `TICKET_PROVIDERS` in `src/content.config.ts`
+   and a label in `src/lib/events.ts`, so the button says where it goes. Until
+   then use `ticketProvider: other`.
+3. Fill in the Checkout Page row in [HANDOVER.md](HANDOVER.md).
+
+**Link to it, do not embed it.** Checkout Page offers a snippet that loads its
+own script into the event page. Do not use it. The website holds a link and
+never runs a ticketing provider's code (ADR-006), which is what keeps changing
+provider to a one-line edit.
+
+**Door sales are separate.** Tap to Pay in the Stripe Dashboard app takes card
+payments at the door with no card reader, but those sales do not reduce the
+Checkout Page capacity. Hold some seats back from the online limit, and count
+door sales by hand.
+
 ### The saving that actually matters
 
 At a realistic 40 tickets at £8 — £320 a concert:
