@@ -110,6 +110,11 @@ This list is the record of what they should be. **Check them at each handover.**
 
 - **Require a pull request before merging**, with **1 approval**. A second
   committee member looks at every change before the public sees it.
+- Under it, tick **Require approval of the most recent reviewable push**.
+  Otherwise an approval stays valid when more commits are pushed afterwards,
+  and those can be merged without anyone having looked at them. Leave **Dismiss
+  stale pull request approvals** off: it also throws an approval away when
+  someone merely clicks **Update branch**, which changes nothing they wrote.
 - **Require status checks to pass** — search for and select
   **`Format, types, build and tests`**. That is the job inside the Checks
   workflow; the workflow's own name, "Checks", does not appear in the list.
@@ -133,6 +138,13 @@ protection on `main` is what stands between a bad change and the live site.
   request automatically. Leave **Require review from Code Owners** off in the
   branch protection rule — any one approval will do; the file only decides who
   is asked.
+
+**Organisation → Settings → Member privileges → Repository creation:** turn it
+**off**, so only Owners can create repositories. This is less harmless than it
+looks. GitHub publishes a Pages site from _any_ repository in the organisation
+under this site's custom domain — a repository called `test` with Pages switched
+on appears at `indianclassicalmusic.societies.cam.ac.uk/test` — and nothing on
+that path goes through the review that protects `main`.
 
 **Settings → General → Pull Requests:**
 
