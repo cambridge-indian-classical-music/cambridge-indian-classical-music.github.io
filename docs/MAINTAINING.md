@@ -197,7 +197,8 @@ will be several behind. Two things to keep in mind:
   npm run verify
   ```
 
-  Open a pull request, check the preview, merge. If it turns into a fight, it is
+  Check the site with `npm run dev` on the branch — there are no preview
+  deployments — then open a pull request and merge. If it turns into a fight, it is
   entirely reasonable to leave it for someone with more time — the site is not
   at risk in the meantime.
 

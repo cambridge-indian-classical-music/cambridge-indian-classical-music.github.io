@@ -61,18 +61,24 @@ The quickest way is to copy an existing event.
    request**, and click **Propose new file**.
 7. On the next screen, click **Create pull request**.
 
-Now wait a minute. Two things happen:
+Now wait a minute while the **checks run**. A green tick means everything is
+valid. A red cross means something is wrong — click **Details** to see which
+file and which line, fix it, and the check runs again.
 
-- **Checks run.** A green tick means everything is valid. A red cross means
-  something is wrong — click **Details** to see which file and which line, fix
-  it, and the check runs again.
-- **A preview appears.** A link is added to the pull request showing the site
-  exactly as it will look. Click it and check your work.
+**There is no preview link.** The site is hosted on GitHub Pages, which cannot
+show a pull request before it is merged (see ADR-007 in
+[ARCHITECTURE.md](../ARCHITECTURE.md)). The checks catch anything that would
+break the site, but not something that is valid and simply looks wrong — a
+summary that is too long for its card, or a date with the wrong year. So read
+your change through carefully in the pull request's **Files changed** tab.
 
-When the tick is green and the preview looks right, ask another committee member
-to approve the pull request — every change needs one approval before it can go
-live. Then click **Squash and merge**. The live site updates within a couple of
-minutes.
+When the tick is green, ask another committee member to approve the pull
+request — every change needs one approval before it can go live. If they can run
+the site on their own computer (`npm run dev`, see
+[MAINTAINING.md](MAINTAINING.md)), they can check how the page looks before
+approving. Then click **Squash and merge**. The live site updates within a couple
+of minutes; **open the page and check it**, and if something looks wrong, fix it
+with another pull request.
 
 ### The fields
 
