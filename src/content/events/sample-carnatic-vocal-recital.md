@@ -1,15 +1,9 @@
 ---
-# ---------------------------------------------------------------------------
-# SAMPLE CONTENT — delete this file before the site goes live.
-# Every file whose name starts with "sample-" is an example, not real content.
-# Copy this file as a starting point for a real concert.
-# See docs/CONTENT_GUIDE.md.
-# ---------------------------------------------------------------------------
 title: An Evening of Carnatic Vocal Music
 type: concert
 summary: A full-length kacheri of Carnatic vocal music, with violin and mridangam accompaniment.
-start: '2026-11-14T19:30'
-end: '2026-11-14T21:30'
+start: 2026-11-14T19:30
+end: 2026-11-14T21:30
 venue:
   name: Fitzwilliam College Auditorium
   address: Storey's Way, Cambridge CB3 0DG
@@ -29,6 +23,7 @@ ticketProvider: trybooking
 priceInfo: £10 / £6 students and under-18s
 status: scheduled
 featured: true
+draft: false
 ---
 
 **Sample content.** This is an example event showing how a concert page is put
