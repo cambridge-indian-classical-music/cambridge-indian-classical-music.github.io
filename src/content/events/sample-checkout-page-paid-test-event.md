@@ -17,8 +17,8 @@
 title: TEST – Test paid event
 type: other
 summary: A low-price test event for checking Checkout Page payments. Please do not book.
-start: '2026-12-12T19:30'
-end: '2026-12-12T21:00'
+start: '2026-11-21T17:00'
+end: '2026-11-21T19:00'
 venue:
   name: Test venue — no event is taking place
 ticketUrl: https://cuicms.checkoutpage.com/test-paid-event
