@@ -250,13 +250,18 @@ so it costs nothing:
 - [ ] Log in on two phones at once and scan from both.
 - [ ] Export the attendee list.
 
-Then **one paid test at £1**, which is the only way to check the Stripe side.
-Stripe's minimum is 30p, and it will probably keep its fee of about 22p when the
-payment is refunded:
+Then **one paid test**, which is the only way to check the Stripe side. The test
+event's tickets are £0.25 for students and £0.50 for the public. Stripe keeps its
+fee of about 20p when a payment is refunded. Its minimum charge is 30p, so the
+£0.25 ticket is below it unless Checkout Page adds fees on top:
 
-- [ ] Buy one £1 ticket on a real card. Check the payment appears in the society
-      Stripe account, and that the society's name appears on the bank statement.
+- [ ] Buy one £0.50 public ticket on a real card. Check the payment appears in
+      the society Stripe account, and that the society's name appears on the bank
+      statement.
 - [ ] Refund it in Stripe, and check Checkout Page shows the refund.
+- [ ] Try to buy one £0.25 student ticket. Record whether Checkout Page accepts
+      it, refuses it, or adds a fee to reach Stripe's 30p minimum, then refund it
+      if it went through.
 
 #### If it is adopted
 
