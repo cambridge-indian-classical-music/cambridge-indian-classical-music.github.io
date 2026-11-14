@@ -637,10 +637,63 @@ large photograph does not shrink the repository, and history cannot be trimmed
 without rewriting it for everyone. `docs/CONTENT_GUIDE.md` therefore gives a size
 budget and a one-line command to resize images before committing.
 
-**The exit, if the gallery outgrows this:** move bulk media to Cloudflare R2 or a
-similar object store and reference it by URL, keeping only a handful of key
-images in the repository. This is written down so a future maintainer recognises
-the situation rather than rediscovering it.
+**How much room there is.** At the budget (images under 500 KB), a typical event
+adds roughly 0.5–1.5 MB: a poster, a photograph or two, and perhaps a brochure.
+Twenty events a year is about 30 MB a year. GitHub starts warning at around 1 GB,
+so the repository has a decade or more of headroom. **Keeping to the budget is
+the long-term plan**, not a stopgap. The cheapest protection is an automated
+check in `npm run verify` that fails the build when an image in `src/assets/` is
+over budget. That makes the mistake impossible instead of relying on someone
+remembering it. Until that check exists, catch oversized images at review. Once
+merged, the space cannot be reclaimed.
+
+**When to move, and what moves.** Move only when the society starts publishing
+_bulk_ photographs, such as a gallery with dozens of high-resolution photos per
+concert. At that point:
+
+- **Gallery photographs move** to Cloudflare R2 and are referenced by URL. R2's
+  free tier covers 10 GB of storage and, unlike most object stores, charges
+  nothing when visitors download files. A popular gallery therefore cannot
+  produce a surprise bill.
+- **Posters and artist photographs stay** in `src/assets/`, where Astro's image
+  pipeline optimises them.
+- **PDFs always stay** in `public/brochures/`, because their URLs must never
+  change (see above).
+
+Moving has costs, so do not move early:
+
+- Someone must own the Cloudflare account and pass it on each year. Write the
+  handover steps into `docs/MAINTAINING.md` when the move happens.
+- Uploading is less friendly than GitHub or the CMS.
+- Astro does not optimise images it never sees at build time, so photographs
+  must be resized before uploading (or served through Cloudflare's paid image
+  resizing).
+
+**Alternatives considered and rejected.** Each of these looks like the obvious
+answer, which is why they are written down:
+
+- **Google Drive or Google Photos.** Neither is built to host files for a
+  website. Direct-link URLs are unofficial, change without notice and are
+  rate-limited. One accidental change to a sharing setting would break the live
+  site rather than the build, which is the opposite of rule 2 in `CLAUDE.md`.
+  Drive is the right home for _originals_ and archives, just not for files the
+  site serves.
+- **Git LFS.** The free tier is 1 GB of storage and 1 GB of bandwidth a month.
+  Every deploy downloads the files, which eats into that bandwidth. It also adds
+  tooling that non-engineers trip over, and it does not remove anything already
+  in history.
+- **Cloudinary and similar image services.** Their automatic resizing is
+  genuinely useful, but each is another account with free-tier limits that can
+  change and an API to be locked into. Reconsider only if editors cannot manage
+  resizing photographs themselves.
+
+**Removing a file later** is safe: past commits still contain it, so nothing
+breaks. But it does not shrink the repository. Truly removing a file means
+rewriting history (`git filter-repo`) and force-pushing `main`, which disrupts
+every clone. Treat a merged binary as permanent.
+
+This is written down so a future maintainer recognises the situation rather than
+rediscovering it.
 
 **Alt text is enforced by the schema.** Images are stored as `{ src, alt }`
 objects, so an image without alt text is not a missing best practice — it is a

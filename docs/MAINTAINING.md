@@ -243,6 +243,14 @@ filter simply never matches.
 web address. Renaming breaks links people have shared, and — for artists — breaks
 the events that refer to them.
 
+**Check image sizes before merging.** An image committed to this repository stays
+in its history forever, even after it is deleted. Ask for anything over the
+500 KB budget in `docs/CONTENT_GUIDE.md` to be resized first. A large PNG poster
+can usually be saved as a JPEG or WebP at a fraction of the size with no visible
+difference. ADR-008 in `ARCHITECTURE.md` covers the long-term plan for storing
+media, including when to move photographs out of the repository and why Google
+Drive and Git LFS were rejected.
+
 **Do not remove the focus outline.** The `:focus-visible` rule in `global.css` is
 how keyboard users see where they are. It is not decoration.
 
