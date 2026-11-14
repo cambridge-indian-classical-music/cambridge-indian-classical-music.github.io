@@ -12,7 +12,7 @@ venue:
   address: Silver Street, Cambridge CB3 9ET
   mapUrl: https://www.openstreetmap.org/search?query=Queens%27%20College%20Cambridge
 image:
-  src: ../../assets/images/mohan-manjari-poster.png
+  src: ../../assets/images/mohan-manjari-poster.jpg
   alt: Poster for Mohan Manjari, framed by a floral border with peacock feathers, showing traditional Indian paintings of Krishna — playing the flute, climbing a ladder to a hanging pot of butter, and seated with attendants.
 brochure: /brochures/mohan-manjari.pdf
 priceInfo: Tickets available soon
