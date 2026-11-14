@@ -218,31 +218,48 @@ attendee lists and check-in go with it.
 Ask these before relying on Checkout Page for a real concert. **When you get an
 answer, write it here** and delete the question.
 
-1. **Does an event's capacity count tickets or orders?** _(ask this first)_
-   Stripe Payment Links count orders, so one order for ten tickets uses up one
-   place, and a cap of 40 can sell 400 seats. If Checkout Page works the same way
-   it cannot be used for concerts with a fixed number of seats.
-2. **Can one login scan tickets on several phones at once?** Or can the Free plan
+1. **Can one login scan tickets on several phones at once?** Or can the Free plan
    invite door staff? Concerts need more than one person checking tickets at the
    door.
-3. **Do buyers get an email with a QR-code ticket?** Are Apple or Google Wallet
+2. **Do buyers get an email with a QR-code ticket?** Are Apple or Google Wallet
    passes offered, and on which plan?
-4. **Can the attendee list be exported** as a CSV? A printed list is the fallback
+3. **Can the attendee list be exported** as a CSV? A printed list is the fallback
    if phones fail at the door.
-5. **Can account ownership be transferred** to a new committee? TryBooking won
+4. **Can account ownership be transferred** to a new committee? TryBooking won
    partly because it documents this. See "Who owns the payment account" below.
-6. **Is GBP fully supported?** Is there a test mode?
-7. **Is the $3K 30-day limit a rolling window** or a fixed period, and does a
+5. **Is GBP fully supported?** Is there a test mode?
+6. **Is the $3K 30-day limit a rolling window** or a fixed period, and does a
    refund count against it?
+
+**Answered by testing (November 2026): capacity counts tickets, not orders.**
+This was the question most likely to rule Checkout Page out. Stripe Payment
+Links count orders, so a cap of 40 can sell 400 seats. Checkout Page does not: an
+event capped at 10 sold out after one order of 4 tickets and six orders of 1
+(seven orders, ten tickets). The event's maximum capacity is shared by every
+ticket type, so a student type and a public type of 15 each still stop at 10 in
+total.
+
+**A sold-out event stays sold out until you reopen it.** When an event sells out,
+Checkout Page changes its status to "Sold out", and raising the capacity
+afterwards does **not** change it back. The page keeps refusing sales, with
+nothing to tell you why. To release extra seats (after adding chairs, say):
+
+1. Raise the event's maximum capacity, and each ticket type's quantity if that
+   is also full.
+2. Change the event's status from "Sold out" to "On sale" by hand.
+3. Open the event page in a private browser window and check that a ticket can
+   be bought.
 
 #### Testing it
 
 Most of this can be done with **£0 tickets**. A free order never reaches Stripe,
 so it costs nothing:
 
-- [ ] Set the test event's capacity to **2**, with every ticket type drawing on
-      that one limit. Buy **2 tickets in one order**. The event must then show
-      as sold out. This test settles question 1.
+- [x] Set a capacity, buy up to it with a mix of single and multi-ticket orders,
+      and check the event shows as sold out. Done November 2026: capacity counts
+      tickets (see above).
+- [x] Free (£0) orders go through on the Free plan, with Stripe connected and
+      verified.
 - [ ] Check the confirmation email: is there a QR code, and does it look like it
       comes from the society?
 - [ ] Scan the ticket on a phone, then **scan it again**. The second scan must be
