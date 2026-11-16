@@ -108,16 +108,10 @@ collections:
         label_singular: Person
         widget: list
         required: false
-        summary: '{{fields.artist}} — {{fields.role}}'
-        hint: A concert needs its performers; a workshop needs its teacher. Add the artist first under "Artists".
+        summary: '{{fields.name}} — {{fields.role}}'
+        hint: Optional. Add the performers or teacher once the line-up is confirmed.
         fields:
-          - name: artist
-            label: Artist
-            widget: relation
-            collection: artists
-            search_fields: [name]
-            display_fields: [name]
-            value_field: '{{slug}}'
+          - { name: name, label: Name, widget: string }
           - { name: role, label: Role, widget: string, hint: 'e.g. Vocal, Mridangam, Workshop leader' }
 
       - name: image
@@ -177,62 +171,6 @@ collections:
       - { name: featured, label: Show on the homepage, widget: boolean, default: false }
       - { name: draft, label: Draft (hidden from the site), widget: boolean, default: false }
       - { name: body, label: Full description, widget: markdown }
-
-  # -------------------------------------------------------------------------
-  # Artists
-  # -------------------------------------------------------------------------
-  - name: artists
-    label: Artists
-    label_singular: Artist
-    folder: src/content/artists
-    create: true
-    slug: '{{slug}}'
-    summary: '{{name}} — {{discipline}}'
-    sortable_fields: [name]
-    fields:
-      - { name: name, label: Name, widget: string }
-      - { name: discipline, label: Instrument or voice, widget: string, hint: 'e.g. Vocal, Sitar, Mridangam' }
-
-      - name: tradition
-        label: Tradition
-        widget: select
-        options:
-          - { label: Carnatic, value: carnatic }
-          - { label: Hindustani, value: hindustani }
-          - { label: Both, value: both }
-          - { label: Other, value: other }
-
-      - {
-          name: summary,
-          label: One-line summary,
-          widget: string,
-          hint: One sentence. Maximum 200 characters.,
-        }
-
-      - name: image
-        label: Photograph
-        widget: object
-        required: false
-        fields:
-          - { name: src, label: Photograph, widget: image }
-          - {
-              name: alt,
-              label: Photograph description,
-              widget: string,
-              hint: Required — describe the photograph.,
-            }
-
-      - name: links
-        label: Links
-        widget: list
-        required: false
-        summary: '{{fields.label}}'
-        fields:
-          - { name: label, label: Label, widget: string, hint: 'e.g. Website, YouTube' }
-          - { name: url, label: Address, widget: string }
-
-      - { name: draft, label: Draft (hidden from the site), widget: boolean, default: false }
-      - { name: body, label: Biography, widget: markdown }
 
   # -------------------------------------------------------------------------
   # Membership — one file per year. See docs/TICKETING.md.

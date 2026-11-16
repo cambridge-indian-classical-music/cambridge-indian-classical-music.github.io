@@ -3,8 +3,6 @@ title: About the society
 description: The Cambridge University Indian Classical Music Society brings Carnatic and Hindustani music to Cambridge.
 ---
 
-**Sample content.** Replace the text below with the society's own words.
-
 The Cambridge University Indian Classical Music Society exists to bring Indian
 classical music — both Carnatic and Hindustani — to Cambridge, and to give
 anyone in the University the chance to hear it, learn about it and play it.

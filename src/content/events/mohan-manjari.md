@@ -1,9 +1,10 @@
 ---
-# `type` is `other` only because no performers are listed yet — the site
-# requires a concert to name at least one. Once the artists are confirmed, add
-# them under `people` and change `type` to `concert`.
+# Tickets are sold on Checkout Page. The site only LINKS to it — it never runs
+# Checkout Page's own script — so changing provider is just editing `ticketUrl`
+# (ADR-006, docs/TICKETING.md). Once the line-up is confirmed, performers can be
+# added under `people`, e.g.  people: [{ name: ..., role: Vocal }]
 title: 'Mohan Manjari: The Many Faces of Krishna, Woven into India’s Cultural Tapestry'
-type: other
+type: concert
 summary: An evening of Hindustani and Carnatic music celebrating Krishna through bhajans, kirtans and bandishes from across India.
 start: 2026-11-29T17:00
 end: 2026-11-29T19:00
@@ -15,7 +16,9 @@ image:
   src: ../../assets/images/mohan-manjari-poster.jpg
   alt: Poster for Mohan Manjari, framed by a floral border with peacock feathers, showing traditional Indian paintings of Krishna — playing the flute, climbing a ladder to a hanging pot of butter, and seated with attendants.
 brochure: /brochures/mohan-manjari.pdf
-priceInfo: Tickets available soon
+ticketUrl: https://cuicms.checkoutpage.com/mohan-manjari-the-many-faces-of-krishna-woven-into-indias-cultural-tapestry
+ticketProvider: other
+priceInfo: £9 members / £11 non-members
 status: scheduled
 featured: true
 draft: false
@@ -36,4 +39,5 @@ The programme features performances in both the **Hindustani** and
 **Carnatic** traditions, offering a rare opportunity to hear North and South
 Indian classical music side by side, united by a single theme.
 
-Tickets will be available soon. Please check back here for booking details.
+Tickets are £9 for members and £11 for non-members, and can be booked online
+using the button on this page.

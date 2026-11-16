@@ -9,7 +9,7 @@
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getEvents, resolvePeople, ticketLabel, EVENT_TYPE_LABELS } from '../../lib/events';
+import { getEvents, ticketLabel, EVENT_TYPE_LABELS } from '../../lib/events';
 import { formatDate, formatTimeRange, toMachineDateTime } from '../../lib/datetime';
 import { site } from '../../site.config';
 
@@ -25,9 +25,8 @@ const { title, type, start, end, venue, summary, image, brochure, ticketUrl, pri
 
 const { Content } = await render(event);
 
-// Resolve each referenced artist. This throws — and so fails the build — if an
-// event names an artist who does not exist. See resolvePeople().
-const performers = await resolvePeople(event);
+/** Performers are plain names on the event itself; the site has no artist pages. */
+const performers = event.data.people;
 
 /**
  * Structured data, so that search engines can show the concert as an event with
@@ -58,7 +57,7 @@ const jsonLd = {
   },
   organizer: { '@type': 'Organization', name: site.name, url: Astro.site?.href },
   ...(performers.length > 0 && {
-    performer: performers.map((p) => ({ '@type': 'Person', name: p.artist.data.name })),
+    performer: performers.map((p) => ({ '@type': 'Person', name: p.name })),
   }),
   ...(ticketUrl && {
     offers: {
@@ -151,9 +150,9 @@ const jsonLd = {
               <dt>{type === 'workshop' ? 'Led by' : 'Performers'}</dt>
               <dd>
                 <ul class="details__people" role="list">
-                  {performers.map(({ artist, role }) => (
+                  {performers.map(({ name, role }) => (
                     <li>
-                      <a href={`/artists/${artist.id}`}>{artist.data.name}</a>
+                      {name}
                       <span class="details__role">{role}</span>
                     </li>
                   ))}

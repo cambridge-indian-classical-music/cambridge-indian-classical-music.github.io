@@ -1,4 +1,4 @@
-import { defineCollection, reference } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import type { ImageFunction } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 // Imported from 'astro/zod' rather than 'astro:content': the latter is
@@ -55,12 +55,6 @@ const imageWithAlt = (image: ImageFunction) =>
         'Describe the image for someone who cannot see it, e.g. "Sudha Ragunathan singing, seated with a tanpura".',
       ),
   });
-
-/** A link out to somewhere else — an artist website, a recording, a social profile. */
-const externalLink = z.object({
-  label: z.string().min(1).describe('What the link is called, e.g. "Website" or "YouTube".'),
-  url: z.url('Must be a full web address starting with https://'),
-});
 
 /**
  * Venues are stored inline on each event rather than as their own collection.
@@ -134,14 +128,17 @@ const events = defineCollection({
         venue,
 
         /**
-         * Who is performing or teaching. One mechanism covers a concert's lead
-         * artist and accompanists as well as a workshop's teacher, because a
-         * workshop teacher IS an artist — same biography, same photograph.
+         * Who is performing or teaching, written as plain names. Optional: an
+         * event can be announced before its line-up is confirmed.
+         *
+         * The site used to have a separate Artists section with a profile page
+         * per musician, and events pointed at those pages. The society removed
+         * it, so a performer is now just a name and a role on the event itself.
          */
         people: z
           .array(
             z.object({
-              artist: reference('artists'),
+              name: z.string().min(1).describe('e.g. "Anoushka Shankar".'),
               role: z
                 .string()
                 .min(1)
@@ -189,46 +186,11 @@ const events = defineCollection({
         message: 'The end time is before the start time — check both.',
         path: ['end'],
       })
-      /* A concert with no performers, or a workshop with no teacher, is unfinished. */
-      .refine((data) => !['concert', 'workshop'].includes(data.type) || data.people.length > 0, {
-        message:
-          'List at least one person under `people` — a concert needs its performers and a workshop needs its teacher.',
-        path: ['people'],
-      })
       /* A ticket provider without a link is a button that goes nowhere. */
       .refine((data) => !data.ticketProvider || data.ticketUrl, {
         message: 'You have named a ticket provider but not given a ticketUrl.',
         path: ['ticketUrl'],
       }),
-});
-
-/* -------------------------------------------------------------------------- */
-/* Artists                                                                    */
-/* -------------------------------------------------------------------------- */
-
-export const TRADITIONS = ['carnatic', 'hindustani', 'both', 'other'] as const;
-
-/**
- * Artists get their own collection because they recur: the same musician may
- * play three concerts and teach a workshop, and their biography should be
- * written once. Events point at artists by filename, and Astro checks at build
- * time that the artist exists — so deleting an artist who is still booked fails
- * the build instead of silently leaving a concert with no performers.
- */
-const artists = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/artists' }),
-  schema: ({ image }) =>
-    z.object({
-      name: z.string().min(1),
-      /** Instrument or voice, e.g. "Vocal", "Sitar", "Mridangam". */
-      discipline: z.string().min(1),
-      tradition: z.enum(TRADITIONS),
-      /** One sentence, used on cards and in social previews. */
-      summary: z.string().min(1).max(200),
-      image: imageWithAlt(image).optional(),
-      links: z.array(externalLink).default([]),
-      draft: z.boolean().default(false),
-    }),
 });
 
 /* -------------------------------------------------------------------------- */
@@ -382,12 +344,19 @@ const home = defineCollection({
  */
 const committee = defineCollection({
   loader: file('./src/content/committee.yml'),
-  schema: z.object({
-    id: z.string(),
-    name: z.string().min(1),
-    role: z.string().min(1),
-    email: z.email().optional(),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      id: z.string(),
+      /** Position on the About page, 1 first. The file's own order is not kept. */
+      order: z.number().int().positive(),
+      name: z.string().min(1),
+      role: z.string().min(1),
+      /** A short extra line under the role, e.g. "Creator of this website". */
+      note: z.string().min(1).optional(),
+      email: z.email().optional(),
+      /** Square portrait with a description. Optional — see committee.yml. */
+      photo: imageWithAlt(image).optional(),
+    }),
 });
 
-export const collections = { events, artists, membership, pages, home, committee };
+export const collections = { events, membership, pages, home, committee };

@@ -6,6 +6,7 @@
  * src/content/committee.yml, so both can be updated without touching this file.
  */
 import { getEntry, getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../site.config';
 
@@ -16,7 +17,9 @@ if (!page) {
 }
 
 const { Content } = await render(page);
-const committee = await getCollection('committee');
+// Sorted by the `order` field: Astro does not keep the order of entries in
+// committee.yml, so without this the committee would appear sorted by id.
+const committee = (await getCollection('committee')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout title={page.data.title} description={page.data.description}>
@@ -34,9 +37,25 @@ const committee = await getCollection('committee');
         <h2>The committee</h2>
         <ul class="committee__list" role="list">
           {committee.map((member) => (
-            <li>
+            <li class="committee__member">
+              {member.data.photo ? (
+                <Image
+                  class="committee__photo"
+                  src={member.data.photo.src}
+                  alt={member.data.photo.alt}
+                  width={320}
+                  height={320}
+                  widths={[240, 320, 480]}
+                  sizes="(min-width: 40em) 14rem, 100vw"
+                  loading="lazy"
+                />
+              ) : (
+                /* No photo yet: an empty frame of the same size keeps the row even. */
+                <div class="committee__photo committee__photo--empty" aria-hidden="true" />
+              )}
               <p class="committee__name">{member.data.name}</p>
               <p class="committee__role">{member.data.role}</p>
+              {member.data.note && <p class="committee__note">{member.data.note}</p>}
               {member.data.email && (
                 <p class="committee__email">
                   <a href={`mailto:${member.data.email}`}>{member.data.email}</a>
@@ -77,16 +96,37 @@ const committee = await getCollection('committee');
 
   .committee__list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
-    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
+    gap: var(--space-12) var(--space-8);
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
+  /* Photo on top, name and role underneath. */
+  .committee__photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-block-end: var(--space-4);
+  }
+
+  .committee__photo--empty {
+    background: var(--surface);
+  }
+
   .committee__name {
     font-family: var(--font-display);
     font-size: var(--text-lg);
+  }
+
+  .committee__note {
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--ink-muted);
   }
 
   .committee__role,

@@ -95,7 +95,7 @@ That runs exactly what CI runs. If it passes locally it will pass on GitHub.
 | ----------------------------------------------- | -------------------------------------------------- |
 | Colours, fonts, spacing                         | `src/styles/global.css` — the tokens at the top    |
 | Society name, contact, navigation, social links | `src/site.config.ts`                               |
-| What fields an event or artist has              | `src/content.config.ts` — **read the notes first** |
+| What fields an event has                        | `src/content.config.ts` — **read the notes first** |
 | The homepage's introduction text                | `src/content/home.md`                              |
 | The homepage's layout                           | `src/pages/index.astro`                            |
 | An event page's layout                          | `src/pages/events/[...slug].astro`                 |
@@ -117,7 +117,7 @@ keep those comments accurate.
 
 ---
 
-## Adding a field to events or artists
+## Adding a field to events
 
 Three places, in this order:
 
@@ -240,8 +240,7 @@ An earlier draft of the events page got this wrong, and it fails silently — th
 filter simply never matches.
 
 **Do not rename content files that are already published.** The filename is the
-web address. Renaming breaks links people have shared, and — for artists — breaks
-the events that refer to them.
+web address. Renaming breaks links people have shared.
 
 **Check image sizes before merging.** An image committed to this repository stays
 in its history forever, even after it is deleted. Ask for anything over the

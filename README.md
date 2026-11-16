@@ -10,7 +10,7 @@ almost nothing to run and cannot fall over in the middle of the night.
 
 ## Start here
 
-**You want to add or change a concert, workshop, artist or page**
+**You want to add or change a concert, workshop or page**
 → [docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md). No coding, and no software to
 install.
 
@@ -28,7 +28,7 @@ there with its reasoning and the alternatives that were rejected.
 
 | Document                                       | What it covers                                           |
 | ---------------------------------------------- | -------------------------------------------------------- |
-| [docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md) | Adding events, artists, photographs and PDFs             |
+| [docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md) | Adding events, photographs and PDFs                      |
 | [docs/MAINTAINING.md](docs/MAINTAINING.md)     | Running the site locally, making code changes, upgrading |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Hosting, domain, deploys, setting up the CMS             |
 | [docs/TICKETING.md](docs/TICKETING.md)         | How ticketing works and how to change provider           |
@@ -40,7 +40,7 @@ there with its reasoning and the alternatives that were rejected.
 
 ## How it works, in one minute
 
-1. Every concert, workshop and artist is a **text file** in `src/content/`.
+1. Every concert and workshop is a **text file** in `src/content/`.
 2. Changing one of those files and merging it to the `main` branch **rebuilds and
    republishes the site automatically**, usually within a minute or two. GitHub
    Actions does the building and publishing; see
@@ -92,7 +92,6 @@ exactly what visitors get, use `npm run build && npm run preview`.
 src/
   content/          Everything the site publishes — edit these
     events/           Concerts, workshops and other events (one file each)
-    artists/          Performers and teachers (one file each)
     pages/            Ordinary pages such as "About"
     committee.yml     The current committee
   content.config.ts THE IMPORTANT FILE — the rules every content file must follow
@@ -125,7 +124,7 @@ site is genuinely the society's.
 **1. Delete the sample content.** Every sample file is named `sample-`:
 
 ```bash
-rm src/content/events/sample-*.md src/content/artists/sample-*.md
+rm src/content/events/sample-*.md
 rm public/brochures/sample-programme.pdf src/assets/images/placeholder-*.png
 ```
 
