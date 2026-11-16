@@ -277,7 +277,8 @@ collections:
       - name: benefits
         label: What membership includes
         widget: list
-        hint: One per line, e.g. "Perform in Society concerts".
+        required: false
+        hint: Optional. Leave empty if the further details below already list the benefits — it is only shown when filled in.
         field: { name: benefit, label: Benefit, widget: string }
       - { name: draft, label: Draft (hidden from the site), widget: boolean, default: false }
       - { name: body, label: Further details, widget: markdown }

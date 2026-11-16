@@ -8,8 +8,16 @@
  * three items, a hamburger menu would hide them for no benefit.
  *
  * To change the links, edit `nav` in src/site.config.ts.
+ *
+ * The brand is the society's logo image, which already spells out "CU ICM" and
+ * the full name — so there is no separate text beside it. Its alt text is the
+ * full name, which is what a screen reader should announce. To replace the
+ * logo, overwrite src/assets/images/cuicm-logo.png (a PNG with a transparent
+ * background, cropped tight to the artwork).
  */
+import { Image } from 'astro:assets';
 import { site } from '../site.config';
+import logo from '../assets/images/cuicm-logo.png';
 
 const path = Astro.url.pathname;
 /** A section counts as current when you are on it or on a page inside it. */
@@ -19,8 +27,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
 <header class="header">
   <div class="container header__inner">
     <a class="header__brand" href="/">
-      <span class="header__short">{site.shortName}</span>
-      <span class="header__full">{site.name}</span>
+      <Image class="header__logo" src={logo} alt={site.name} height={64} densities={[1, 2]} loading="eager" />
     </a>
 
     <nav aria-label="Main">
@@ -49,39 +56,29 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
   .header__inner {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-3) var(--space-8);
     padding-block: var(--space-6);
   }
 
   .header__brand {
-    color: var(--ink);
-    text-decoration: none;
-    font-family: var(--font-display);
-    line-height: var(--leading-tight);
-  }
-
-  .header__short {
     display: block;
-    font-size: var(--text-xl);
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    line-height: 0;
   }
 
-  /* The full name is the accessible label on small screens too, but it is only
-     shown once there is room for it without crowding the navigation. */
-  .header__full {
-    display: none;
-    font-size: var(--text-sm);
-    color: var(--ink-muted);
-    font-family: var(--font-body);
+  /* Height-led so the logo keeps its proportions; capped by width so it never
+     pushes the page sideways on a narrow phone. */
+  .header__logo {
+    display: block;
+    height: 3rem;
+    width: auto;
+    max-width: 100%;
   }
 
   @media (min-width: 40em) {
-    .header__full {
-      display: block;
-      max-width: 22rem;
+    .header__logo {
+      height: 4rem;
     }
   }
 

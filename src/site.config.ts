@@ -39,10 +39,7 @@ export const site = {
   ],
 
   /** Social links shown in the footer. Remove any the society does not use. */
-  social: [
-    { label: 'Instagram', href: 'https://instagram.com/' },
-    { label: 'Facebook', href: 'https://facebook.com/' },
-  ],
+  social: [{ label: 'Instagram', href: 'https://www.instagram.com/cuicmsoc/' }],
 
   /**
    * Privacy-friendly, cookieless analytics — off by default.
