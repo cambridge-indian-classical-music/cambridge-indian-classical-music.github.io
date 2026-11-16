@@ -195,9 +195,10 @@ attendee lists and check-in go with it.
 
 - An account registered to the society email, connected to the society Stripe
   account, created 30 October 2026.
-- A test event at `https://cuicms.checkoutpage.com/test-event`, linked from
-  `src/content/events/sample-checkout-page-test-event.md`. **Delete that file
-  when the trial ends**, whatever the outcome.
+- A test event at `https://cuicms.checkoutpage.com/test-event`, and a paid test
+  event, both used for the trial. Their pages on this website were removed in
+  November 2026, once the society started selling real tickets through Checkout
+  Page (Mohan Manjari).
 
 **Things to know about the Free plan** (from Checkout Page's pricing page, October
 2026):

@@ -15,12 +15,15 @@
 # photo with that person's agreement.
 #
 # `note` is optional — a short extra line under the role.
+#
+# `larger: true` shows that member's photo 20% bigger than the others.
 
 - id: events-officer
   order: 1
   name: S R Gokul Krishnan
   role: Events Officer
-  note: Creator of this website
+  note: (also the creator of this website, which is why the photo size is bigger)
+  larger: true
   photo:
     src: ../assets/images/committee/events-officer.jpg
     alt: S R Gokul Krishnan, smiling, seated at a dinner table in a cream kurta and black shawl.

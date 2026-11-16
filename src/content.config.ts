@@ -353,6 +353,8 @@ const committee = defineCollection({
       role: z.string().min(1),
       /** A short extra line under the role, e.g. "Creator of this website". */
       note: z.string().min(1).optional(),
+      /** Show this member's photo 20% bigger than the others. */
+      larger: z.boolean().default(false),
       email: z.email().optional(),
       /** Square portrait with a description. Optional — see committee.yml. */
       photo: imageWithAlt(image).optional(),
