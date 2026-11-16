@@ -1,35 +1,71 @@
 # The committee, shown on the About page.
 #
-# This file is replaced wholesale each year at handover. Keep it in the order you
-# want it displayed. `id` just has to be unique and lowercase — it is not shown.
+# This file is replaced wholesale each year at handover. `order` sets the order
+# on the page (1 first). It is needed because the site does NOT keep the order
+# of this file — it would otherwise sort by `id`. `id` just has to be unique and
+# lowercase — it is not shown.
 # `email` is optional; leave it out if a member would rather not publish theirs.
 # Never put a personal address here — the society's shared address is in
 # src/site.config.ts and is shown on the About page already.
+#
+# `photo` is optional. Leave it out and the page shows an empty frame of the
+# same size, so the row stays even. Photos live in src/assets/images/committee/,
+# cropped square. Before adding one, strip its location data (phone photos
+# record where they were taken) — this repository is public. Only add a
+# photo with that person's agreement.
+#
+# `note` is optional — a short extra line under the role.
+
+- id: events-officer
+  order: 1
+  name: S R Gokul Krishnan
+  role: Events Officer
+  note: Creator of this website
+  photo:
+    src: ../assets/images/committee/events-officer.jpg
+    alt: S R Gokul Krishnan, smiling, seated at a dinner table in a cream kurta and black shawl.
 
 - id: president
+  order: 2
   name: Saswata Dasgupta
   role: President
+  photo:
+    src: ../assets/images/committee/president.jpg
+    alt: Saswata Dasgupta, smiling, seated at a candlelit table in a navy suit and red tie.
 
 - id: vice-president
+  order: 3
   name: Sanaa Sharma
   role: Vice-President
+  photo:
+    src: ../assets/images/committee/vice-president.jpg
+    alt: Sanaa Sharma in sunglasses, giving a thumbs up outdoors in a meadow.
+
+- id: junior-treasurer
+  order: 4
+  name: Kartik Raghunathan
+  role: Junior Treasurer
+  photo:
+    src: ../assets/images/committee/junior-treasurer.jpg
+    alt: Kartik Raghunathan playing the bansuri flute, seated in a blue kurta.
+
+- id: publicity-officer
+  order: 5
+  name: Ritoza Das
+  role: Publicity Officer
+  photo:
+    src: ../assets/images/committee/publicity-officer.jpg
+    alt: Ritoza Das in sunglasses, smiling and making a shaka sign with both hands outdoors.
 
 - id: secretary
+  order: 6
   name: Mihir Lanka
   role: Secretary
 
 - id: senior-treasurer
+  order: 7
   name: Poorna Mysoor
   role: Senior Treasurer
-
-- id: junior-treasurer
-  name: Kartik Raghunathan
-  role: Junior Treasurer
-
-- id: events-officer
-  name: S R Gokul Krishnan
-  role: Events Officer
-
-- id: publicity-officer
-  name: Ritoza Das
-  role: Publicity Officer
+  photo:
+    src: ../assets/images/committee/senior-treasurer.jpg
+    alt: Poorna Mysoor, smiling, wearing a purple silk sari and a gold necklace.

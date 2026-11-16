@@ -6,11 +6,10 @@
  * change, it changes here and the whole site follows.
  */
 
-import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { toInstant } from './datetime';
 
 export type Event = CollectionEntry<'events'>;
-export type Artist = CollectionEntry<'artists'>;
 
 /** Drafts are visible while developing, but never published. */
 const isPublished = ({ data }: { data: { draft: boolean } }) => import.meta.env.DEV || !data.draft;
@@ -50,11 +49,6 @@ export async function getEventsByTime(now: Date = new Date()) {
   };
 }
 
-/** All published artists, alphabetically. */
-export async function getArtists(): Promise<Artist[]> {
-  return (await getCollection('artists', isPublished)).sort((a, b) => a.data.name.localeCompare(b.data.name));
-}
-
 /**
  * The label for an event's booking button.
  *
@@ -88,41 +82,3 @@ export const EVENT_TYPE_LABELS: Record<Event['data']['type'], string> = {
   social: 'Social',
   other: 'Event',
 };
-
-/**
- * Resolve the artists booked for an event, failing loudly if one is missing.
- *
- * Astro reports a broken artist reference as an error but still finishes the
- * build with a success code, which would leave a concert quietly published with
- * no performers listed — exactly the silent failure this project is trying to
- * avoid. Throwing here turns it into a real build failure that names the event
- * and the missing artist. See ADR-003.
- */
-export async function resolvePeople(event: Event) {
-  return Promise.all(
-    event.data.people.map(async (person) => {
-      const artist = await getEntry(person.artist);
-      if (!artist) {
-        throw new Error(
-          `Event "${event.id}" lists an artist "${person.artist.id}" that does not exist.\n` +
-            `Either add src/content/artists/${person.artist.id}.md, or correct the name in ` +
-            `src/content/events/${event.id}.md.`,
-        );
-      }
-
-      // A draft artist gets no page of their own, so an event linking to them
-      // would publish a link to nowhere. Caught here, where we can explain it,
-      // rather than surfacing later as a puzzling broken link.
-      if (artist.data.draft && !import.meta.env.DEV) {
-        throw new Error(
-          `Event "${event.id}" lists the artist "${artist.id}", but that artist is marked ` +
-            `\`draft: true\` and so has no page.\n` +
-            `Either remove \`draft: true\` from src/content/artists/${artist.id}.md, or remove ` +
-            `them from src/content/events/${event.id}.md.`,
-        );
-      }
-
-      return { role: person.role, artist };
-    }),
-  );
-}

@@ -33,7 +33,6 @@ export const site = {
   /** The main navigation, in order. */
   nav: [
     { label: 'Events', href: '/events' },
-    { label: 'Artists', href: '/artists' },
     { label: 'Membership', href: '/membership' },
     { label: 'About', href: '/about' },
   ],

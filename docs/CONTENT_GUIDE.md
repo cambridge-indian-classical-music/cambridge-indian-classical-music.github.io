@@ -11,7 +11,7 @@ and can be undone, and the site refuses to publish anything malformed.
 
 ## The one thing to understand
 
-The website is built from **text files**, one per event and one per artist. You
+The website is built from **text files**, one per event. You
 edit those files; the site rebuilds itself.
 
 Every file has two parts:
@@ -126,52 +126,19 @@ themselves.
 
 ### Performers and teachers
 
-Events refer to artists by their **filename**, without the `.md`:
+Optional. List them by name once the line-up is confirmed:
 
 ```yaml
 people:
-  - artist: lakshmi-venkataraman # src/content/artists/lakshmi-venkataraman.md
+  - name: Lakshmi Venkataraman
     role: Vocal
-  - artist: ravi-sharma
+  - name: Ravi Sharma
     role: Tabla
 ```
 
-The artist file must exist first — see below. For a workshop, use the same
-structure with a role such as `Workshop leader`.
-
-If you misspell an artist's filename the checks will fail and tell you the exact
-name that was not found. Nothing broken reaches the site.
-
----
-
-## Adding an artist
-
-Artists have their own files so that a biography is written once, however many
-times they perform. Create a file in `src/content/artists/` named after them in
-lowercase with hyphens — `lakshmi-venkataraman.md`:
-
-```markdown
----
-name: Lakshmi Venkataraman
-discipline: Carnatic vocal
-tradition: carnatic # carnatic, hindustani, both or other
-summary: A Carnatic vocalist known for unhurried raga exposition.
-image:
-  src: ../../assets/images/lakshmi-venkataraman.jpg
-  alt: Lakshmi Venkataraman singing, seated with a tanpura.
-links:
-  - label: Website
-    url: https://example.org/
----
-
-The full biography goes here, in ordinary prose.
-```
-
-Their page lists every event they have been part of automatically. You never
-maintain that list by hand.
-
-**Do not rename an artist file** once events refer to it — the events would no
-longer find it. (The checks would catch this, but it is easier not to.)
+For a workshop, use the same structure with a role such as `Workshop leader`.
+The names appear on the event page as plain text. The site has no separate
+Artists section or artist pages — the society removed it.
 
 ---
 
@@ -185,7 +152,7 @@ longer find it. (The checks would catch this, but it is easier not to.)
    forever, and deleting a large file later does not reclaim the space.
 
 2. Upload to `src/assets/images/` on GitHub (**Add file → Upload files**).
-3. Refer to it from the event or artist file, **always with a description**:
+3. Refer to it from the event file, **always with a description**:
 
    ```yaml
    image:
@@ -346,15 +313,13 @@ A red cross is the system doing its job: it has stopped a broken page from being
 published. Click **Details** to see the message, which names the file and the
 problem.
 
-| Message mentions                                 | Usually means                                                                                                  |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `Must be a date and time like...`                | The date is the wrong shape, or is missing its quotes                                                          |
-| `references "..." but that entry does not exist` | An artist filename is misspelt, or the artist file has not been created                                        |
-| `that artist is marked draft: true`              | An event lists an artist whose own entry is still a draft. Finish the artist entry, or take them off the event |
-| `alt` or `Required`                              | A photograph has no description                                                                                |
-| `Broken internal links`                          | A brochure filename is misspelt                                                                                |
-| `too_big` or `200 characters`                    | A summary is too long                                                                                          |
-| `List at least one person`                       | A concert or workshop has no performers or teacher                                                             |
+| Message mentions                  | Usually means                                         |
+| --------------------------------- | ----------------------------------------------------- |
+| `Must be a date and time like...` | The date is the wrong shape, or is missing its quotes |
+| `alt` or `Required`               | A photograph has no description                       |
+| `Broken internal links`           | A brochure filename is misspelt                       |
+| `too_big` or `200 characters`     | A summary is too long                                 |
+| `List at least one person`        | A concert or workshop has no performers or teacher    |
 
 Edit the file again in the same pull request and the check re-runs by itself. If
 you are stuck, close the pull request — nothing on the live site changes.
