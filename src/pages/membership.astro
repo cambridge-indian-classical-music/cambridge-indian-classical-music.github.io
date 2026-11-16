@@ -6,8 +6,15 @@
  * docs/TICKETING.md): it runs for over a year, has no venue, and would sit at
  * the top of the events list until it expired.
  *
- * This page sells the membership; /membership/join collects the application.
- * Neither takes a payment. The joining form hands over to the payment
+ * This page sells the membership. The "Join the Society" button goes to
+ * `joinUrl` from the membership file (currently a Google Form) or, if that is
+ * not set, to the site's own form at /membership/join. Neither takes a payment.
+ *
+ * The letter to members (the body of the membership file) comes first, with the
+ * button directly beneath it, because the letter already sets out the rates and
+ * benefits. That is why the rates are not repeated as a separate section here:
+ * `rates` in the membership file is still needed — the /membership/join form
+ * uses it — so if a price changes, change it in the letter AND in `rates`. The joining form hands over to the payment
  * provider's own page, exactly as concert tickets do (ADR-006, ADR-012).
  */
 import { getCollection, render } from 'astro:content';
@@ -31,7 +38,11 @@ if (!current) {
   throw new Error('No membership found. Add a file to src/content/membership/ — see docs/CONTENT_GUIDE.md.');
 }
 
-const { title, summary, rates, opens, closes, benefits } = current.data;
+const { title, summary, opens, closes, benefits, joinUrl } = current.data;
+
+/** A joining link elsewhere (e.g. Google Forms) opens in a new tab, so the member keeps this page. */
+const joinHref = joinUrl ?? '/membership/join';
+const joinIsExternal = Boolean(joinUrl);
 
 const { Content } = await render(current);
 ---
@@ -62,43 +73,37 @@ const { Content } = await render(current);
       </div>
     </dl>
 
-    <section class="rates">
-      <h2>Which rate you pay</h2>
-      <dl>
-        <div>
-          <dt>{rates.student.price} — Student</dt>
-          <dd>{rates.student.note}</dd>
-        </div>
-        <div>
-          <dt>{rates.general.price} — General</dt>
-          <dd>{rates.general.note}</dd>
-        </div>
-      </dl>
-    </section>
-
-    <section class="includes">
-      <h2>What membership includes</h2>
-      <ul role="list">
-        {benefits.map((benefit) => (
-          <li>{benefit}</li>
-        ))}
-      </ul>
-    </section>
-
-    <section class="join">
-      <a class="button" href="/membership/join">
-        {' '}
-        Join the Society{' '}
-      </a>
-      <p class="join__note">
-        We ask a few questions first, then send you to our payment provider's own secure page. This website
-        never sees your card details.
-      </p>
-    </section>
-
     <div class="prose">
       <Content />
     </div>
+
+    <section class="join">
+      <a
+        class="button"
+        href={joinHref}
+        target={joinIsExternal ? '_blank' : undefined}
+        rel={joinIsExternal ? 'noopener' : undefined}
+      >
+        Join the Society{joinIsExternal && <span class="visually-hidden"> (opens in a new tab)</span>}
+      </a>
+      {!joinIsExternal && (
+        <p class="join__note">
+          We ask a few questions first, then send you to our payment provider's own secure page. This website
+          never sees your card details.
+        </p>
+      )}
+    </section>
+
+    {benefits.length > 0 && (
+      <section class="includes">
+        <h2>What membership includes</h2>
+        <ul role="list">
+          {benefits.map((benefit) => (
+            <li>{benefit}</li>
+          ))}
+        </ul>
+      </section>
+    )}
   </div>
 </BaseLayout>
 
@@ -135,33 +140,6 @@ const { Content } = await render(current);
     font-size: var(--text-lg);
   }
 
-  .rates {
-    margin-block-start: var(--space-10);
-  }
-
-  .rates h2 {
-    margin-block-end: var(--space-4);
-  }
-
-  .rates dl {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
-    gap: var(--space-6);
-    margin: 0;
-  }
-
-  .rates dt {
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-  }
-
-  .rates dd {
-    margin: 0;
-    margin-block-start: var(--space-1);
-    font-size: var(--text-sm);
-    color: var(--ink-muted);
-  }
-
   .includes {
     margin-block-start: var(--space-10);
   }
@@ -192,7 +170,7 @@ const { Content } = await render(current);
   }
 
   .join {
-    margin-block-start: var(--space-10);
+    margin-block-start: var(--space-6);
   }
 
   .join__note {
@@ -203,6 +181,6 @@ const { Content } = await render(current);
   }
 
   .prose {
-    margin-block-start: var(--space-12);
+    margin-block-start: var(--space-10);
   }
 </style>

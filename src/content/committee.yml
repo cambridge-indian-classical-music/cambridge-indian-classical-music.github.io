@@ -1,20 +1,35 @@
 # The committee, shown on the About page.
 #
-# SAMPLE CONTENT — replace these entries with the real committee.
-#
 # This file is replaced wholesale each year at handover. Keep it in the order you
 # want it displayed. `id` just has to be unique and lowercase — it is not shown.
 # `email` is optional; leave it out if a member would rather not publish theirs.
+# Never put a personal address here — the society's shared address is in
+# src/site.config.ts and is shown on the About page already.
 
 - id: president
-  name: A. N. Example
+  name: Saswata Dasgupta
   role: President
-  email: president@example.org
 
-- id: treasurer
-  name: B. Example
-  role: Treasurer
+- id: vice-president
+  name: Sanaa Sharma
+  role: Vice-President
+
+- id: secretary
+  name: Mihir Lanka
+  role: Secretary
+
+- id: senior-treasurer
+  name: Poorna Mysoor
+  role: Senior Treasurer
+
+- id: junior-treasurer
+  name: Kartik Rangunathan
+  role: Junior Treasurer
 
 - id: events-officer
-  name: C. Example
+  name: S. R. Gokul
   role: Events Officer
+
+- id: publicity-officer
+  name: Ritoza Das
+  role: Publicity Officer

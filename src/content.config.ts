@@ -316,10 +316,21 @@ const membership = defineCollection({
         })
         .optional(),
 
-      /** What a member actually gets. At least one, or there is nothing to sell. */
+      /**
+       * Where the "Join the Society" button goes, e.g. a Google Form. If it is
+       * left out, the button goes to the site's own joining form at
+       * /membership/join instead. Change it each year along with the dates.
+       */
+      joinUrl: z.url('Must be a full web address starting with https://').optional(),
+
+      /**
+       * A short list of what a member gets. Optional: if the page text (the
+       * body of the file) already sets out the benefits, leave this out — the
+       * list is only shown when it is filled in, so nothing is said twice.
+       */
       benefits: z
         .array(z.string().min(1))
-        .min(1, 'List at least one thing membership entitles a member to.')
+        .default([])
         .describe('One line each, e.g. "Perform in Society concerts".'),
 
       /** Work in progress — hidden from the built site. */
