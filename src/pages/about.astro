@@ -37,7 +37,7 @@ const committee = (await getCollection('committee')).sort((a, b) => a.data.order
         <h2>The committee</h2>
         <ul class="committee__list" role="list">
           {committee.map((member) => (
-            <li class="committee__member">
+            <li class:list={['committee__member', { 'committee__member--larger': member.data.larger }]}>
               {member.data.photo ? (
                 <Image
                   class="committee__photo"
@@ -46,7 +46,7 @@ const committee = (await getCollection('committee')).sort((a, b) => a.data.order
                   width={320}
                   height={320}
                   widths={[240, 320, 480]}
-                  sizes="(min-width: 40em) 14rem, 100vw"
+                  sizes="(min-width: 40em) 16rem, 100vw"
                   loading="lazy"
                 />
               ) : (
@@ -94,13 +94,26 @@ const committee = (await getCollection('committee')).sort((a, b) => a.data.order
     border-block-end: 1px solid var(--rule);
   }
 
+  /* A wrapping row rather than a grid, so that one member can be wider than the
+     rest (`larger: true` in committee.yml). Items are aligned at the bottom so
+     the names still sit in a line under a bigger photo. */
   .committee__list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
     gap: var(--space-12) var(--space-8);
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+
+  .committee__member {
+    width: min(13rem, 100%);
+  }
+
+  /* 20% bigger: 13rem × 1.2. */
+  .committee__member--larger {
+    width: min(15.6rem, 100%);
   }
 
   /* Photo on top, name and role underneath. */
