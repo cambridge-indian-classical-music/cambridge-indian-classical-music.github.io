@@ -20,8 +20,6 @@ They share a common foundation — melody organised as _raga_, rhythm organised 
 _tala_, and a central place for improvisation — but differ in repertoire,
 instruments and performance practice.
 
-The society programmes both, and does not treat either as the default.
-
 ## Getting involved
 
 Anyone at the University can join, whatever their background and whether or not
