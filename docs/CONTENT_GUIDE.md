@@ -73,7 +73,9 @@ summary that is too long for its card, or a date with the wrong year. So read
 your change through carefully in the pull request's **Files changed** tab.
 
 When the tick is green, ask another committee member to approve the pull
-request — every change needs one approval before it can go live. If they can run
+request — every change needs one approval from a committee member before it
+can go live (a review from a non-committee helper is welcome, but does not count
+on its own). If they can run
 the site on their own computer (`npm run dev`, see
 [MAINTAINING.md](MAINTAINING.md)), they can check how the page looks before
 approving. Then click **Squash and merge**. The live site updates within a couple

@@ -110,7 +110,13 @@ This list is the record of what they should be. **Check them at each handover.**
 
 - **Require a pull request before merging**, with **1 approval**. A second
   committee member looks at every change before the public sees it.
-- Under it, tick **Require approval of the most recent reviewable push**.
+- Under it, tick **Require review from Code Owners**. `.github/CODEOWNERS`
+  names the `committee` team, so this is what makes the one approval a
+  _committee_ approval. Without it, any approval from someone with Write access
+  counts — and two members of the `contributors` team (below) could approve
+  each other's pull requests and publish to the live site with no committee
+  member having looked.
+- Also tick **Require approval of the most recent reviewable push**.
   Otherwise an approval stays valid when more commits are pushed afterwards,
   and those can be merged without anyone having looked at them. Leave **Dismiss
   stale pull request approvals** off: it also throws an approval away when
@@ -135,9 +141,28 @@ protection on `main` is what stands between a bad change and the live site.
   this team a committee member who is not an Owner cannot push a branch or open a
   pull request from it.
 - `.github/CODEOWNERS` names this team, so GitHub asks it to review every pull
-  request automatically. Leave **Require review from Code Owners** off in the
-  branch protection rule — any one approval will do; the file only decides who
-  is asked.
+  request automatically, and — with **Require review from Code Owners** on —
+  only an approval from someone in it lets a pull request merge. A committee
+  member's own pull request therefore needs a _second_ committee member.
+
+**Organisation → Teams → New team**, named **`contributors`**, for trusted people
+who help with the website but are not on the committee:
+
+- Description: _Trusted helpers outside the committee. Write access to the
+  website repo: can open and review pull requests, but a committee member must
+  approve before anything goes live._
+- **Parent team: none.** Do not put it under `committee`. GitHub counts members
+  of a child team as members of the parent, so they would become code owners,
+  their approvals would satisfy the check above, and they would inherit
+  everything `committee` can do.
+- Invite each person to the **organisation** as a plain member (not an Owner,
+  and not as an outside collaborator — those cannot join teams), then add them
+  to this team.
+- In the team's **Repositories** tab, give it **Write** access to this
+  repository only. Write is the least that lets them push a branch and open a
+  pull request; anything less means working from a fork, which the CMS and the
+  usual workflow do not support. They can review each other's pull requests, but
+  their approvals do not count towards merging.
 
 **Organisation → Settings → Member privileges → Repository creation:** turn it
 **off**, so only Owners can create repositories. This is less harmless than it

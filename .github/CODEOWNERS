@@ -2,7 +2,9 @@
 #
 # Every pull request needs one approval before it can be merged (see
 # docs/DEPLOYMENT.md, "Protect main"). This file makes GitHub ask for that
-# review automatically, so nobody has to remember to.
+# review automatically, so nobody has to remember to. Because "Require review
+# from Code Owners" is on, that approval must come from this team — approvals
+# from the `contributors` team do not count on their own.
 #
 # It names a team rather than people on purpose. People change every year; the
 # team stays, and handing over means changing who is in it — on GitHub, under

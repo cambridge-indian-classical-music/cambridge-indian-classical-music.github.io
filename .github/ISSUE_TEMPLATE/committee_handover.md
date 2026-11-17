@@ -26,6 +26,9 @@ Background on every item is in [HANDOVER.md](https://github.com/cambridge-indian
 - [ ] New committee members added to the **`committee` team** (the
       organisation's **Teams** tab). That team is what gives them write access
       to the website, and it is who GitHub asks to review each pull request
+- [ ] **`contributors` team** reviewed — the trusted helpers outside the
+      committee. Remove anyone no longer helping. It must have **no parent
+      team**, or its members' approvals would count as the committee's
 - [ ] Only two or three people are **Owners** — everyone else is a plain
       member. Owners can merge without anyone's approval (see
       [DEPLOYMENT.md](https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/blob/main/docs/DEPLOYMENT.md),
@@ -85,7 +88,8 @@ Background on every item is in [HANDOVER.md](https://github.com/cambridge-indian
       recent runs are green
 - [ ] The **repository settings** still match the list in
       [DEPLOYMENT.md](https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/blob/main/docs/DEPLOYMENT.md),
-      "Protect main" — branch protection, merge settings, security. They live in
+      "Protect main" — branch protection (including **Require review from Code
+      Owners**), merge settings, security. They live in
       GitHub, not in the repository, so nothing notices if one is switched off
 - [ ] Any Dependabot pull requests merged (see
       [MAINTAINING.md](https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/blob/main/docs/MAINTAINING.md))
