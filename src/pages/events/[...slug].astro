@@ -32,6 +32,7 @@ const {
   brochure,
   brochureLabel,
   ticketUrl,
+  refundPolicy,
   priceInfo,
   status,
 } = event.data;
@@ -194,6 +195,10 @@ const jsonLd = {
           )
         }
 
+        {ticketUrl && status !== 'cancelled' && refundPolicy && (
+          <p class="details__small-print">{refundPolicy}</p>
+        )}
+
         {!ticketUrl && status === 'scheduled' && (
           <p class="details__note">No booking needed — just come along.</p>
         )}
@@ -310,6 +315,13 @@ const jsonLd = {
     display: block;
     font-size: var(--text-sm);
     color: var(--ink-muted);
+  }
+
+  /* Booking terms such as refunds: smaller than the page text, but still readable. */
+  .details__small-print {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    max-width: 40ch;
   }
 
   .details__note {

@@ -20,6 +20,7 @@ brochureLabel: poster
 ticketUrl: https://cuicms.checkoutpage.com/mohan-manjari-the-many-faces-of-krishna-woven-into-indias-cultural-tapestry
 ticketProvider: other
 priceInfo: £9 members / £11 non-members
+refundPolicy: Refunds are available on request if you contact us at indianclassicalmusic@cambridgesu.co.uk at least 48 hours before the start of the event. Approved refunds will be processed after the concert.
 status: scheduled
 featured: true
 draft: false

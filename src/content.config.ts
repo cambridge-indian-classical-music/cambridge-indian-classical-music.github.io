@@ -172,6 +172,8 @@ const events = defineCollection({
         /** Where to buy tickets. Leave it out and the page says no booking is needed. */
         ticketUrl: z.url('Must be a full web address starting with https://').optional(),
         ticketProvider: z.enum(TICKET_PROVIDERS).optional(),
+        /** Shown in small print under the booking button, e.g. when refunds are offered. */
+        refundPolicy: z.string().min(1).optional(),
         priceInfo: z
           .string()
           .optional()
