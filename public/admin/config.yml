@@ -146,6 +146,14 @@ collections:
         required: false
         hint: The full address of the booking page. Leave empty if no booking is needed.
 
+      - {
+          name: refundPolicy,
+          label: Refund policy,
+          widget: text,
+          required: false,
+          hint: Optional. Shown in small print under the booking button.,
+        }
+
       - name: ticketProvider
         label: Ticket provider
         widget: select
