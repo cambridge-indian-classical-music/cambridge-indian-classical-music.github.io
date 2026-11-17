@@ -80,8 +80,11 @@ Questions: indianclassicalmusic@cambridgesu.co.uk.
 4.1 If we cancel an event, you will receive a full refund.
 4.2 If we postpone an event, your ticket stays valid for the new date. If you
     cannot make it, contact us and we will refund you.
-4.3 We do not otherwise refund tickets to individual events, because we commit
-    to venue and artist costs in advance.
+4.3 If you can no longer attend an event, email us at least 48 hours before it
+    starts and we will refund the ticket price minus the card processing fees.
+    Refunds are processed after the event. We do not refund tickets to
+    individual events requested later than this, because we commit to venue
+    and artist costs in advance.
 4.4 Memberships may be refunded in full within 14 days of purchase, provided
     you have not already performed at or attended an event as a member.
 
@@ -152,6 +155,17 @@ promise that cannot be kept — the buyer would be 15p short on every refund,
 including ones caused by the society cancelling. Either leave the fee setting
 alone or reword this clause to "a full refund of the ticket price". See
 [TICKETING.md](TICKETING.md), "Before you sell".
+
+**4.3 deducts card processing fees; 4.1 and 4.2 do not.** When a buyer
+changes their mind, the card processor keeps its fee even though the payment is
+refunded, so the society refunds the ticket price minus that fee rather than
+paying it out of society funds. Use the actual fee shown on the payment in the
+Stripe Dashboard, not an estimate, and enter it as a partial refund using
+**Cancel booking** in Checkout Page, so the seat goes back on sale. When the
+society cancels or postpones (4.1, 4.2), the refund stays in full: that is the
+society's decision, and the fee is a cost of making it. The 48-hour notice
+and the wording of 4.3 match the `refundPolicy` shown on each event page. Keep
+the two in step.
 
 **4.4 gives 14 days voluntarily.** UK distance-selling rules normally grant a
 14-day cooling-off right, but exempt leisure services supplied on a specific
