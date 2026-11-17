@@ -151,12 +151,18 @@ or open
 <https://github.com/cambridge-indian-classical-music/cambridge-indian-classical-music.github.io/issues/new?template=committee_handover.md>.
 Work through it with the outgoing committee, ideally in one sitting together.
 
-The two items that matter most for the website itself:
+The items that matter most for the website itself:
 
 - **Add new members to the `committee` team** (the organisation's **Teams**
   tab). The organisation gives ordinary members read-only access, so without the
   team a new committee member cannot open a pull request at all. The team is
-  also who GitHub asks to review each pull request — see `.github/CODEOWNERS`.
+  also who GitHub asks to review each pull request — see `.github/CODEOWNERS` —
+  and the only people whose approval lets a change go live.
+- **Review the `contributors` team.** It is for trusted helpers who are not on
+  the committee: they can open pull requests, but a committee member must
+  approve them. Remove anyone who is no longer helping, and do not move a
+  departing committee member into it without the incoming committee agreeing.
+  See [DEPLOYMENT.md](DEPLOYMENT.md), "Protect main".
 - **Someone new makes a change and publishes it**, start to finish, with the
   outgoing committee watching.
 
