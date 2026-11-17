@@ -11,7 +11,7 @@
 # ---------------------------------------------------------------------------
 title: Support the society
 description: Donate to the Cambridge University Indian Classical Music Society and help bring Carnatic and Hindustani music to Cambridge.
-# donateUrl: https://buy.stripe.com/XXXXXXXXXXXX
+donateUrl: https://buy.stripe.com/eVq14oe9Rahqe89aLP3ZK00
 buttonLabel: Donate
 ---
 
