@@ -295,6 +295,34 @@ subheading, and `[text](https://address)` makes a link.
 
 ---
 
+## The Donate page
+
+`src/content/donate.md`, or **Donate page** in the editing interface. The text
+below the second `---` is the page; `donateUrl` is where the **Donate** button
+goes. Leave `donateUrl` out and the page says donations open soon instead of
+showing a button that goes nowhere.
+
+The site never takes the payment itself — the button opens Stripe's own page.
+To create the link, in the society's Stripe account:
+
+1. Go to **Payment Links** (search for it at the top of the dashboard) and
+   click **+ New** (or **Create payment link**).
+2. Under **Type**, choose **Customers choose what to pay**. Optionally set a
+   suggested amount and a minimum. Name it something like "Donation to CUICM".
+3. Click **Create link**, then **Copy** — the link starts
+   `https://buy.stripe.com/`.
+4. Paste it as `donateUrl`.
+
+Do not copy the address from your browser's address bar while you are in the
+dashboard — that starts `https://dashboard.stripe.com/` and only works for
+someone logged in to the society's account. The build refuses it, and anything
+else that is not a Stripe address, with a message saying so.
+
+A payment link is a public address, not a secret: it is fine for it to be in
+this repository.
+
+---
+
 ## Editing the homepage
 
 The words at the top of the homepage are in `src/content/home.md`, or under
