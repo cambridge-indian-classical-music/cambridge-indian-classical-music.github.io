@@ -21,7 +21,20 @@ export async function getStaticPaths() {
 // No `interface Props` is needed here: getStaticPaths above already types
 // Astro.props. Components that receive props from a parent do declare one.
 const { event } = Astro.props;
-const { title, type, start, end, venue, summary, image, brochure, ticketUrl, priceInfo, status } = event.data;
+const {
+  title,
+  type,
+  start,
+  end,
+  venue,
+  summary,
+  image,
+  brochure,
+  brochureLabel,
+  ticketUrl,
+  priceInfo,
+  status,
+} = event.data;
 
 const { Content } = await render(event);
 
@@ -188,7 +201,7 @@ const jsonLd = {
         {brochure && (
           <p>
             <a class="button button--quiet" href={brochure} download>
-              Download the programme (PDF)
+              Download the {brochureLabel} (PDF)
             </a>
           </p>
         )}

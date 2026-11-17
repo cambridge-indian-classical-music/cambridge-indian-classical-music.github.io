@@ -132,6 +132,14 @@ collections:
         media_folder: /public/brochures
         public_folder: /brochures
 
+      - {
+          name: brochureLabel,
+          label: What the PDF is,
+          widget: string,
+          required: false,
+          hint: 'Shown on the button as "Download the … (PDF)". Leave empty for "programme"; e.g. poster, flyer.',
+        }
+
       - name: ticketUrl
         label: Ticket link
         widget: string

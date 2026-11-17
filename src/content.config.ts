@@ -166,6 +166,9 @@ const events = defineCollection({
           )
           .optional(),
 
+        /** What the brochure is, for its button: "programme" if left out, or e.g. "poster". */
+        brochureLabel: z.string().min(1).default('programme'),
+
         /** Where to buy tickets. Leave it out and the page says no booking is needed. */
         ticketUrl: z.url('Must be a full web address starting with https://').optional(),
         ticketProvider: z.enum(TICKET_PROVIDERS).optional(),

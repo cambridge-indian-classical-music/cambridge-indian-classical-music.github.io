@@ -11,11 +11,12 @@ end: 2026-11-29T19:00
 venue:
   name: Fitzpatrick Hall, Queens’ College
   address: Silver Street, Cambridge CB3 9ET
-  mapUrl: https://www.openstreetmap.org/search?query=Queens%27%20College%20Cambridge
+  mapUrl: https://maps.app.goo.gl/d3jBHyTjCt9DFBXw5
 image:
   src: ../../assets/images/mohan-manjari-poster.jpg
   alt: Poster for Mohan Manjari, framed by a floral border with peacock feathers, showing traditional Indian paintings of Krishna — playing the flute, climbing a ladder to a hanging pot of butter, and seated with attendants.
 brochure: /brochures/mohan-manjari.pdf
+brochureLabel: poster
 ticketUrl: https://cuicms.checkoutpage.com/mohan-manjari-the-many-faces-of-krishna-woven-into-indias-cultural-tapestry
 ticketProvider: other
 priceInfo: £9 members / £11 non-members
