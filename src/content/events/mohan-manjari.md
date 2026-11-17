@@ -14,13 +14,13 @@ venue:
   mapUrl: https://maps.app.goo.gl/d3jBHyTjCt9DFBXw5
 image:
   src: ../../assets/images/mohan-manjari-poster.jpg
-  alt: Poster for Mohan Manjari, framed by a floral border with peacock feathers, showing traditional Indian paintings of Krishna — playing the flute, climbing a ladder to a hanging pot of butter, and seated with attendants.
+  alt: Poster for Mohan Manjari, 29 November 2026, 5 to 7 p.m., Fitzpatrick Hall, Queens’ College — framed by a floral border with peacock feathers, with traditional Indian paintings of Krishna, a QR code to book tickets, and the society’s social media handle @cuicmsoc.
 brochure: /brochures/mohan-manjari.pdf
 brochureLabel: poster
 ticketUrl: https://cuicms.checkoutpage.com/mohan-manjari-the-many-faces-of-krishna-woven-into-indias-cultural-tapestry
 ticketProvider: other
 priceInfo: £9 members / £11 non-members
-refundPolicy: Refunds are available on request if you mail at least 48 hours before the start of the event. Approved refunds will be processed after the concert.
+refundPolicy: Refunds are available on request if you e-mail us at least 48 hours before the start of the event. Approved refunds will be processed after the concert.
 status: scheduled
 featured: true
 draft: false
