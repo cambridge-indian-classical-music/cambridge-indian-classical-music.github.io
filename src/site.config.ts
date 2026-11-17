@@ -35,6 +35,7 @@ export const site = {
     { label: 'Events', href: '/events' },
     { label: 'Membership', href: '/membership' },
     { label: 'About', href: '/about' },
+    { label: 'Donate', href: '/donate' },
   ],
 
   /** Social links shown in the footer. Remove any the society does not use. */

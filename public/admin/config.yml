@@ -266,6 +266,40 @@ collections:
             }
 
   # -------------------------------------------------------------------------
+  # The Donate page. One file, like the homepage. The build refuses a link
+  # that is not a Stripe payment link — see src/content.config.ts.
+  # -------------------------------------------------------------------------
+  - name: donate
+    label: Donate page
+    files:
+      - name: donate
+        label: Donate page
+        file: src/content/donate.md
+        fields:
+          - { name: title, label: Heading, widget: string, hint: Up to 80 characters. }
+          - {
+              name: description,
+              label: Description,
+              widget: string,
+              hint: Shown in search results. Maximum 200 characters.,
+            }
+          - {
+              name: donateUrl,
+              label: Stripe payment link,
+              widget: string,
+              required: false,
+              hint: 'Starts https://buy.stripe.com/. Leave empty until it exists — the page then says donations open soon instead of showing a dead button.',
+            }
+          - {
+              name: buttonLabel,
+              label: Button text,
+              widget: string,
+              default: Donate,
+              hint: Up to 30 characters.,
+            }
+          - { name: body, label: Page text, widget: markdown }
+
+  # -------------------------------------------------------------------------
   # Ordinary pages and the committee list
   # -------------------------------------------------------------------------
   - name: pages

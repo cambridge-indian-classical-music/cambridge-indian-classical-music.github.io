@@ -343,6 +343,55 @@ const home = defineCollection({
 });
 
 /**
+ * The Donate page: its words, and the Stripe payment link its button goes to.
+ *
+ * Like the homepage, this is one file with a fixed shape, so editing it cannot
+ * break the page's layout. The link is here rather than in site.config.ts so a
+ * committee member can change it in the CMS without touching code.
+ *
+ * As with tickets and membership, the site never takes a payment itself: the
+ * button sends people to Stripe's own page (ADR-006). A Stripe payment link is
+ * a public address, not a secret, so it belongs in this file.
+ */
+const donate = defineCollection({
+  loader: glob({ pattern: 'donate.md', base: './src/content' }),
+  schema: z.strictObject({
+    title: z.string().min(1).max(80),
+    description: z
+      .string()
+      .min(1)
+      .max(200, 'Keep the description under 200 characters — it is used in search results.'),
+
+    /**
+     * The Stripe payment link, e.g. "https://buy.stripe.com/...". Optional:
+     * left out, the page says donations open soon instead of showing a button
+     * that goes nowhere.
+     *
+     * It must be a Stripe address. A pasted link to the Stripe *dashboard*
+     * (dashboard.stripe.com) is the likely mistake — that page only works for
+     * someone logged in to the society's account, so it is refused here.
+     */
+    donateUrl: z
+      .url('Must be a full web address starting with https://')
+      .refine(
+        (value) => {
+          const { protocol, hostname } = new URL(value);
+          return (
+            protocol === 'https:' && hostname.endsWith('.stripe.com') && hostname !== 'dashboard.stripe.com'
+          );
+        },
+        {
+          message:
+            'Must be a Stripe payment link, e.g. "https://buy.stripe.com/…" — copy it from Payment Links in Stripe, not from the dashboard address bar. See docs/CONTENT_GUIDE.md.',
+        },
+      )
+      .optional(),
+
+    buttonLabel: z.string().min(1).max(30).default('Donate'),
+  }),
+});
+
+/**
  * The committee changes completely every year, so it lives in one small file
  * that can be replaced wholesale at handover rather than being scattered
  * through the templates.
@@ -366,4 +415,4 @@ const committee = defineCollection({
     }),
 });
 
-export const collections = { events, membership, pages, home, committee };
+export const collections = { events, membership, pages, home, donate, committee };

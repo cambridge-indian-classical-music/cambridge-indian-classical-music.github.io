@@ -1,0 +1,74 @@
+---
+/**
+ * The Donate page.
+ *
+ * The words and the Stripe payment link come from src/content/donate.md, so
+ * both can be changed without touching this file.
+ *
+ * The button goes to Stripe's own payment page, exactly as concert tickets and
+ * membership do: this site never takes a payment or sees a card number
+ * (ADR-006). If `donateUrl` is not set, the page says donations open soon
+ * rather than showing a button that goes nowhere.
+ */
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../site.config';
+
+const page = await getEntry('donate', 'donate');
+if (!page) {
+  // A clear failure at build time beats a mysteriously empty page in production.
+  throw new Error('Missing src/content/donate.md — the Donate page needs it.');
+}
+
+const { title, description, donateUrl, buttonLabel } = page.data;
+const { Content } = await render(page);
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container">
+    <header class="page-head">
+      <h1>{title}</h1>
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <section class="donate">
+      {donateUrl ? (
+        <>
+          {/* A new tab, so the donor keeps this page — the same as the membership link. */}
+          <a class="button" href={donateUrl} target="_blank" rel="noopener">
+            {buttonLabel}
+            <span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+          <p class="donate__note">
+            You will be taken to Stripe's secure payment page. This website never sees your card details.
+          </p>
+        </>
+      ) : (
+        <p class="donate__note">
+          Online donations open soon. In the meantime, email us at{' '}
+          <a href={`mailto:${site.email}`}>{site.email}</a> if you would like to support the society.
+        </p>
+      )}
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: var(--space-12) var(--space-8);
+  }
+
+  .donate {
+    margin-block-start: var(--space-8);
+  }
+
+  .donate__note {
+    margin-block-start: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    max-width: 52ch;
+  }
+</style>
