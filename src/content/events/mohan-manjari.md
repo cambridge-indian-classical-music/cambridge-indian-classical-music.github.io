@@ -19,7 +19,7 @@ brochure: /brochures/mohan-manjari.pdf
 brochureLabel: poster
 ticketUrl: https://cuicms.checkoutpage.com/mohan-manjari-the-many-faces-of-krishna-woven-into-indias-cultural-tapestry
 ticketProvider: other
-priceInfo: £9 members / £11 non-members
+priceInfo: £9 members / £11 non-members / free for children under 5 (no ticket needed)
 refundPolicy: Refunds are available on request if you e-mail us at least 48 hours before the start of the event, minus card processing fees. Approved refunds will be processed after the concert.
 status: scheduled
 featured: true
@@ -42,4 +42,5 @@ The programme features performances in both the **Hindustani** and
 Indian classical music side by side, united by a single theme.
 
 Tickets are £9 for members and £11 for non-members, and can be booked online
-using the button on this page.
+using the button on this page. Admission is free for children under 5, who do
+not need a ticket.
